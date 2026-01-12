@@ -29,6 +29,8 @@ def main() -> None:
 
     show = sub.add_parser("show", help="Print a lane doc to stdout")
     show.add_argument("lane", choices=LANES)
+    show.add_argument("--repo-root", default=".", help="Repo root that contains ./lanes (default: .)")
+    show.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./lanes over packaged files")
 
     path_cmd = sub.add_parser("path", help="Print filesystem path to lane doc")
     path_cmd.add_argument("lane", choices=LANES)
@@ -43,6 +45,11 @@ def main() -> None:
         return
 
     if args.cmd == "show":
+        repo_root = Path(args.repo_root).resolve()
+        repo_path = _repo_lane_path(repo_root, args.lane)
+        if args.prefer_repo and repo_path.exists():
+            print(repo_path.read_text(encoding="utf-8"))
+            return
         p = _package_lane_path(args.lane)
         print(p.read_text(encoding="utf-8"))
         return
@@ -55,4 +62,3 @@ def main() -> None:
             return
         print(str(_package_lane_path(args.lane)))
         return
-

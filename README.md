@@ -40,6 +40,19 @@ Treat the override as higher priority than the lane docs.
 
 ## CLI
 
-- List lanes: `uv tool run tech-stack-core list`
-- Print a lane: `uv tool run tech-stack-core show py`
-- Get path: `uv tool run tech-stack-core path py --prefer-repo`
+### Run from this repo (no install)
+
+- List lanes: `uv tool run --from . tech-stack-core list`
+- Print a lane (prefer `./lanes` when present): `uv tool run --from . tech-stack-core show py --prefer-repo`
+- Get path (prefer `./lanes` when present): `uv tool run --from . tech-stack-core path py --prefer-repo`
+
+If you’re iterating locally without bumping the version, add `-n` to avoid uv cache surprises:
+
+- `uv tool -n run --from . tech-stack-core show py --prefer-repo`
+
+### Install once, then run
+
+- Install: `uv tool install --from . tech-stack-core`
+- Then: `tech-stack-core list` (or `show py`, `path py`, etc.)
+
+Note: `uv tool run tech-stack-core ...` only works if `tech-stack-core` is already installed (or published to a registry).
