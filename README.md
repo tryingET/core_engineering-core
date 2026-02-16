@@ -2,6 +2,12 @@
 
 Shared “lane” docs for day-to-day coding conventions and commands.
 
+For current ownership/consolidation planning, start with:
+`~/ai-society/core/agent-scripts/next-session-prompt.md`.
+
+Canonical validation-tier policy lives in:
+`~/ai-society/holdingco/governance-kernel/docs/dev/validation-tier-policy.md`.
+
 ## Why this is a git repo + CLI (not Codex slash commands)
 
 We intentionally keep the “core + divergence” mechanism **outside** Codex prompts:
