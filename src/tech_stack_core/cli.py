@@ -5,10 +5,11 @@ from importlib import resources
 from pathlib import Path
 
 
-LANES = ("py", "ts", "go")
+LANES = ("py", "ts", "pi-ts", "go")
 LANE_FILES = {
     "py": "tech-stack-py.md",
     "ts": "tech-stack-ts.md",
+    "pi-ts": "tech-stack-pi-ts.md",
     "go": "tech-stack-go.md",
 }
 

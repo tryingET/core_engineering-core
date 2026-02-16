@@ -5,6 +5,8 @@
 - **Data:** PostgreSQL • sqlc (compile‑time SQL) or GORM
 - **Async/Jobs:** Asynq (Redis) or NATS JetStream
 - **Contracts:** OpenAPI (REST), AsyncAPI (events)
+- **Code quality:** gofmt/goimports (format) • go vet (analysis) • golangci-lint (lint) • staticcheck (optional)
+- **Typecheck:** built-in compiler via `go test` / `go build`
 - **Testing:** stdlib `testing` • Ginkgo/Gomega • k6 for load • CDC with Pact
 - **Observability:** OpenTelemetry Go SDK → OTel Collector → Prometheus/Grafana + Jaeger/Tempo
 - **Security:** OIDC; secrets manager; SAST/dep/container scans
