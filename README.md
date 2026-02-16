@@ -2,7 +2,10 @@
 
 Shared “lane” docs for day-to-day coding conventions and commands.
 
-For current ownership/consolidation planning, start with:
+For repo-local status and next actions, start with:
+`next-session-prompt.md`.
+
+For cross-repo ownership/consolidation planning, start with:
 `~/ai-society/core/agent-scripts/next-session-prompt.md`.
 
 Canonical validation-tier policy lives in:
