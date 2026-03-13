@@ -27,11 +27,17 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/tech-stack-ts.md` (Bun-first general TS lane)
 - `lanes/tech-stack-pi-ts.md` (Node/npm lane for pi extension packages)
 - `lanes/tech-stack-go.md` (symlink to packaged files)
+- `lanes/tech-stack-rust.md` (Rust lane)
+- `lanes/tech-stack-elixir.md` (Elixir / OTP / Phoenix lane)
 
-## Which TypeScript lane?
+## Which lane?
 
+- `py`: Python lane
 - `ts`: general TypeScript lane (Bun-centric)
 - `pi-ts`: TypeScript lane for pi extension package repos (Node 22 + npm + release-check/release-please)
+- `go`: Go lane
+- `rust`: Rust lane
+- `elixir`: Elixir / OTP / Phoenix lane
 
 ## Per-repo overrides
 
@@ -60,6 +66,8 @@ Treat the override as higher priority than the lane docs.
 - List lanes: `uv tool run --from . tech-stack-core list`
 - Print a lane (prefer `./lanes` when present): `uv tool run --from . tech-stack-core show py --prefer-repo`
 - Print pi-extension TS lane: `uv tool run --from . tech-stack-core show pi-ts --prefer-repo`
+- Print Rust lane: `uv tool run --from . tech-stack-core show rust --prefer-repo`
+- Print Elixir lane: `uv tool run --from . tech-stack-core show elixir --prefer-repo`
 - Get path (prefer `./lanes` when present): `uv tool run --from . tech-stack-core path py --prefer-repo`
 
 If you’re iterating locally without bumping the version, add `-n` to avoid uv cache surprises:

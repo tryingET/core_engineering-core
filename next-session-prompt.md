@@ -14,6 +14,8 @@ Maintain shared lane docs + CLI with low drift for downstream repos.
 - TypeScript now has two lane variants:
   - `ts` (general Bun-first)
   - `pi-ts` (pi extension package repos; Node/npm baseline)
+- Elixir now has an explicit lane:
+  - `elixir` (OTP / Phoenix / Oban / Telemetry baseline)
 - Canonical policy reference for validation tiers is external:
   - `~/ai-society/holdingco/governance-kernel/docs/dev/validation-tier-policy.md`
 
@@ -36,6 +38,7 @@ Maintain shared lane docs + CLI with low drift for downstream repos.
 - `src/tech_stack_core/lanes/tech-stack-py.md`
 - `src/tech_stack_core/lanes/tech-stack-ts.md`
 - `src/tech_stack_core/lanes/tech-stack-pi-ts.md`
+- `src/tech_stack_core/lanes/tech-stack-elixir.md`
 
 ## Desired output format
 - Decision-first summary

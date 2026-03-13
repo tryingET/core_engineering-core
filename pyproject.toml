@@ -1,7 +1,7 @@
 [project]
 name = "tech-stack-core"
 version = "0.1.0"
-description = "Shared lane docs (Python/TypeScript/Go) for consistent project workflows, plus a small CLI."
+description = "Shared lane docs (Python/TypeScript/Go/Rust/Elixir) for consistent project workflows, plus a small CLI."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }

@@ -5,12 +5,14 @@ from importlib import resources
 from pathlib import Path
 
 
-LANES = ("py", "ts", "pi-ts", "go")
+LANES = ("py", "ts", "pi-ts", "go", "rust", "elixir")
 LANE_FILES = {
     "py": "tech-stack-py.md",
     "ts": "tech-stack-ts.md",
     "pi-ts": "tech-stack-pi-ts.md",
     "go": "tech-stack-go.md",
+    "rust": "tech-stack-rust.md",
+    "elixir": "tech-stack-elixir.md",
 }
 
 
