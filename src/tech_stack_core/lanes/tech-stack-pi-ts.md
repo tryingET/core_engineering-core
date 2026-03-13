@@ -15,6 +15,7 @@ not general web backends.
 
 - Install deps: `npm install`
 - Validate structure/docs/policies: `npm run check`
+- Typecheck (when the repo carries a TypeScript compile contract): prefer `tsgo --noEmit`; keep `tsc --noEmit` available as fallback when `tsgo` is not yet viable
 - Release preflight (full): `npm run release:check`
 - Release preflight (artifact-only): `npm run release:check:quick`
 - Local extension smoke (direct): `echo "/<command> --help" | pi -e ./extensions/<command>.ts -p`
@@ -24,6 +25,33 @@ not general web backends.
 - Keep `files` whitelist explicit in `package.json`
 - Include `LICENSE`, `README.md`, extension entrypoint, prompt/policy assets as needed
 - Ignore local tarballs (`*.tgz`) in `.gitignore`
+
+## Testing guidance
+
+- Default unit/integration runner: **Node.js built-in `node:test`** unless the package template or repo explicitly standardizes something heavier.
+- Property/fuzz testing: **`fast-check`** when parser/rendering/selection invariants matter.
+- Behavior/Gherkin testing: **`cucumber.js`** only when slash-command or operator workflows benefit from executable shared scenarios.
+- Prefer the smallest runner that preserves determinism; do not add BDD layers when ordinary unit/regression tests already express the behavior clearly.
+
+## Template / rendering guidance
+
+- Default template engine for reusable text/config/prompt/file generation: **`nunjucks`** when the package genuinely benefits from file-backed templates.
+- Prefer plain typed render functions or static assets when that is simpler and more explicit.
+- Use templates for durable generation surfaces, not for trivial string interpolation.
+
+## Typecheck policy
+
+- For repos with a real TypeScript compile boundary, prefer `tsgo --noEmit` as the primary typecheck command.
+- Keep `tsc --noEmit` as a compatibility fallback during rollout or incident recovery.
+- Repos that intentionally ship without `tsconfig.json` should document that choice in `docs/tech-stack.local.md` instead of pretending to follow a compile-time lane they do not implement.
+
+## Stack contract surface
+
+When adopting this lane in a repo/package, prefer an explicit contract surface:
+
+- `policy/stack-lane.json` pins the upstream lane and retrieval command
+- `docs/tech-stack.local.md` records repo-local deltas
+- validation scripts should at least verify the pinned lane metadata; optional smoke checks may also run the `tech-stack-core` CLI when available
 
 ## Policy notes
 

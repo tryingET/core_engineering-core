@@ -11,7 +11,7 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **5. Data Layer** | **PostgreSQL** • **Drizzle ORM** (fully type-safe, SQL-like) • **Drizzle Kit** (for migrations). Alternative: **Kysely** for query builder purists. |
 | **6. Cache / Queue** | **Valkey**: Open-source Redis successor. Use with **BullMQ** for type-safe job queues with Zod schemas for job payloads. |
 | **7. Code Quality** | **Biome**: Single tool for linting, formatting, and import sorting. Faster than ESLint + Prettier combined. Zero config, sensible defaults. |
-| **8. Testing Suite** | **Bun Test**: Built into Bun, Jest-compatible but 10x faster. **Vitest** as alternative for complex scenarios. **fast-check** for property-based testing. |
+| **8. Testing Suite** | **Bun Test**: Built into Bun, Jest-compatible but 10x faster. **Vitest** as alternative for complex scenarios. **fast-check** for property-based testing. **Cucumber.js** for Gherkin/BDD workflows when executable user scenarios matter. |
 | **9. Observability** | **OpenTelemetry SDK**: With Hono middleware for automatic tracing. Export to **Jaeger** or **Tempo** for distributed tracing. |
 | **10. Deployment** | **Docker**: Multi-stage builds with `bun install --frozen-lockfile`. Deploy to **Fly.io**, **Railway**, or **Cloudflare Workers** (Hono's native environment). |
 | **11. Monorepo Tools** | **Turborepo**: For build orchestration. **Changesets** for versioning. Keep it simple - Bun workspaces handle most needs. |
@@ -235,10 +235,11 @@ This is the complete lifecycle, from project creation to daily work.
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
-    "typecheck": "tsc",
+    "typecheck": "tsgo --noEmit",
+    "typecheck:fallback": "tsc --noEmit",
     "lint": "biome check --write .",
     "format": "biome format --write .",
-    "check": "biome check . && tsc",
+    "check": "biome check . && tsgo --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
@@ -259,6 +260,7 @@ This is the complete lifecycle, from project creation to daily work.
   "devDependencies": {
     "@types/bun": "latest",
     "@biomejs/biome": "^1.9.3",
+    "@typescript/native-preview": "latest",
     "drizzle-kit": "^0.23.0",
     "fast-check": "^3.19.0",
     "vitest": "^2.0.0"
@@ -266,7 +268,24 @@ This is the complete lifecycle, from project creation to daily work.
 }
 ```
 
+Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery.
+
 ---
+
+### **Testing Guidance**
+
+- Default test runner: **Bun Test**
+- Alternative runner for ecosystem-heavy setups: **Vitest**
+- Property/fuzz testing: **fast-check**
+- Behavior/Gherkin testing: **Cucumber.js**
+
+Use **Cucumber.js** when the system benefits from executable end-user scenarios shared across product, QA, and engineering. Do **not** introduce it for simple unit/integration tests where Bun Test or Vitest is enough.
+
+### **Template / Rendering Guidance**
+
+- Default template engine: **Nunjucks** when the repo genuinely benefits from reusable template files or user-visible generation surfaces
+- Prefer ordinary TypeScript functions, JSX, or small local string builders when that is simpler and clearer
+- Use template files for durable generation surfaces, not as a substitute for program structure
 
 ### **Test Execution Pattern (Critical for Executors)**
 
@@ -556,7 +575,7 @@ jobs:
 - **SLI latency**: p95 `< 100ms` on `/api/*` (Bun is fast!)
 - **Availability**: `99.9%`
 - **Error budget policy**: Freeze feature deploys if budget < 25% until recovered
-- **Type coverage**: Minimum 95% type coverage (measured by `tsc --noEmit`)
+- **Type coverage**: Minimum 95% type coverage (measured by `tsgo --noEmit`)
 - **Test coverage**: Minimum 80% line coverage
 
 ---

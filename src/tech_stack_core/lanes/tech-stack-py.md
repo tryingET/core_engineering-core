@@ -12,7 +12,7 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **6. Cache / Job Queue** | **Valkey**: The community-driven, open-source successor to Redis. Used for both caching and as a message broker for Celery. |
 | **7. Async Task Processing** | **Celery**: The battle-tested framework for running background tasks, using the Valkey broker. |
 | **8. Code Quality** | **`Ruff`** (for linting & formatting) • **`ty`** (for strict type checking). Both are configured directly in `pyproject.toml`. |
-| **9. Testing Suite** | **pytest** • **Hypothesis** (for property-based testing) • **schemathesis** (for OpenAPI contract testing). |
+| **9. Testing Suite** | **pytest** • **Hypothesis** (for property-based testing) • **pytest-bdd** (for Gherkin/BDD workflows when executable scenarios are useful) • **schemathesis** (for OpenAPI contract testing). |
 | **10. Observability** | **OpenTelemetry SDK**: Integrated directly into FastAPI for traces and metrics. Exports to an **OTel Collector** for processing and forwarding. |
 | **11. Deployment** | **Docker**: Using multi-stage builds with `uv sync` for creating minimal, secure, and rapidly built images. Deployed to modern platforms like **Fly.io** or **Cloud Run**. |
 
@@ -28,6 +28,16 @@ test = "pytest"
 lint = "ruff check ."
 format = "ruff format ."
 ```
+
+---
+
+### **Testing & Templating Guidance**
+
+- Default unit/integration runner: **pytest**
+- Property-based testing: **Hypothesis**
+- Behavior/Gherkin testing: **pytest-bdd** when executable shared scenarios materially improve clarity; do **not** add BDD layers for ordinary unit/integration cases
+- Text/config/html templating: **Jinja2** when the repo benefits from reusable template files or user-visible rendering surfaces
+- Prefer plain Python functions / f-strings for small local formatting tasks
 
 ---
 
@@ -91,6 +101,7 @@ The correct way to run tests with `uv` and `pytest`:
 # Add test dependencies
 uv add --dev pytest
 uv add --dev pytest-asyncio  # For async tests
+uv add --dev pytest-bdd      # For Gherkin/BDD scenarios
 uv add --dev pytest-cov       # For coverage reports
 uv add --dev pytest-mock      # For mocking
 ```
