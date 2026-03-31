@@ -255,3 +255,17 @@ Default production shape:
 - **Dependencies**: Mix/Hex keeps dependency state declarative and reproducible.
 - **Exceptions**: retries, backoff, and supervisors make failure handling operational rather than magical.
 - **Traceability**: Telemetry, OpenTelemetry, and release/versioned config provide explainability across the runtime.
+
+## Conditionally loaded addenda
+
+### Justfile addendum
+
+Read the lane-specific Justfile addendum only when:
+- `Justfile` is missing
+- the standardized targets are absent or drifting
+- you are explicitly establishing or reconciling the repo-local `Justfile`
+
+Otherwise, do not load the addendum by default.
+
+Companion doc:
+- `tech-stack-elixir.justfile.md`

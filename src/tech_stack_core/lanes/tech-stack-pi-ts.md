@@ -72,3 +72,17 @@ When adopting this lane in a repo/package, prefer an explicit contract surface:
 - If checks only live in local `.git/hooks`, each clone drifts.
 - If write-time and commit-time logic diverge, developers get false confidence.
 - If write-time checks are too heavy, teams disable them and lose feedback.
+
+## Conditionally loaded addenda
+
+### Justfile addendum
+
+Read the lane-specific Justfile addendum only when:
+- `Justfile` is missing
+- the standardized targets are absent or drifting
+- you are explicitly establishing or reconciling the repo-local `Justfile`
+
+Otherwise, do not load the addendum by default.
+
+Companion doc:
+- `tech-stack-pi-ts.justfile.md`

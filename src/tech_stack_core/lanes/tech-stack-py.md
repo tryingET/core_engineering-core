@@ -118,3 +118,17 @@ uv add --dev pytest-mock      # For mocking
 - **Edges** = APIs/events/files—drive **COMPLEXITY points** and test scope.
 - **Constraints** (MUST/MUST‑NOT) codified in contracts + CI gates.
 - **Traceability**: decision cards + OpenTelemetry traces provide explainability.
+
+## Conditionally loaded addenda
+
+### Justfile addendum
+
+Read the lane-specific Justfile addendum only when:
+- `Justfile` is missing
+- the standardized targets are absent or drifting
+- you are explicitly establishing or reconciling the repo-local `Justfile`
+
+Otherwise, do not load the addendum by default.
+
+Companion doc:
+- `tech-stack-py.justfile.md`

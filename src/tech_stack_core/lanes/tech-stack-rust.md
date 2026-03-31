@@ -58,3 +58,17 @@ When adopting this lane in a repo/package, prefer an explicit contract surface:
 - `policy/stack-lane.json` pins the upstream lane and retrieval command
 - `docs/tech-stack.local.md` records repo-local deltas
 - validation scripts should at least verify the pinned lane metadata; optional smoke checks may also run the `tech-stack-core` CLI when available
+
+## Conditionally loaded addenda
+
+### Justfile addendum
+
+Read the lane-specific Justfile addendum only when:
+- `Justfile` is missing
+- the standardized targets are absent or drifting
+- you are explicitly establishing or reconciling the repo-local `Justfile`
+
+Otherwise, do not load the addendum by default.
+
+Companion doc:
+- `tech-stack-rust.justfile.md`

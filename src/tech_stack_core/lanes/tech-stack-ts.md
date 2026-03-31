@@ -589,3 +589,17 @@ jobs:
 - **Dependencies**: Explicit in package.json with exact versions
 - **Exceptions**: Handled with Result types, no throw in business logic
 - **Traceability**: OpenTelemetry traces + type-safe logging with structured data
+
+## Conditionally loaded addenda
+
+### Justfile addendum
+
+Read the lane-specific Justfile addendum only when:
+- `Justfile` is missing
+- the standardized targets are absent or drifting
+- you are explicitly establishing or reconciling the repo-local `Justfile`
+
+Otherwise, do not load the addendum by default.
+
+Companion doc:
+- `tech-stack-ts.justfile.md`
