@@ -67,7 +67,7 @@ const reducer = (action: Action): number => {
 
 ---
 
-### **Project Configuration (`bun.toml` + `biome.json`)**
+### **Project Configuration (`bun.toml` / `bunfig.toml` + `biome.json`)**
 
 **bun.toml:**
 ```toml
@@ -88,6 +88,14 @@ coverageThreshold = 0.8
 # Auto-install when running scripts
 autoInstall = true
 ```
+
+**Recommended global Bun freshness gate (`~/.bunfig.toml`):**
+```toml
+[install]
+minimumReleaseAge = 604800  # 7 days
+```
+
+Use this when you want Bun to avoid resolving npm packages published in the last 7 days. This affects new resolution, not already-pinned lockfile entries.
 
 **biome.json:**
 ```json
@@ -590,6 +598,17 @@ jobs:
 - **Exceptions**: Handled with Result types, no throw in business logic
 - **Traceability**: OpenTelemetry traces + type-safe logging with structured data
 
+## Package manager policy note
+
+If a repo intentionally uses **pnpm** instead of Bun, do not create a separate lane by default. Treat that as a repo-local override of this general TS lane unless the pnpm workflow becomes materially distinct across multiple repos.
+
+Recommended pnpm freshness gate for workspace roots:
+
+```yaml
+# pnpm-workspace.yaml
+minimumReleaseAge: 10080   # 7 days
+```
+
 ## Conditionally loaded addenda
 
 ### Justfile addendum
@@ -603,3 +622,10 @@ Otherwise, do not load the addendum by default.
 
 Companion doc:
 - `tech-stack-ts.justfile.md`
+
+### ts-quality addendum
+
+Read the lane-specific `ts-quality` addendum only when the repo is explicitly adopting deterministic screening with `ts-quality`.
+
+Companion doc:
+- `tech-stack-ts.ts-quality.md`

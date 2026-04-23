@@ -29,7 +29,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/tech-stack-go.md` (symlink to packaged files)
 - `lanes/tech-stack-rust.md` (Rust lane)
 - `lanes/tech-stack-elixir.md` (Elixir / OTP / Phoenix lane)
-- optional lane companions such as `lanes/tech-stack-rust.justfile.md` for conditionally loaded addenda
+- optional lane companions such as `lanes/tech-stack-rust.justfile.md` or `lanes/tech-stack-ts.ts-quality.md` for conditionally loaded addenda
 
 ## Which lane?
 
@@ -48,8 +48,9 @@ Current pattern:
 - main lane doc = always-safe baseline for stack/tooling/commands
 - companion addendum = read only when a narrower concern actually applies
 
-Example:
+Examples:
 - `tech-stack-<lane>.justfile.md` is the lane-specific Justfile addendum and should be read only when a repo is missing the standardized Justfile surface, the standard targets are absent/drifting, or a workflow is explicitly establishing/reconciling that Justfile.
+- `tech-stack-<lane>.ts-quality.md` is the lane-specific `ts-quality` adoption addendum and should be read only when a repo is explicitly adopting deterministic screening with `ts-quality`.
 
 ## Per-repo overrides
 

@@ -58,6 +58,8 @@ When adopting this lane in a repo/package, prefer an explicit contract surface:
 - Prefer minimal runtime deps unless required by extension behavior
 - Keep command surfaces explicit and conflict-aware
 - Keep repo docs and policy files in sync with shipped behavior
+- For npm-based repos, a conservative global freshness gate such as `min-release-age=7` in `~/.npmrc` is reasonable.
+- If a pi-extension repo intentionally switches to pnpm workspaces later, prefer a repo-local override rather than inventing a new lane immediately; use `minimumReleaseAge: 10080` at the workspace root.
 
 ## Quality-gate architecture (first principles)
 
@@ -86,3 +88,10 @@ Otherwise, do not load the addendum by default.
 
 Companion doc:
 - `tech-stack-pi-ts.justfile.md`
+
+### ts-quality addendum
+
+Read the lane-specific `ts-quality` addendum only when the package repo is explicitly adopting deterministic screening with `ts-quality`.
+
+Companion doc:
+- `tech-stack-pi-ts.ts-quality.md`
