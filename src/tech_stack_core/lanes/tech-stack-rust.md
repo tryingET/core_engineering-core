@@ -38,6 +38,22 @@ Use this lane when Rust is the requested implementation language or when reliabi
 - HTML/text templates with compile-time checking: `askama` when the repo ships real template assets and wants stronger compile-time guarantees
 - Prefer plain Rust formatting/builders for small local rendering paths
 
+## Dependency freshness policy
+
+Cargo does not currently have a stable built-in equivalent to npm/uv-style package age gates.
+
+Recommended practical policy:
+- use `--locked` for normal workflows
+- refresh `Cargo.lock` intentionally
+- if you want a 7-day delay policy, use a wrapper such as:
+
+```bash
+cutoff="$(date -u -d '7 days ago' '+%Y-%m-%dT%H:%M:%SZ')"
+cargo +nightly generate-lockfile -Z unstable-options --publish-time "$cutoff"
+```
+
+This is a workflow convention, not a stable Cargo config key.
+
 ## Project skeleton
 
 - `Cargo.toml`
