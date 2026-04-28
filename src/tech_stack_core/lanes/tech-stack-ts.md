@@ -16,6 +16,12 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **10. Deployment** | **Docker**: Multi-stage builds with `bun install --frozen-lockfile`. Deploy to **Fly.io**, **Railway**, or **Cloudflare Workers** (Hono's native environment). |
 | **11. Monorepo Tools** | **Turborepo**: For build orchestration. **Changesets** for versioning. Keep it simple - Bun workspaces handle most needs. |
 
+### Baseline vs service-stack defaults
+
+The baseline TypeScript lane is: package-manager/runtime discipline, strict TypeScript, deterministic format/lint, tests, typecheck, lockfile installs, and reviewed dependency changes.
+
+Hono, Zod, Drizzle, BullMQ, OpenTelemetry, Turborepo, Changesets, and deployment targets are service/workspace defaults only when the repo actually needs those capabilities. Do not add the full web/API stack to small libraries, CLIs, scripts, package-only repos, or one-off tools unless the repo-local contract justifies it.
+
 ---
 
 ### **Type-Safe Patterns (The Matt Pocock Way)**
@@ -85,8 +91,9 @@ coverage = true
 coverageThreshold = 0.8
 
 [run]
-# Auto-install when running scripts
-autoInstall = true
+# Keep CI/review contexts explicit; enable autoInstall only in a repo-local override
+# when convenience is worth the supply-chain tradeoff.
+autoInstall = false
 ```
 
 **Recommended global Bun freshness gate (`~/.bunfig.toml`):**
@@ -157,6 +164,19 @@ Use this when you want Bun to avoid resolving npm packages published in the last
   }
 }
 ```
+
+### Biome as the TypeScript quality-tool realization
+
+Biome is the TypeScript/JavaScript implementation of the cross-lane quality-tool pattern:
+
+- checked-in config (`biome.json`)
+- deterministic CLI invocation through the repo package manager
+- write/fix mode for local edits (`biome check --write` / `biome format --write`)
+- CI-safe check mode (`biome check .`)
+- generated/vendor/build-output ignores
+- no editor-only enforcement or ambient global install assumption
+
+Treat Biome as the default TypeScript quality surface, not a reason to add unrelated web/API dependencies.
 
 **tsconfig.json:**
 ```json
@@ -276,7 +296,7 @@ This is the complete lifecycle, from project creation to daily work.
 }
 ```
 
-Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery.
+Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery. Keep the fallback while native TypeScript tooling is staged/recoverable.
 
 ---
 
@@ -598,7 +618,11 @@ jobs:
 - **Exceptions**: Handled with Result types, no throw in business logic
 - **Traceability**: OpenTelemetry traces + type-safe logging with structured data
 
-## Package manager policy note
+## Package manager and lifecycle-script policy note
+
+Commit lockfiles and use frozen installs in CI/review contexts. Review new packages for freshness, maintainer legitimacy, lifecycle scripts, transitive dependency risk, and typosquat/package-confusion risk before adding them.
+
+Avoid implicit installs during validation. If local development enables auto-install behavior, record that as a repo-local convenience override and keep CI explicit.
 
 If a repo intentionally uses **pnpm** instead of Bun, do not create a separate lane by default. Treat that as a repo-local override of this general TS lane unless the pnpm workflow becomes materially distinct across multiple repos.
 

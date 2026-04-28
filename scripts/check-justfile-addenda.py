@@ -7,7 +7,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 LANES_DIR = REPO_ROOT / "src" / "tech_stack_core" / "lanes"
-LANES = ("py", "ts", "pi-ts", "go", "rust", "elixir")
+LANES = ("py", "ts", "pi-ts", "go", "cpp", "rust", "elixir")
 MAIN_TEMPLATE = "tech-stack-{lane}.md"
 ADDENDUM_TEMPLATE = "tech-stack-{lane}.justfile.md"
 HEADER = "## Conditionally loaded addenda"
