@@ -9,6 +9,20 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-05-17
+
+### Added
+
+- Added cross-language disciplines for service/API boundaries, AI/ML, performance, release/package, data governance, domain modeling, and design patterns.
+- Added catalog/profile coverage and CLI visibility for the new disciplines.
+- Added tests that verify new discipline availability, catalog/package catalog sync, architecture wikilinks, and the 63-entry design-pattern vocabulary.
+
+### Changed
+
+- Updated lane docs with concise load pointers for the new disciplines without duplicating discipline content.
+- Clarified ROCS/controlled-vocabulary source-owner boundaries with DRY wikilinks to the AK architecture and Layer-12 vocabulary docs.
+- Added front matter to the Rust build-graph addendum so docs strict checks pass.
+
 ## [0.2.0] - 2026-05-17
 
 ### Breaking Changes

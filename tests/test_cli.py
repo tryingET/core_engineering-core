@@ -204,8 +204,8 @@ class CliTests(unittest.TestCase):
         self.assertNotIn(legacy_cli, pyproject)
         self.assertNotIn(legacy_package, pyproject)
 
-    def test_version_bumped_for_breaking_rename(self) -> None:
-        self.assertEqual(__version__, "0.2.0")
+    def test_version_matches_current_release(self) -> None:
+        self.assertEqual(__version__, "0.3.0")
 
 
 if __name__ == "__main__":
