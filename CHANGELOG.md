@@ -1,0 +1,32 @@
+---
+summary: "Release history for engineering-core."
+read_when:
+  - "Preparing, verifying, or auditing an engineering-core release."
+type: "release-history"
+---
+
+# Changelog
+
+## [Unreleased]
+
+## [0.2.0] - 2026-05-17
+
+### Breaking Changes
+
+- Renamed the shared engineering guidance package, Python import package, CLI, lane file prefix, repo-local override file, and policy metadata to the engineering-core naming family. See [v0.2.0 migration map](docs/releases/migrations/v0.2.0.md).
+
+### Added
+
+- Added cross-language discipline docs for validation, testing, security/privacy, local-first data, accessibility, design systems, documentation, observability, and dependency governance.
+- Added adoption artifacts: `docs/adoption.md`, `catalog.json`, and `templates/engineering.local.template.md`.
+- Added CLI commands for discipline listing, discipline display, and discipline path lookup.
+- Added CLI tests covering lane and discipline command surfaces.
+
+### Changed
+
+- Bumped version to `0.2.0` for the pre-1.0 breaking rename.
+- Updated lane docs, symlinks, and Justfile addendum checks to the engineering-core naming family.
+
+### Fixed
+
+- Removed legacy command/package entry points instead of preserving compatibility aliases.

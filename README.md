@@ -135,15 +135,17 @@ A good repo-local override states:
 - canonical local commands
 - validation evidence expected before handoff
 
-## Versioning
+## Versioning and release
 
-- Bump version: `uv version --bump patch` (or `minor`/`major`)
-- Tag: `git tag X.Y.Z`
+Use the local release workflow in `docs/releases/release-workflow.md`:
 
-## Build / publish (uv)
+```bash
+python scripts/release-local.py plan --version <next-version>
+python scripts/release-local.py verify --version <next-version>
+python scripts/release-local.py tag --version <next-version> --apply
+```
 
-- Build: `uv build`
-- Publish (requires token/index creds): `uv publish`
+`dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly.
 
 ## CLI
 
