@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import io
+import json
 import sys
+import tempfile
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
 from engineering_core import __version__
-from engineering_core.cli import DISCIPLINES, LANES, main
+from engineering_core.cli import DISCIPLINES, LANES, TEMPLATES, main
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -39,9 +41,92 @@ class CliTests(unittest.TestCase):
         output = self.run_cli("show", "ts-frontend", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertIn("Frontend Application Addendum", output)
 
+    def test_show_rust_build_graph(self) -> None:
+        output = self.run_cli("show", "rust-build-graph", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Rust Lane — Build Graph Acceleration Addendum", output)
+        self.assertIn("Cargo remains", output)
+
     def test_show_discipline_validation(self) -> None:
         output = self.run_cli("show-discipline", "validation", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertIn("Discipline — Validation", output)
+
+    def test_show_discipline_readme_prints_overview(self) -> None:
+        output = self.run_cli("show-discipline", "README", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Engineering Core Disciplines", output)
+
+    def test_show_discipline_build_graph(self) -> None:
+        output = self.run_cli("show-discipline", "build-graph-acceleration", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Discipline — Build Graph Acceleration", output)
+        self.assertIn("Buck2", output)
+        self.assertIn("Bazel", output)
+
+    def test_overview(self) -> None:
+        output = self.run_cli("overview", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Engineering Core Disciplines", output)
+
+    def test_catalog(self) -> None:
+        output = self.run_cli("catalog", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn('"name": "engineering-core"', output)
+        self.assertIn('"profiles"', output)
+
+    def test_list_profiles(self) -> None:
+        output = self.run_cli("list-profiles", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("browser-app", output.splitlines())
+
+    def test_list_templates(self) -> None:
+        output = self.run_cli("list-templates")
+        self.assertEqual(output.splitlines(), list(TEMPLATES))
+        self.assertIn("engineering-local", output)
+
+    def test_show_template(self) -> None:
+        output = self.run_cli("show-template", "validation-tier-map", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Validation Tier Map", output)
+
+    def test_template_path(self) -> None:
+        output = self.run_cli("template-path", "engineering-local", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertEqual(output.strip(), str(REPO_ROOT / "templates" / "engineering.local.template.md"))
+
+    def test_recommend(self) -> None:
+        output = self.run_cli("recommend", "browser-app", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("# engineering-core recommendation: browser-app", output)
+        self.assertIn("ts-frontend", output)
+        self.assertIn("accessibility", output)
+
+    def test_recommend_repo_prefers_policy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            policy_dir = repo / "policy"
+            policy_dir.mkdir()
+            (policy_dir / "engineering-lane.json").write_text(
+                json.dumps(
+                    {
+                        "engineering_core": {
+                            "lanes": [{"lane": "ts"}, {"lane": "ts-frontend"}],
+                            "disciplines": ["validation", "accessibility"],
+                        }
+                    }
+                ),
+                encoding="utf-8",
+            )
+            output = self.run_cli("recommend", "--repo", str(repo), "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("# engineering-core recommendation: repo:", output)
+        self.assertIn("ts-frontend", output)
+        self.assertIn("accessibility", output)
+
+    def test_show_all_for_prints_lane_and_disciplines(self) -> None:
+        output = self.run_cli(
+            "show-all-for",
+            "ts",
+            "--with",
+            "validation",
+            "testing",
+            "--repo-root",
+            str(REPO_ROOT),
+            "--prefer-repo",
+        )
+        self.assertIn("TypeScript engineering lane", output)
+        self.assertIn("Discipline — Validation", output)
+        self.assertIn("Discipline — Testing", output)
 
     def test_path(self) -> None:
         output = self.run_cli("path", "py", "--repo-root", str(REPO_ROOT), "--prefer-repo")

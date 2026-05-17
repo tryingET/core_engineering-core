@@ -48,11 +48,14 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/engineering-go.md` — Go lane
 - `lanes/engineering-cpp.md` — C++ lane
 - `lanes/engineering-rust.md` — Rust lane
+- `lanes/engineering-rust.build-graph.md` — conditional Buck2/Bazel/build-graph acceleration addendum for Rust
 - `lanes/engineering-elixir.md` — Elixir / OTP / Phoenix lane
 - `lanes/engineering-<lane>.justfile.md` — standardized Justfile addenda
 - `lanes/engineering-ts.ts-quality.md` / `engineering-pi-ts.ts-quality.md` — TypeScript quality addenda
 - `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
 - `disciplines/` — cross-language discipline docs
+- `templates/` — adoption, validation, data, observability, security/privacy, and docs-authority templates
+- `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog
 
 ## Which lane?
 
@@ -63,6 +66,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `go`: Go lane
 - `cpp`: C++ lane; use CUDA addendum only for CUDA/GPU work
 - `rust`: Rust lane
+- `rust + rust-build-graph`: Rust lane plus evidence-gated Buck2/Bazel/build-graph acceleration addendum; do not use `rust-build-graph` alone
 - `elixir`: Elixir / OTP / Phoenix lane
 
 ## Cross-language disciplines
@@ -79,6 +83,9 @@ Available disciplines:
 - `observability` — logs, metrics, traces, profiles, health, and runtime evidence.
 - `security-privacy` — secrets, permissions, dependency risk, data classification, privacy posture.
 - `documentation` — docs authority, front matter, generated projections, and update discipline.
+- `specification-and-dsls` — implicit DSL audits, formalization thresholds, schemas, generators, and executable policy.
+- `engineering-reasoning` — lightweight reasoning-mode router for deductive, abductive, inductive, adversarial, and Prompt Vault-supported methods.
+- `build-graph-acceleration` — evidence-gated adoption of Buck2, Bazel, Pants, Nx/Turborepo, remote cache, and remote execution.
 - `dependency-governance` — dependency addition, pinning, review, upgrades, and removal.
 
 Typical combinations:
@@ -86,9 +93,9 @@ Typical combinations:
 ```text
 browser app       -> ts + ts-frontend + design-system + accessibility + validation + testing + security-privacy
 local-first app   -> lane(s) + local-first-data + security-privacy + validation + testing
-service/API       -> lane(s) + validation + testing + observability + security-privacy + dependency-governance
+service/API       -> lane(s) + validation + testing + observability + security-privacy + dependency-governance + specification-and-dsls
 native/GPU tool   -> cpp/rust + validation + testing + observability + security-privacy (+ cpp CUDA when relevant)
-docs/generated UI -> lane(s) + documentation + accessibility + design-system
+docs/generated UI -> lane(s) + documentation + accessibility + design-system + specification-and-dsls
 ```
 
 ## Conditional addenda
@@ -106,6 +113,7 @@ Examples:
 - `engineering-<lane>.justfile.md` is read only when a repo is missing or reconciling the standardized Justfile surface.
 - `engineering-<lane>.ts-quality.md` is read only when a TypeScript repo is adopting deterministic screening with `ts-quality`.
 - `engineering-cpp.cuda.md` is read only when a repo builds CUDA code, PyTorch C++/CUDA extensions, GPU kernels, PTX/SASS inspection, or GPU benchmark evidence.
+- `engineering-rust.build-graph.md` is read only when a Rust repo has measured build/test-time pain and is evaluating Buck2, Bazel, remote cache/execution, or another build graph accelerator.
 - `engineering-ts.frontend.md` is read only for browser apps, SPAs, interactive UIs, local-first frontend user data, camera/media UI, or design-heavy frontends.
 
 ## Cross-lane quality-tool characteristics
@@ -158,8 +166,16 @@ python scripts/release-local.py tag --version <next-version> --apply
 
 - List lanes: `uv tool run --from . engineering-core list`
 - List disciplines: `uv tool run --from . engineering-core list-disciplines`
+- List templates: `uv tool run --from . engineering-core list-templates`
+- List recommendation profiles: `uv tool run --from . engineering-core list-profiles --prefer-repo`
+- Print catalog JSON: `uv tool run --from . engineering-core catalog --pretty --prefer-repo`
+- Print discipline overview: `uv tool run --from . engineering-core overview --prefer-repo` or `uv tool run --from . engineering-core show-discipline README --prefer-repo`
+- Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
+- Recommend a profile: `uv tool run --from . engineering-core recommend browser-app --prefer-repo`
+- Recommend from repo metadata: `uv tool run --from . engineering-core recommend --repo /path/to/repo --prefer-repo`
 - Print a lane: `uv tool run --from . engineering-core show ts --prefer-repo`
 - Print frontend addendum: `uv tool run --from . engineering-core show ts-frontend --prefer-repo`
+- Print a lane plus selected disciplines: `uv tool run --from . engineering-core show-all-for ts --with validation testing --prefer-repo`
 - Print a discipline: `uv tool run --from . engineering-core show-discipline design-system --prefer-repo`
 - Get a lane path: `uv tool run --from . engineering-core path py --prefer-repo`
 - Get a discipline path: `uv tool run --from . engineering-core discipline-path validation --prefer-repo`
@@ -171,6 +187,6 @@ If you’re iterating locally without bumping the version, add `-n` to avoid uv 
 ### Install once, then run
 
 - Install: `uv tool install --from . engineering-core`
-- Then: `engineering-core list`, `engineering-core show ts`, or `engineering-core show-discipline validation`.
+- Then: `engineering-core list`, `engineering-core catalog --pretty`, `engineering-core recommend browser-app`, `engineering-core show-template engineering-local`, `engineering-core show ts`, or `engineering-core show-discipline validation`.
 
 Note: `uv tool run engineering-core ...` only works if `engineering-core` is already installed or published to a registry.
