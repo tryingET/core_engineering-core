@@ -31,8 +31,15 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for command tiers, ExUnit/property/E2E choices, and evidence.
 - `dependency-governance` and `security-privacy` for Hex deps, secrets, auth, and deployment risk.
+- `service-api` for Phoenix/API/event/job boundaries, contracts, auth, idempotency, migrations, deployment, and rollback.
 - `observability` for Telemetry/OpenTelemetry, LiveDashboard, services, and runtime evidence.
+- `performance` for latency/throughput/memory/startup budgets, profiling, and regression gates.
+- `ai-ml` when Elixir orchestrates inference, LLM/tooling workflows, or model-backed services.
+- `data-governance` for canonical data, schemas, identifiers, lineage, migrations/backfills, projections, retention, and quality.
+- `domain-modeling` for vocabulary, invariants, workflows, state transitions, and anti-corruption boundaries.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
 - `local-first-data` for Ecto persistence, migrations, projections, imports/exports, and sync.
+- `release-package` for Mix releases/packages/containers, changelogs, artifact provenance, compatibility, and rollback.
 - `design-system` and `accessibility` for Phoenix/LiveView/HEEx and generated docs/UI.
 - `documentation` for docs authority and generated artifacts.
 

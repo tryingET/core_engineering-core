@@ -89,9 +89,16 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for command tiers and test selection.
 - `dependency-governance` and `security-privacy` for dependency and supply-chain risk.
+- `service-api` for HTTP/RPC/event boundaries, schema contracts, auth, idempotency, jobs, migrations, deployment, and rollback.
 - `observability` for service/runtime evidence.
+- `performance` for latency, frontend frame budgets, memory/startup, benchmark evidence, and regression gates.
+- `ai-ml` for browser/server ML, model assets, inference boundaries, prompts, evals, and safety/privacy claims.
+- `data-governance` for canonical data, schemas, identifiers, lineage, migrations/backfills, projections, retention, and quality.
+- `domain-modeling` for vocabulary, invariants, workflows, state transitions, and anti-corruption boundaries.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
 - `local-first-data` for durable local state, migrations, and sync.
 - `design-system` and `accessibility` with `engineering-ts.frontend.md` for browser/product UI.
+- `release-package` for npm/packages, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority, generated projections, and read triggers.
 
 ### **Project Configuration (`bun.toml` / `bunfig.toml` + `biome.json`)**

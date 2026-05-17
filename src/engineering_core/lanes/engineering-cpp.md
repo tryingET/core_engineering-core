@@ -25,8 +25,15 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for command tiers, sanitizer/benchmark evidence, and release gates.
 - `dependency-governance` and `security-privacy` for native dependencies, vendoring, ABI, install scripts, and secrets.
+- `service-api` for native services/FFI/API boundaries, contracts, auth, errors, idempotency, deployment, and rollback.
 - `observability` for services, native tools, benchmark claims, profiles, and runtime evidence.
+- `performance` for profiling, latency/memory/startup budgets, benchmark hygiene, GPU/native evidence, and regression gates.
+- `ai-ml` for model assets, native inference, C++/CUDA extensions, eval evidence, and safety/privacy claims.
+- `data-governance` for canonical data, schemas, identifiers, lineage, migrations/backfills, projections, retention, and quality.
+- `domain-modeling` for vocabulary, invariants, workflows, state transitions, and anti-corruption boundaries.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
 - `local-first-data` for files, embedded DBs, binary formats, migrations, projections, and sync.
+- `release-package` for native libraries, CLIs, wheels, containers, checksums, compatibility, and rollback.
 - `documentation` for build/toolchain authority and generated artifacts.
 - `design-system` and `accessibility` for native UI, TUI, visualization, or generated docs.
 

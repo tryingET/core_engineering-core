@@ -224,17 +224,6 @@
       ]
     },
     {
-      "id": "dependency-governance",
-      "path": "src/engineering_core/disciplines/dependency-governance.md",
-      "load_when": [
-        "Adding dependencies",
-        "lockfiles",
-        "native install risk",
-        "package upgrades",
-        "dependency removal"
-      ]
-    },
-    {
       "id": "specification-and-dsls",
       "path": "src/engineering_core/disciplines/specification-and-dsls.md",
       "load_when": [
@@ -271,6 +260,106 @@
         "remote execution",
         "build time bottlenecks",
         "secondary build graph"
+      ]
+    },
+    {
+      "id": "dependency-governance",
+      "path": "src/engineering_core/disciplines/dependency-governance.md",
+      "load_when": [
+        "Adding dependencies",
+        "lockfiles",
+        "native install risk",
+        "package upgrades",
+        "dependency removal"
+      ]
+    },
+    {
+      "id": "service-api",
+      "path": "src/engineering_core/disciplines/service-api.md",
+      "load_when": [
+        "Service/API boundaries",
+        "HTTP/RPC/GraphQL/WebSocket/event contracts",
+        "Auth/errors/idempotency",
+        "Background jobs",
+        "Health/readiness",
+        "Migrations/deployment/rollback"
+      ]
+    },
+    {
+      "id": "ai-ml",
+      "path": "src/engineering_core/disciplines/ai-ml.md",
+      "load_when": [
+        "AI/ML models",
+        "LLM/tooling behavior",
+        "Model assets",
+        "Inference runtime",
+        "Evals",
+        "Dataset/prompt/model provenance",
+        "Safety/privacy claims"
+      ]
+    },
+    {
+      "id": "performance",
+      "path": "src/engineering_core/disciplines/performance.md",
+      "load_when": [
+        "Performance budgets",
+        "Profiling",
+        "Benchmarks",
+        "Regression gates",
+        "Frontend frame budget",
+        "Backend latency",
+        "Memory/startup",
+        "GPU measurements"
+      ]
+    },
+    {
+      "id": "release-package",
+      "path": "src/engineering_core/disciplines/release-package.md",
+      "load_when": [
+        "Package publishing",
+        "Release artifacts",
+        "Semantic versions",
+        "Changelogs",
+        "Artifact provenance",
+        "Compatibility/migration releases",
+        "Deprecation/rollback"
+      ]
+    },
+    {
+      "id": "data-governance",
+      "path": "src/engineering_core/disciplines/data-governance.md",
+      "load_when": [
+        "Data authority",
+        "Schemas/identifiers",
+        "Lineage/provenance",
+        "Migrations/backfills",
+        "Imports/exports",
+        "Retention/deletion",
+        "Derived projections",
+        "Analytics/eval datasets"
+      ]
+    },
+    {
+      "id": "domain-modeling",
+      "path": "src/engineering_core/disciplines/domain-modeling.md",
+      "load_when": [
+        "Domain vocabulary",
+        "Business invariants",
+        "Workflows/state transitions",
+        "Aggregates/entities/value objects",
+        "Permissions/policies",
+        "Anti-corruption layers",
+        "Duplicated business rules"
+      ]
+    },
+    {
+      "id": "design-patterns",
+      "path": "src/engineering_core/disciplines/design-patterns.md",
+      "load_when": [
+        "Factory/actor/repository/saga/etc. pattern choice",
+        "Named design pattern review",
+        "Cross-language pattern vocabulary",
+        "Avoiding pattern cargo cult"
       ]
     }
   ],
@@ -325,7 +414,8 @@
         "testing",
         "security-privacy",
         "documentation",
-        "specification-and-dsls"
+        "specification-and-dsls",
+        "performance"
       ]
     },
     {
@@ -337,20 +427,27 @@
         "validation",
         "testing",
         "documentation",
-        "specification-and-dsls"
+        "specification-and-dsls",
+        "data-governance",
+        "domain-modeling"
       ]
     },
     {
       "id": "service-api",
       "lanes": [],
       "disciplines": [
+        "service-api",
         "validation",
         "testing",
         "observability",
         "security-privacy",
         "dependency-governance",
         "documentation",
-        "specification-and-dsls"
+        "specification-and-dsls",
+        "release-package",
+        "data-governance",
+        "domain-modeling",
+        "design-patterns"
       ]
     },
     {
@@ -366,7 +463,10 @@
         "security-privacy",
         "dependency-governance",
         "documentation",
-        "build-graph-acceleration"
+        "build-graph-acceleration",
+        "performance",
+        "ai-ml",
+        "release-package"
       ]
     },
     {
@@ -378,6 +478,49 @@
         "design-system",
         "validation",
         "specification-and-dsls"
+      ]
+    },
+    {
+      "id": "ai-ml-feature",
+      "lanes": [],
+      "disciplines": [
+        "ai-ml",
+        "data-governance",
+        "domain-modeling",
+        "validation",
+        "testing",
+        "observability",
+        "security-privacy",
+        "performance",
+        "documentation",
+        "release-package"
+      ]
+    },
+    {
+      "id": "released-package",
+      "lanes": [],
+      "disciplines": [
+        "release-package",
+        "validation",
+        "testing",
+        "dependency-governance",
+        "security-privacy",
+        "documentation",
+        "data-governance"
+      ]
+    },
+    {
+      "id": "data-heavy-system",
+      "lanes": [],
+      "disciplines": [
+        "data-governance",
+        "domain-modeling",
+        "validation",
+        "testing",
+        "security-privacy",
+        "documentation",
+        "specification-and-dsls",
+        "design-patterns"
       ]
     }
   ]

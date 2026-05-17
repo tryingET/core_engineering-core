@@ -32,9 +32,16 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for tiering, command evidence, and test selection.
 - `dependency-governance` and `security-privacy` for dependency, secret, and privacy review.
+- `service-api` for FastAPI/service boundaries, request/response contracts, auth, idempotency, workers, migrations, deployment, and rollback.
 - `observability` for FastAPI/services, workers, and runtime evidence.
+- `performance` for profiling, latency/memory/startup budgets, benchmark hygiene, and regression gates.
+- `ai-ml` for model assets, inference boundaries, evals, dataset/prompt/model provenance, safety/privacy claims, and reproducibility.
+- `data-governance` for canonical data, schemas, identifiers, lineage, migrations/backfills, projections, retention, and quality.
+- `domain-modeling` for vocabulary, invariants, workflows, state transitions, and anti-corruption boundaries.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
 - `local-first-data` for durable local files/DBs, migrations, projections, and sync.
 - `design-system` and `accessibility` for generated HTML/docs, dashboards, or user-facing UI.
+- `release-package` for packages/wheels/containers, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority, generated outputs, and front matter.
 
 ### **Project Scripts (`pyproject.toml`)**

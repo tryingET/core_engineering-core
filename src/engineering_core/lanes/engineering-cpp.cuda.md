@@ -17,7 +17,12 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for benchmark/correctness tiers and evidence.
 - `observability` for GPU profiles, runtime measurements, and production claims.
+- `performance` for GPU benchmark methodology, regression gates, and integrated product/runtime claims.
+- `ai-ml` when kernels/extensions affect model inference, evals, quality/latency tradeoffs, or safety/privacy claims.
+- `data-governance` when benchmark/eval datasets, model artifacts, generated profiles, or derived performance evidence need provenance and lifecycle rules.
+- `design-patterns` when reviewing named GPU/runtime patterns such as pipeline, adapter, proxy, thread pool, or strategy.
 - `dependency-governance` and `security-privacy` for CUDA/PyTorch/native dependency risk, drivers, and deployment constraints.
+- `release-package` for GPU artifacts, wheels/containers, checksums, compatibility, and rollback.
 - `documentation` for hardware/toolkit/driver provenance.
 
 ## 1. When to load this addendum

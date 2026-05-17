@@ -87,14 +87,24 @@ Available disciplines:
 - `engineering-reasoning` — lightweight reasoning-mode router for deductive, abductive, inductive, adversarial, and Prompt Vault-supported methods.
 - `build-graph-acceleration` — evidence-gated adoption of Buck2, Bazel, Pants, Nx/Turborepo, remote cache, and remote execution.
 - `dependency-governance` — dependency addition, pinning, review, upgrades, and removal.
+- `service-api` — API boundaries, contracts, auth, errors, idempotency, jobs, health/readiness, migrations, deployment, and rollback.
+- `ai-ml` — model assets, inference boundaries, evals, dataset/prompt/model provenance, privacy, safety claims, and reproducibility.
+- `performance` — profiling, budgets, benchmark hygiene, regression gates, frontend/backend/GPU measurements, and evidence.
+- `release-package` — semantic versions, changelogs, artifact provenance, publishing, compatibility, migration releases, deprecation, and rollback.
+- `data-governance` — data authority, schemas, lineage, lifecycle, quality, retention, privacy, migrations, and projections.
+- `domain-modeling` — domain vocabulary, invariants, workflows, state transitions, aggregate boundaries, and anti-corruption layers.
+- `design-patterns` — shared pattern vocabulary for factory, actor, adapter, repository, saga, state machine, and related recurring solution shapes.
 
 Typical combinations:
 
 ```text
-browser app       -> ts + ts-frontend + design-system + accessibility + validation + testing + security-privacy
+browser app       -> ts + ts-frontend + design-system + accessibility + validation + testing + security-privacy + performance
 local-first app   -> lane(s) + local-first-data + security-privacy + validation + testing
-service/API       -> lane(s) + validation + testing + observability + security-privacy + dependency-governance + specification-and-dsls
-native/GPU tool   -> cpp/rust + validation + testing + observability + security-privacy (+ cpp CUDA when relevant)
+service/API       -> lane(s) + service-api + validation + testing + observability + security-privacy + dependency-governance + specification-and-dsls
+AI/ML feature     -> lane(s) + ai-ml + data-governance + validation + testing + observability + security-privacy + performance
+data-heavy system -> lane(s) + data-governance + domain-modeling + validation + testing + security-privacy
+native/GPU tool   -> cpp/rust + validation + testing + observability + security-privacy + performance (+ ai-ml or the C++ CUDA addendum when relevant)
+released package  -> lane(s) + release-package + validation + testing + dependency-governance + security-privacy
 docs/generated UI -> lane(s) + documentation + accessibility + design-system + specification-and-dsls
 ```
 
@@ -115,6 +125,7 @@ Examples:
 - `engineering-cpp.cuda.md` is read only when a repo builds CUDA code, PyTorch C++/CUDA extensions, GPU kernels, PTX/SASS inspection, or GPU benchmark evidence.
 - `engineering-rust.build-graph.md` is read only when a Rust repo has measured build/test-time pain and is evaluating Buck2, Bazel, remote cache/execution, or another build graph accelerator.
 - `engineering-ts.frontend.md` is read only for browser apps, SPAs, interactive UIs, local-first frontend user data, camera/media UI, or design-heavy frontends.
+- React/Svelte/Vue/etc. framework addenda are intentionally deferred; add one only after repos prove recurring framework-specific guidance that does not belong in the general frontend addendum or a repo-local override.
 
 ## Cross-lane quality-tool characteristics
 
@@ -177,6 +188,7 @@ python scripts/release-local.py tag --version <next-version> --apply
 - Print frontend addendum: `uv tool run --from . engineering-core show ts-frontend --prefer-repo`
 - Print a lane plus selected disciplines: `uv tool run --from . engineering-core show-all-for ts --with validation testing --prefer-repo`
 - Print a discipline: `uv tool run --from . engineering-core show-discipline design-system --prefer-repo`
+- Print service/API discipline: `uv tool run --from . engineering-core show-discipline service-api --prefer-repo`
 - Get a lane path: `uv tool run --from . engineering-core path py --prefer-repo`
 - Get a discipline path: `uv tool run --from . engineering-core discipline-path validation --prefer-repo`
 

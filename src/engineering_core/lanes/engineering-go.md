@@ -52,8 +52,15 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for command tiers and test-form choices.
 - `dependency-governance` and `security-privacy` for modules, tool installs, secrets, and supply chain.
+- `service-api` for service boundaries, request/response contracts, auth, idempotency, jobs/events, migrations, deployment, and rollback.
 - `observability` for services, CLIs with runtime evidence, and benchmarks.
+- `performance` for latency/throughput/memory/startup budgets, profiling, and regression gates.
+- `ai-ml` when Go services host, route, or wrap model inference/LLM/tooling behavior.
+- `data-governance` for canonical data, schemas, identifiers, lineage, migrations/backfills, projections, retention, and quality.
+- `domain-modeling` for vocabulary, invariants, workflows, state transitions, and anti-corruption boundaries.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
 - `local-first-data` for files, embedded DBs, migrations, projections, and sync.
+- `release-package` for binaries, containers, modules, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority and generated artifacts.
 - `design-system` and `accessibility` if the Go repo emits HTML/docs, TUI, or user-facing UI.
 

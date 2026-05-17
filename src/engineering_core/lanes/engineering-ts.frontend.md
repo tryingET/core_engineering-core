@@ -123,9 +123,14 @@ Load these discipline docs when the concern applies:
 
 - `disciplines/design-system.md` for tokens, components, motion, assets, and visual consistency.
 - `disciplines/accessibility.md` for keyboard, focus, semantics, reduced motion, and assistive-technology behavior.
+- `disciplines/data-governance.md` when frontend data has canonical/derived authority, schema/version, retention, import/export, or quality concerns.
+- `disciplines/domain-modeling.md` when UI state reflects product lifecycle, permissions, workflow states, or domain vocabulary.
+- `disciplines/design-patterns.md` when named UI/state patterns such as state machine, observer, strategy, adapter, plugin, or middleware need review.
 - `disciplines/local-first-data.md` when frontend user data is durable, structured, migrated, synced, exported, or privacy-sensitive.
 - `disciplines/security-privacy.md` for camera/media permissions, health-adjacent user data, telemetry, secrets, and dependency risk.
 - `disciplines/testing.md` and `disciplines/validation.md` for browser, accessibility, E2E, visual, and device/media validation choices.
+- `disciplines/performance.md` for frame budgets, input latency, startup/bundle/memory budgets, and browser benchmark evidence.
+- `disciplines/ai-ml.md` for browser ML/model assets, prompt/model/version tracking, quality claims, privacy, and CPU/GPU/browser fallback.
 - `disciplines/observability.md` when frontend runtime performance, field errors, traces, or user-flow evidence matter.
 
-Frontend code should use semantic tokens and documented component contracts before component proliferation.
+Frontend code should use semantic tokens and documented component contracts before component proliferation. Framework-specific addenda for React, Svelte, Vue, etc. are intentionally deferred; add one only after repos prove recurring framework-specific guidance that does not belong here or in repo-local overrides.

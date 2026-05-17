@@ -31,8 +31,15 @@ Load disciplines when the concern applies:
 
 - `validation` and `testing` for command tiers, property/fuzz decisions, and evidence.
 - `dependency-governance` and `security-privacy` for crates, native dependencies, secrets, and supply chain.
+- `service-api` for Axum/RPC/event boundaries, contracts, auth, idempotency, jobs, migrations, deployment, and rollback.
 - `observability` for services, CLIs, tracing, benchmarks, and runtime evidence.
+- `performance` for profiling, latency/throughput/memory/startup budgets, benchmark hygiene, and regression gates.
+- `ai-ml` when Rust hosts inference, wraps model runtimes, or enforces LLM/tooling boundaries.
+- `data-governance` for canonical data, schemas, identifiers, lineage, migrations/backfills, projections, retention, and quality.
+- `domain-modeling` for vocabulary, invariants, workflows, state transitions, and anti-corruption boundaries.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
 - `local-first-data` for files, SQLite/embedded DBs, migrations, projections, and sync.
+- `release-package` for crates, binaries, containers, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority and generated artifacts.
 - `build-graph-acceleration` plus `engineering-rust.build-graph.md` only when measured build/test-time pain justifies evaluating Buck2, Bazel, remote cache/execution, or another secondary build graph; Cargo remains canonical until an accepted decision changes that.
 - `design-system` and `accessibility` for native UI, TUI, generated docs, or web UI surfaces.

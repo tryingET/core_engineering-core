@@ -35,6 +35,13 @@ Load disciplines when the concern applies:
 - `validation` and `testing` for command tiers, quality gates, and test selection.
 - `dependency-governance` and `security-privacy` for npm packages, extension risk, secrets, and supply chain.
 - `documentation` for README/policy/prompt docs and shipped extension behavior.
+- `service-api` when extensions expose/consume durable command, tool, file, network, or event contracts.
+- `data-governance` when extensions read/write canonical data, generated projections, evidence artifacts, imports/exports, or caches that could become hidden authority.
+- `domain-modeling` when extension commands encode workflow states, permissions, policies, or durable operator vocabulary.
+- `design-patterns` when reviewing named patterns such as factory, adapter, actor, repository, saga, state machine, or policy object.
+- `ai-ml` when extensions route LLM/model/tool behavior, prompts, evals, or safety/privacy claims.
+- `performance` when startup, command latency, bundle/package size, or runtime cost matters.
+- `release-package` for npm publishing, release-please, provenance, package contents, compatibility, and rollback.
 - `observability` when extensions own runtime telemetry, logs, or external effects.
 
 ## Packaging baseline

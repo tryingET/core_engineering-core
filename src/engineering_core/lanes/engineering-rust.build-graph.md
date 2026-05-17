@@ -1,3 +1,11 @@
+---
+summary: "Rust build-graph acceleration addendum for evidence-gated Buck2/Bazel/Pants/remote-cache adoption."
+read_when:
+  - "A Rust repo has measured build/test-time pain and is evaluating Buck2, Bazel, Pants, remote cache, or remote execution."
+  - "Work changes Rust build graph acceleration, secondary build metadata, or Cargo-to-build-graph parity."
+type: "guide"
+---
+
 # Rust Lane — Build Graph Acceleration Addendum
 
 Read this addendum only when a Rust repo is evaluating Buck2, Bazel, Pants, remote cache/execution, or another secondary build graph because Cargo build/test time is a measured bottleneck.

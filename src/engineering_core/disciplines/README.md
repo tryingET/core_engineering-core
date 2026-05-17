@@ -37,6 +37,13 @@ Do not load every discipline by default. Load the smallest set that owns the con
 - `engineering-reasoning` — lightweight router for deductive, abductive, inductive, adversarial, and Prompt Vault-supported reasoning modes.
 - `build-graph-acceleration` — evidence-gated adoption of Buck2, Bazel, Pants, Nx/Turborepo, remote cache, and remote execution.
 - `dependency-governance` — adding, pinning, reviewing, and retiring dependencies.
+- `service-api` — service/API boundaries, contracts, auth, jobs, health/readiness, migrations, deployment, and rollback.
+- `ai-ml` — model assets, inference boundaries, evals, dataset/prompt/model provenance, privacy, safety claims, and reproducibility.
+- `performance` — profiling, budgets, benchmark hygiene, regression gates, frontend/backend/GPU measurements, and evidence.
+- `release-package` — semantic versions, changelogs, artifact provenance, publishing, compatibility, migrations, deprecation, and rollback.
+- `data-governance` — data authority, schemas, lineage, lifecycle, quality, retention, privacy, migrations, and projections.
+- `domain-modeling` — domain vocabulary, invariants, workflows, state transitions, aggregate boundaries, and anti-corruption layers.
+- `design-patterns` — shared pattern vocabulary for factory, actor, adapter, repository, saga, state machine, and related recurring solution shapes.
 
 ## Operating rule
 

@@ -33,6 +33,13 @@ DISCIPLINES = (
     "engineering-reasoning",
     "build-graph-acceleration",
     "dependency-governance",
+    "service-api",
+    "ai-ml",
+    "performance",
+    "release-package",
+    "data-governance",
+    "domain-modeling",
+    "design-patterns",
 )
 DISCIPLINE_FILES = {name: f"{name}.md" for name in DISCIPLINES}
 

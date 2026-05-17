@@ -32,6 +32,16 @@ class CliTests(unittest.TestCase):
         output = self.run_cli("list-disciplines")
         self.assertEqual(output.splitlines(), list(DISCIPLINES))
         self.assertIn("validation", output)
+        for discipline in (
+            "service-api",
+            "ai-ml",
+            "performance",
+            "release-package",
+            "data-governance",
+            "domain-modeling",
+            "design-patterns",
+        ):
+            self.assertIn(discipline, output.splitlines())
 
     def test_show_ts(self) -> None:
         output = self.run_cli("show", "ts", "--repo-root", str(REPO_ROOT), "--prefer-repo")
@@ -59,6 +69,56 @@ class CliTests(unittest.TestCase):
         self.assertIn("Discipline — Build Graph Acceleration", output)
         self.assertIn("Buck2", output)
         self.assertIn("Bazel", output)
+
+    def test_show_new_disciplines(self) -> None:
+        expected = {
+            "service-api": "Discipline — Service/API",
+            "ai-ml": "Discipline — AI/ML",
+            "performance": "Discipline — Performance",
+            "release-package": "Discipline — Release and Package",
+            "data-governance": "Discipline — Data Governance",
+            "domain-modeling": "Discipline — Domain Modeling",
+            "design-patterns": "Discipline — Design Patterns",
+        }
+        for discipline, heading in expected.items():
+            with self.subTest(discipline=discipline):
+                output = self.run_cli("show-discipline", discipline, "--repo-root", str(REPO_ROOT), "--prefer-repo")
+                self.assertIn(heading, output)
+
+    def test_design_patterns_lists_sixty_three_numbered_patterns(self) -> None:
+        output = self.run_cli("show-discipline", "design-patterns", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        numbered_patterns = [line for line in output.splitlines() if line and line[0].isdigit() and ". **" in line]
+        self.assertEqual(len(numbered_patterns), 63)
+        self.assertIn("24. **Actor**", output)
+        self.assertIn("63. **Policy Object**", output)
+
+    def test_data_domain_docs_link_to_ak_architecture_with_wikilinks(self) -> None:
+        convergence_link = (
+            "[[~/ai-society/softwareco/owned/agent-kernel/docs/project/"
+            "ai-society-convergence-architecture.md|AI Society Convergence Architecture]]"
+        )
+        vocabulary_link = (
+            "[[~/ai-society/softwareco/owned/agent-kernel/docs/project/"
+            "2026-04-25-layer-12-operator-vocabulary-boundary.md|Layer-12 Operator Vocabulary Boundary]]"
+        )
+        for discipline in ("data-governance", "domain-modeling"):
+            with self.subTest(discipline=discipline):
+                output = self.run_cli("show-discipline", discipline, "--repo-root", str(REPO_ROOT), "--prefer-repo")
+                self.assertIn(convergence_link, output)
+                self.assertIn(vocabulary_link, output)
+
+    def test_catalog_disciplines_match_cli_and_files(self) -> None:
+        catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        catalog_ids = [entry["id"] for entry in catalog["disciplines"]]
+        self.assertEqual(catalog_ids, list(DISCIPLINES))
+        for discipline in DISCIPLINES:
+            self.assertTrue((REPO_ROOT / "src" / "engineering_core" / "disciplines" / f"{discipline}.md").exists())
+
+    def test_packaged_catalog_disciplines_match_repo_catalog(self) -> None:
+        repo_catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        package_catalog = json.loads((REPO_ROOT / "src" / "engineering_core" / "catalog.json").read_text(encoding="utf-8"))
+        self.assertEqual(repo_catalog["disciplines"], package_catalog["disciplines"])
+        self.assertEqual(repo_catalog["profiles"], package_catalog["profiles"])
 
     def test_overview(self) -> None:
         output = self.run_cli("overview", "--repo-root", str(REPO_ROOT), "--prefer-repo")
