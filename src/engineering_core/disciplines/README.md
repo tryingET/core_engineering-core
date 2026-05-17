@@ -33,6 +33,9 @@ Do not load every discipline by default. Load the smallest set that owns the con
 - `observability` — logs, traces, metrics, local/runtime visibility, and telemetry boundaries.
 - `security-privacy` — secrets, permissions, data minimization, dependency risk, privacy posture.
 - `documentation` — docs authority, front matter, decisions, architecture, and generated projections.
+- `specification-and-dsls` — implicit DSL audits, formalization thresholds, schemas, generators, and executable policy.
+- `engineering-reasoning` — lightweight router for deductive, abductive, inductive, adversarial, and Prompt Vault-supported reasoning modes.
+- `build-graph-acceleration` — evidence-gated adoption of Buck2, Bazel, Pants, Nx/Turborepo, remote cache, and remote execution.
 - `dependency-governance` — adding, pinning, reviewing, and retiring dependencies.
 
 ## Operating rule

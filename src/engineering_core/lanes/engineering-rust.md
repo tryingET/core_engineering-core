@@ -34,6 +34,7 @@ Load disciplines when the concern applies:
 - `observability` for services, CLIs, tracing, benchmarks, and runtime evidence.
 - `local-first-data` for files, SQLite/embedded DBs, migrations, projections, and sync.
 - `documentation` for docs authority and generated artifacts.
+- `build-graph-acceleration` plus `engineering-rust.build-graph.md` only when measured build/test-time pain justifies evaluating Buck2, Bazel, remote cache/execution, or another secondary build graph; Cargo remains canonical until an accepted decision changes that.
 - `design-system` and `accessibility` for native UI, TUI, generated docs, or web UI surfaces.
 
 ## Command baseline
