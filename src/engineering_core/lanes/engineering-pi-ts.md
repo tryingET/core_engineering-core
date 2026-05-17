@@ -3,7 +3,7 @@
 Use this lane when building **pi extension packages** (slash-command extensions and prompt bundles),
 not general web backends.
 
-## Core stack
+## Core toolchain and defaults
 
 - **Runtime/package manager:** Node.js 22 LTS + npm
 - **Language mode:** TypeScript with strict settings (ESM)
@@ -19,6 +19,15 @@ not general web backends.
 - Release preflight (full): `npm run release:check`
 - Release preflight (artifact-only): `npm run release:check:quick`
 - Local extension smoke (direct): `echo "/<command> --help" | pi -e ./extensions/<command>.ts -p`
+
+## Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for command tiers, quality gates, and test selection.
+- `dependency-governance` and `security-privacy` for npm packages, extension risk, secrets, and supply chain.
+- `documentation` for README/policy/prompt docs and shipped extension behavior.
+- `observability` when extensions own runtime telemetry, logs, or external effects.
 
 ## Packaging baseline
 
@@ -43,15 +52,15 @@ not general web backends.
 
 - For repos with a real TypeScript compile boundary, prefer `tsgo --noEmit` as the primary typecheck command.
 - Keep `tsc --noEmit` as a compatibility fallback during rollout or incident recovery.
-- Repos that intentionally ship without `tsconfig.json` should document that choice in `docs/tech-stack.local.md` instead of pretending to follow a compile-time lane they do not implement.
+- Repos that intentionally ship without `tsconfig.json` should document that choice in `docs/engineering.local.md` instead of pretending to follow a compile-time lane they do not implement.
 
-## Stack contract surface
+## Engineering lane contract surface
 
 When adopting this lane in a repo/package, prefer an explicit contract surface:
 
-- `policy/stack-lane.json` pins the upstream lane and retrieval command
-- `docs/tech-stack.local.md` records repo-local deltas
-- validation scripts should at least verify the pinned lane metadata; optional smoke checks may also run the `tech-stack-core` CLI when available
+- `policy/engineering-lane.json` pins the upstream lane and retrieval command
+- `docs/engineering.local.md` records repo-local deltas
+- validation scripts should at least verify the pinned lane metadata; optional smoke checks may also run the `engineering-core` CLI when available
 
 ## Policy notes
 
@@ -61,19 +70,9 @@ When adopting this lane in a repo/package, prefer an explicit contract surface:
 - For npm-based repos, a conservative global freshness gate such as `min-release-age=7` in `~/.npmrc` is reasonable.
 - If a pi-extension repo intentionally switches to pnpm workspaces later, prefer a repo-local override rather than inventing a new lane immediately; use `minimumReleaseAge: 10080` at the workspace root.
 
-## Quality-gate architecture (first principles)
+## Quality-gate architecture
 
-- **Hard enforcement at trust boundaries:** enforce checks in **git hooks + CI** (commit/push/PR), not editor-specific wiring.
-- **Version hooks in-repo:** prefer `.githooks/` + `git config core.hooksPath .githooks` over unmanaged `.git/hooks/*` scripts.
-- **Single source of truth:** keep checks in one script (for example `scripts/quality-gate.sh`) and call it from hooks/CI/tooling.
-- **Pi is fast feedback, not authority:** Pi write-time checks should call the same quality gate in file-scoped mode.
-
-### Multi-order effects to optimize for
-
-- If checks only run in Pi, non-Pi edits bypass policy.
-- If checks only live in local `.git/hooks`, each clone drifts.
-- If write-time and commit-time logic diverge, developers get false confidence.
-- If write-time checks are too heavy, teams disable them and lose feedback.
+Use `disciplines/validation.md` for trust-boundary enforcement, versioned hooks, single-source quality gates, and evidence expectations. Pi write-time checks are fast feedback, not authority; when used, they should call the same repo quality gate in file-scoped mode.
 
 ## Conditionally loaded addenda
 
@@ -87,11 +86,11 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-pi-ts.justfile.md`
+- `engineering-pi-ts.justfile.md`
 
 ### ts-quality addendum
 
 Read the lane-specific `ts-quality` addendum only when the package repo is explicitly adopting deterministic screening with `ts-quality`.
 
 Companion doc:
-- `tech-stack-pi-ts.ts-quality.md`
+- `engineering-pi-ts.ts-quality.md`

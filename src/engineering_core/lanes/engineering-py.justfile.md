@@ -2,7 +2,7 @@
 
 Read this addendum only when a repo using the Python lane is missing the standardized Justfile surface, the standard targets are absent/drifting, or you are explicitly establishing/reconciling `Justfile` behavior.
 
-Use this addendum with the generic owned-lane Justfile contract.
+Use this addendum with `disciplines/validation.md` and the repo's applicable standardized Justfile contract.
 
 ## Mapping rule
 

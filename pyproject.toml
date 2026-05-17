@@ -1,14 +1,14 @@
 [project]
-name = "tech-stack-core"
-version = "0.1.0"
-description = "Shared lane docs (Python/TypeScript/Go/C++/Rust/Elixir) for consistent project workflows, plus a small CLI."
+name = "engineering-core"
+version = "0.2.0"
+description = "Shared engineering lanes, cross-language disciplines, and CLI for consistent project workflows."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }
 authors = [{ name = "lightningralf" }]
 
 [project.scripts]
-tech-stack-core = "tech_stack_core.cli:main"
+engineering-core = "engineering_core.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.8.4,<0.9.0"]

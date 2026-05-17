@@ -2,7 +2,7 @@
 
 Read this addendum only when a repo using the general TypeScript/Bun lane is missing the standardized Justfile surface, the standard targets are absent/drifting, or you are explicitly establishing/reconciling `Justfile` behavior.
 
-Use this addendum with the generic owned-lane Justfile contract.
+Use this addendum with `disciplines/validation.md` and the repo's applicable standardized Justfile contract.
 
 ## Mapping rule
 
@@ -39,7 +39,7 @@ Prefer package scripts or existing repo-local wrappers when they already define 
 
 ## Omission rule
 
-If the repo has no meaningful long-running dev/watch surface, omit `just dev` rather than inventing a placeholder target.
+If the repo has no meaningful long-running dev/watch surface, omit `just dev` rather than inventing a placeholder target. If `build`, `lint`, `fmt`, or `test` is not independently meaningful yet, delegate to the smallest truthful existing validation surface or omit the target with an implementation note rather than creating fake green commands.
 
 ## Minimal-churn rule
 

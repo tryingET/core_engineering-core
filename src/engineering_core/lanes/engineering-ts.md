@@ -1,4 +1,4 @@
-### **The Definitive 2025 TypeScript Tech Stack**
+### **TypeScript engineering lane**
 
 The philosophy remains: **Everything is a file.** The state of your project is declarative, version-controlled, and instantly reproducible. Following Matt Pocock's type-safe patterns: **Make impossible states impossible.**
 
@@ -16,11 +16,13 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **10. Deployment** | **Docker**: Multi-stage builds with `bun install --frozen-lockfile`. Deploy to **Fly.io**, **Railway**, or **Cloudflare Workers** (Hono's native environment). |
 | **11. Monorepo Tools** | **Turborepo**: For build orchestration. **Changesets** for versioning. Keep it simple - Bun workspaces handle most needs. |
 
-### Baseline vs service-stack defaults
+### Baseline vs service defaults
 
 The baseline TypeScript lane is: package-manager/runtime discipline, strict TypeScript, deterministic format/lint, tests, typecheck, lockfile installs, and reviewed dependency changes.
 
-Hono, Zod, Drizzle, BullMQ, OpenTelemetry, Turborepo, Changesets, and deployment targets are service/workspace defaults only when the repo actually needs those capabilities. Do not add the full web/API stack to small libraries, CLIs, scripts, package-only repos, or one-off tools unless the repo-local contract justifies it.
+For browser apps, SPAs, local-first frontend user data, camera/media UI, or design-heavy frontend work, also load `engineering-ts.frontend.md` plus applicable disciplines. Do not add frontend-only dependencies to backend-only packages, small utilities, static pages, or libraries that do not own interactive UI state.
+
+Hono, Zod, Drizzle, BullMQ, OpenTelemetry, Turborepo, Changesets, and deployment targets are service/workspace defaults only when the repo actually needs those capabilities. Do not add the full web/API dependency set to small libraries, CLIs, scripts, package-only repos, or one-off tools unless the repo-local contract justifies it.
 
 ---
 
@@ -72,6 +74,17 @@ const reducer = (action: Action): number => {
 ```
 
 ---
+
+### Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for command tiers and test selection.
+- `dependency-governance` and `security-privacy` for dependency and supply-chain risk.
+- `observability` for service/runtime evidence.
+- `local-first-data` for durable local state, migrations, and sync.
+- `design-system` and `accessibility` with `engineering-ts.frontend.md` for browser/product UI.
+- `documentation` for docs authority, generated projections, and read triggers.
 
 ### **Project Configuration (`bun.toml` / `bunfig.toml` + `biome.json`)**
 
@@ -232,7 +245,7 @@ This is the complete lifecycle, from project creation to daily work.
 *   **Initialize a New Project:**
     `bun init` (creates package.json, tsconfig.json, and basic structure)
 *   **Install Dependencies:**
-    *   Add a production dependency: `bun add hono zod drizzle-orm`
+    *   Add service dependencies: `bun add hono zod drizzle-orm`
     *   Add a development dependency: `bun add -d @types/bun vitest`
     *   Remove a dependency: `bun remove package-name`
 *   **Install All Dependencies from Lockfile:**
@@ -296,6 +309,8 @@ This is the complete lifecycle, from project creation to daily work.
 }
 ```
 
+This package example is service-oriented. Frontend apps should use `engineering-ts.frontend.md`; service/API examples below are optional recipes, not baseline dependencies for every TypeScript repo.
+
 Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery. Keep the fallback while native TypeScript tooling is staged/recoverable.
 
 ---
@@ -314,6 +329,10 @@ Use **Cucumber.js** when the system benefits from executable end-user scenarios 
 - Default template engine: **Nunjucks** when the repo genuinely benefits from reusable template files or user-visible generation surfaces
 - Prefer ordinary TypeScript functions, JSX, or small local string builders when that is simpler and clearer
 - Use template files for durable generation surfaces, not as a substitute for program structure
+
+### **Frontend application guidance**
+
+For browser apps, SPAs, interactive UI, camera/media UI, local-first user-data apps, or design-heavy frontend work, load `engineering-ts.frontend.md`. That addendum owns XState, Rive, browser testing, local-first frontend user data, media/model lifecycle, routing/forms, and design-system pointers.
 
 ### **Test Execution Pattern (Critical for Executors)**
 
@@ -383,12 +402,12 @@ describe("User Service", () => {
 })
 ```
 
-**IMPORTANT**: Do NOT use:
-- ❌ `jest tests/` (wrong test runner)
-- ❌ `npm test` (wrong package manager)
-- ❌ `node test.js` (wrong runtime)
+**IMPORTANT for this Bun lane**: Do NOT use:
+- ❌ `jest tests/` unless the repo explicitly adopted Jest
+- ❌ `npm test` as the canonical path for this Bun lane
+- ❌ `node test.js` when Bun owns runtime/test execution
 
-**Always use**: `bun test <file_path>` or just `bun test`
+**Always use for this lane**: `bun test <file_path>` or just `bun test`
 
 ---
 
@@ -598,13 +617,15 @@ jobs:
 
 ---
 
-### **Minimal SLOs & Policies**
+### **Service SLO and quality seeds**
 
-- **SLI latency**: p95 `< 100ms` on `/api/*` (Bun is fast!)
+Use `disciplines/observability.md`, `disciplines/validation.md`, and `disciplines/testing.md` for runtime evidence, validation tiers, and coverage policy. Example seeds for TypeScript service repos after repo-local acceptance:
+
+- **SLI latency**: p95 `< 100ms` on key synchronous API paths
 - **Availability**: `99.9%`
-- **Error budget policy**: Freeze feature deploys if budget < 25% until recovered
-- **Type coverage**: Minimum 95% type coverage (measured by `tsgo --noEmit`)
-- **Test coverage**: Minimum 80% line coverage
+- **Error budget policy**: freeze feature deploys if budget < 25% until recovered
+- **Type coverage**: compile/typecheck coverage enforced by `tsgo --noEmit` or accepted fallback
+- **Test coverage**: minimum 80% line coverage only when the repo accepts coverage as a gate
 
 ---
 
@@ -645,11 +666,11 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-ts.justfile.md`
+- `engineering-ts.justfile.md`
 
 ### ts-quality addendum
 
 Read the lane-specific `ts-quality` addendum only when the repo is explicitly adopting deterministic screening with `ts-quality`.
 
 Companion doc:
-- `tech-stack-ts.ts-quality.md`
+- `engineering-ts.ts-quality.md`

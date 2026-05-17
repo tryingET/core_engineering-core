@@ -1,59 +1,99 @@
-# tech-stack-core
+# engineering-core
 
-Shared “lane” docs for day-to-day coding conventions and commands.
-
-For repo-local status and next actions, start with:
-`next-session-prompt.md`.
-
-For cross-repo ownership/consolidation planning, start with:
-`~/ai-society/core/agent-scripts/next-session-prompt.md`.
+Shared lane docs and cross-language discipline docs for day-to-day engineering conventions and command surfaces.
 
 Canonical validation-tier policy lives in:
 `~/ai-society/holdingco/governance-kernel/docs/dev/validation-tier-policy.md`.
+
+## Model
+
+```text
+language lane              = ecosystem-specific tooling and commands
+discipline                 = cross-language engineering invariant
+conditional lane addendum  = narrower guidance loaded only when relevant
+repo engineering.local.md   = repo-specific overrides and chosen subset
+```
+
+Use broad discipline guidance without forcing every repo to ingest every detail.
 
 ## Why this is a git repo + CLI (not Codex slash commands)
 
 We intentionally keep the “core + divergence” mechanism **outside** Codex prompts:
 
-- **Codex skill (`tech-stack-discovery`)** is the right place for *interactive, in-agent* stack detection and “how to work in this repo” guidance.
-- **This repo + git tags** is the right place for *distribution and versioning* of the shared lane docs.
-- **CLI (`tech-stack-core`)** is the right place for *automation outside Codex* (scripts/CI/quick printing), and can be installed/run via `uv tool …` from a local path or from `git+…@<tag>`.
+- **Agent routing (`ai-society-core-repo-router`)** should send engineering lane, discipline, and repo-local override questions here.
+- **This repo + git tags** is the right place for *distribution and versioning* of the shared lane and discipline docs.
+- **CLI (`engineering-core`)** is the right place for *automation outside Codex* (scripts/CI/quick printing), and can be installed/run via `uv tool …` from a local path or from `git+…@<tag>`.
 
 Slash commands were removed because they duplicated the skill/CLI, increased cognitive overhead (“which entry point do I use?”), and risked drifting out of sync with the canonical workflow.
 
 ## Layout
 
-- `lanes/tech-stack-py.md` (symlink to packaged files)
-- `lanes/tech-stack-ts.md` (Bun-first general TS lane)
-- `lanes/tech-stack-pi-ts.md` (Node/npm lane for pi extension packages)
-- `lanes/tech-stack-go.md` (symlink to packaged files)
-- `lanes/tech-stack-cpp.md` (C++ lane; load CUDA addendum only for GPU/CUDA work)
-- `lanes/tech-stack-rust.md` (Rust lane)
-- `lanes/tech-stack-elixir.md` (Elixir / OTP / Phoenix lane)
-- optional lane companions such as `lanes/tech-stack-rust.justfile.md`, `lanes/tech-stack-cpp.cuda.md`, or `lanes/tech-stack-ts.ts-quality.md` for conditionally loaded addenda
+- `lanes/engineering-py.md` — Python lane
+- `lanes/engineering-ts.md` — Bun-first general TypeScript lane
+- `lanes/engineering-ts.frontend.md` — conditional frontend application addendum
+- `lanes/engineering-pi-ts.md` — Node/npm lane for pi extension packages
+- `lanes/engineering-go.md` — Go lane
+- `lanes/engineering-cpp.md` — C++ lane
+- `lanes/engineering-rust.md` — Rust lane
+- `lanes/engineering-elixir.md` — Elixir / OTP / Phoenix lane
+- `lanes/engineering-<lane>.justfile.md` — standardized Justfile addenda
+- `lanes/engineering-ts.ts-quality.md` / `engineering-pi-ts.ts-quality.md` — TypeScript quality addenda
+- `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
+- `disciplines/` — cross-language discipline docs
 
 ## Which lane?
 
 - `py`: Python lane
 - `ts`: general TypeScript lane (Bun-centric)
+- `ts + ts-frontend`: general TypeScript lane plus frontend application addendum; do not use `ts-frontend` alone
 - `pi-ts`: TypeScript lane for pi extension package repos (Node 22 + npm + release-check/release-please)
 - `go`: Go lane
-- `cpp`: C++ lane; use `tech-stack-cpp.cuda.md` only for CUDA/GPU work
+- `cpp`: C++ lane; use CUDA addendum only for CUDA/GPU work
 - `rust`: Rust lane
 - `elixir`: Elixir / OTP / Phoenix lane
 
+## Cross-language disciplines
+
+Disciplines state what must remain true across programming languages. Lanes map that truth into ecosystem-native tools.
+
+Available disciplines:
+
+- `design-system` — tokens, components, motion, assets, visual consistency.
+- `accessibility` — operability and semantics across web, docs, CLI/TUI, native UI, and custom renderers.
+- `validation` — validation tiers, command surfaces, and evidence expectations.
+- `testing` — test taxonomy and when each test form earns its cost.
+- `local-first-data` — local state, persistence, migrations, sync, corruption, and authority.
+- `observability` — logs, metrics, traces, profiles, health, and runtime evidence.
+- `security-privacy` — secrets, permissions, dependency risk, data classification, privacy posture.
+- `documentation` — docs authority, front matter, generated projections, and update discipline.
+- `dependency-governance` — dependency addition, pinning, review, upgrades, and removal.
+
+Typical combinations:
+
+```text
+browser app       -> ts + ts-frontend + design-system + accessibility + validation + testing + security-privacy
+local-first app   -> lane(s) + local-first-data + security-privacy + validation + testing
+service/API       -> lane(s) + validation + testing + observability + security-privacy + dependency-governance
+native/GPU tool   -> cpp/rust + validation + testing + observability + security-privacy (+ cpp CUDA when relevant)
+docs/generated UI -> lane(s) + documentation + accessibility + design-system
+```
+
 ## Conditional addenda
 
-Some lane guidance is intentionally split into conditionally loaded companions so the main lane docs stay lean.
+Some lane guidance is intentionally split so the main lane docs stay lean.
 
 Current pattern:
-- main lane doc = always-safe baseline for stack/tooling/commands
+
+- main lane doc = always-safe baseline for language tooling and commands
 - companion addendum = read only when a narrower concern actually applies
+- discipline doc = read when a cross-language concern applies
 
 Examples:
-- `tech-stack-<lane>.justfile.md` is the lane-specific Justfile addendum and should be read only when a repo is missing the standardized Justfile surface, the standard targets are absent/drifting, or a workflow is explicitly establishing/reconciling that Justfile.
-- `tech-stack-<lane>.ts-quality.md` is the lane-specific `ts-quality` adoption addendum and should be read only when a repo is explicitly adopting deterministic screening with `ts-quality`.
-- `tech-stack-cpp.cuda.md` is the C++ lane CUDA/GPU addendum and should be read only when a repo builds CUDA code, PyTorch C++/CUDA extensions, GPU kernels, PTX/SASS inspection, or GPU benchmark evidence.
+
+- `engineering-<lane>.justfile.md` is read only when a repo is missing or reconciling the standardized Justfile surface.
+- `engineering-<lane>.ts-quality.md` is read only when a TypeScript repo is adopting deterministic screening with `ts-quality`.
+- `engineering-cpp.cuda.md` is read only when a repo builds CUDA code, PyTorch C++/CUDA extensions, GPU kernels, PTX/SASS inspection, or GPU benchmark evidence.
+- `engineering-ts.frontend.md` is read only for browser apps, SPAs, interactive UIs, local-first frontend user data, camera/media UI, or design-heavy frontends.
 
 ## Cross-lane quality-tool characteristics
 
@@ -67,17 +107,25 @@ Each lane should choose ecosystem-native quality tools, but the desirable charac
 - pinned or toolchain-governed versions when dependencies are introduced
 - minimal baseline tooling; optional tools stay conditional until a repo proves the need
 
-Examples: TypeScript uses Biome for the format/lint realization; Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
+Examples: TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
 
 ## Per-repo overrides
 
 Add repo-specific adjustments in one of:
 
-- `.codex/tech-stack.local.md`
-- `.claude/docs/tech-stack.local.md`
-- `docs/tech-stack.local.md`
+- `.codex/engineering.local.md`
+- `.claude/docs/engineering.local.md`
+- `docs/engineering.local.md`
 
-Treat the override as higher priority than the lane docs.
+Treat the override as higher priority than the lane and discipline docs.
+
+A good repo-local override states:
+
+- selected lane(s)
+- selected discipline(s)
+- deliberate deviations
+- canonical local commands
+- validation evidence expected before handoff
 
 ## Versioning
 
@@ -93,21 +141,21 @@ Treat the override as higher priority than the lane docs.
 
 ### Run from this repo (no install)
 
-- List lanes: `uv tool run --from . tech-stack-core list`
-- Print a lane (prefer `./lanes` when present): `uv tool run --from . tech-stack-core show py --prefer-repo`
-- Print pi-extension TS lane: `uv tool run --from . tech-stack-core show pi-ts --prefer-repo`
-- Print C++ lane: `uv tool run --from . tech-stack-core show cpp --prefer-repo`
-- Print Rust lane: `uv tool run --from . tech-stack-core show rust --prefer-repo`
-- Print Elixir lane: `uv tool run --from . tech-stack-core show elixir --prefer-repo`
-- Get path (prefer `./lanes` when present): `uv tool run --from . tech-stack-core path py --prefer-repo`
+- List lanes: `uv tool run --from . engineering-core list`
+- List disciplines: `uv tool run --from . engineering-core list-disciplines`
+- Print a lane: `uv tool run --from . engineering-core show ts --prefer-repo`
+- Print frontend addendum: `uv tool run --from . engineering-core show ts-frontend --prefer-repo`
+- Print a discipline: `uv tool run --from . engineering-core show-discipline design-system --prefer-repo`
+- Get a lane path: `uv tool run --from . engineering-core path py --prefer-repo`
+- Get a discipline path: `uv tool run --from . engineering-core discipline-path validation --prefer-repo`
 
 If you’re iterating locally without bumping the version, add `-n` to avoid uv cache surprises:
 
-- `uv tool -n run --from . tech-stack-core show py --prefer-repo`
+- `uv tool -n run --from . engineering-core show ts --prefer-repo`
 
 ### Install once, then run
 
-- Install: `uv tool install --from . tech-stack-core`
-- Then: `tech-stack-core list` (or `show py`, `path py`, etc.)
+- Install: `uv tool install --from . engineering-core`
+- Then: `engineering-core list`, `engineering-core show ts`, or `engineering-core show-discipline validation`.
 
-Note: `uv tool run tech-stack-core ...` only works if `tech-stack-core` is already installed (or published to a registry).
+Note: `uv tool run engineering-core ...` only works if `engineering-core` is already installed or published to a registry.

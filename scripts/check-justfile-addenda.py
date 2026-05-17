@@ -6,10 +6,10 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-LANES_DIR = REPO_ROOT / "src" / "tech_stack_core" / "lanes"
+LANES_DIR = REPO_ROOT / "src" / "engineering_core" / "lanes"
 LANES = ("py", "ts", "pi-ts", "go", "cpp", "rust", "elixir")
-MAIN_TEMPLATE = "tech-stack-{lane}.md"
-ADDENDUM_TEMPLATE = "tech-stack-{lane}.justfile.md"
+MAIN_TEMPLATE = "engineering-{lane}.md"
+ADDENDUM_TEMPLATE = "engineering-{lane}.justfile.md"
 HEADER = "## Conditionally loaded addenda"
 TRIGGER_LINES = (
     "- `Justfile` is missing",
@@ -50,7 +50,7 @@ for lane in LANES:
         fail(f"addendum missing target mapping section: {addendum_path}")
 
 readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-if "tech-stack-<lane>.justfile.md" not in readme:
+if "engineering-<lane>.justfile.md" not in readme:
     fail("README missing generic Justfile companion convention")
 
 print("ok: Justfile addenda are present and linked consistently")

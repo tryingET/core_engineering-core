@@ -1,4 +1,4 @@
-### **The Definitive 2025 Elixir Tech Stack**
+### **Elixir engineering lane**
 
 The philosophy remains: **Everything important is explicit, supervised, and observable.** Keep pure business logic in plain modules, reserve processes for stateful boundaries, and make failure handling part of the design instead of an afterthought.
 
@@ -15,6 +15,18 @@ The philosophy remains: **Everything important is explicit, supervised, and obse
 | **9. Testing Suite** | **ExUnit** • **StreamData** for property-based testing • **Mox** for behaviour-based mocks • **Bypass** for external HTTP simulations • **Phoenix.ConnTest** / **Phoenix.LiveViewTest** for web boundaries. |
 | **10. Observability** | **Telemetry** events everywhere important • **OpenTelemetry** exporters for traces/metrics • **Phoenix LiveDashboard** for runtime introspection. Emit events at workflow boundaries, not just infrastructure edges. |
 | **11. Deployment** | **Mix releases** in Docker images. Default to immutable release artifacts, runtime config via environment, and rolling deploys on **Fly.io**, **Render**, **Cloud Run**, or k8s depending on operational complexity. |
+
+
+### Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for command tiers, ExUnit/property/E2E choices, and evidence.
+- `dependency-governance` and `security-privacy` for Hex deps, secrets, auth, and deployment risk.
+- `observability` for Telemetry/OpenTelemetry, LiveDashboard, services, and runtime evidence.
+- `local-first-data` for Ecto persistence, migrations, projections, imports/exports, and sync.
+- `design-system` and `accessibility` for Phoenix/LiveView/HEEx and generated docs/UI.
+- `documentation` for docs authority and generated artifacts.
 
 ---
 
@@ -236,7 +248,9 @@ Default production shape:
 
 ---
 
-### **Minimal SLOs & Policies**
+### **Service SLO seed**
+
+Use `disciplines/observability.md` for runtime evidence and SLO discipline. Example seed for Elixir service repos after repo-local acceptance:
 
 - **SLI latency**: p95 `< 150ms` on key synchronous API paths
 - **Availability**: `99.9%`
@@ -268,4 +282,4 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-elixir.justfile.md`
+- `engineering-elixir.justfile.md`

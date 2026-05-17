@@ -10,7 +10,19 @@ Keep the default C++ lane CPU/general-purpose. Load the CUDA addendum only for C
 - Prefer a smaller managed-language lane when product velocity, data plumbing, or ordinary web/API work is more important than native performance.
 - Treat C++ as a contract-heavy lane: explicit build flags, explicit dependency provenance, explicit validation, and no ambient global tooling assumptions.
 
-## Core stack
+
+## Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for command tiers, sanitizer/benchmark evidence, and release gates.
+- `dependency-governance` and `security-privacy` for native dependencies, vendoring, ABI, install scripts, and secrets.
+- `observability` for services, native tools, benchmark claims, profiles, and runtime evidence.
+- `local-first-data` for files, embedded DBs, binary formats, migrations, projections, and sync.
+- `documentation` for build/toolchain authority and generated artifacts.
+- `design-system` and `accessibility` for native UI, TUI, visualization, or generated docs.
+
+## Core toolchain and defaults
 
 - **Language:** C++20 baseline when the repo/toolchain supports it; C++23 only when the repo records compiler support and downstream compatibility.
 - **Build:** CMake + Ninja as the default portable build surface.
@@ -108,8 +120,8 @@ include/<project>/           # public headers for libraries
 src/                         # implementation and private headers
 tests/                       # CTest-discovered tests
 bench/                       # optional benchmarks
-docs/tech-stack.local.md     # repo-local lane deltas
-policy/stack-lane.json       # optional lane pin/contract
+docs/engineering.local.md     # repo-local lane deltas
+policy/engineering-lane.json       # optional lane pin/contract
 .clang-format
 .clang-tidy                  # optional, only when kept green
 Justfile                     # optional standardized wrapper
@@ -139,14 +151,14 @@ run-clang-tidy.py -p build
 
 When a repo adopts this lane, prefer an explicit contract surface:
 
-- `docs/tech-stack.local.md` records repo-specific deltas and tool versions.
-- `policy/stack-lane.json` pins the lane ID (`cpp`) and the upstream `tech-stack-core` version or retrieval command.
+- `docs/engineering.local.md` records repo-specific deltas and tool versions.
+- `policy/engineering-lane.json` pins the lane ID (`cpp`) and the upstream `engineering-core` version or retrieval command.
 - `Justfile` exposes standard local commands without replacing clearer repo-local scripts.
 - CI invokes the same validation commands documented for local contributors.
 
 ## When to load the CUDA addendum
 
-Load `tech-stack-cpp.cuda.md` when any of the following apply:
+Load `engineering-cpp.cuda.md` when any of the following apply:
 
 - the repo builds `.cu` files or depends on CUDA Toolkit components
 - native kernels, GPU memory management, PTX/SASS inspection, or Nsight profiling are in scope
@@ -176,11 +188,11 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-cpp.justfile.md`
+- `engineering-cpp.justfile.md`
 
 ### CUDA / GPU addendum
 
 Read the CUDA/GPU addendum only when the repo actually builds, profiles, benchmarks, or validates CUDA/GPU code.
 
 Companion doc:
-- `tech-stack-cpp.cuda.md`
+- `engineering-cpp.cuda.md`

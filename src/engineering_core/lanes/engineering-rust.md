@@ -2,7 +2,7 @@
 
 Use this lane when Rust is the requested implementation language or when reliability/performance constraints justify a compiled systems language.
 
-## Core stack
+## Core toolchain and defaults
 
 - **Toolchain / package manager:** `rustup` + stable Rust + `cargo`
 - **Edition baseline:** Rust 2024 when available in repo policy; otherwise latest stable supported edition
@@ -15,6 +15,18 @@ Use this lane when Rust is the requested implementation language or when reliabi
 - **Template/rendering:** `minijinja` for Jinja-style text/config templating • `askama` when compile-time checked templates are worth the extra structure
 - **Observability:** `tracing` + OpenTelemetry exporters
 - **Deployment:** multi-stage Docker builds with slim runtime images
+
+
+## Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for command tiers, property/fuzz decisions, and evidence.
+- `dependency-governance` and `security-privacy` for crates, native dependencies, secrets, and supply chain.
+- `observability` for services, CLIs, tracing, benchmarks, and runtime evidence.
+- `local-first-data` for files, SQLite/embedded DBs, migrations, projections, and sync.
+- `documentation` for docs authority and generated artifacts.
+- `design-system` and `accessibility` for native UI, TUI, generated docs, or web UI surfaces.
 
 ## Command baseline
 
@@ -67,13 +79,13 @@ This is a workflow convention, not a stable Cargo config key.
 - Prefer one repo script as the source of truth for format/lint/test/build orchestration
 - Keep release/build contracts explicit in repo docs and manifests
 
-## Stack contract surface
+## Engineering lane contract surface
 
 When adopting this lane in a repo/package, prefer an explicit contract surface:
 
-- `policy/stack-lane.json` pins the upstream lane and retrieval command
-- `docs/tech-stack.local.md` records repo-local deltas
-- validation scripts should at least verify the pinned lane metadata; optional smoke checks may also run the `tech-stack-core` CLI when available
+- `policy/engineering-lane.json` pins the upstream lane and retrieval command
+- `docs/engineering.local.md` records repo-local deltas
+- validation scripts should at least verify the pinned lane metadata; optional smoke checks may also run the `engineering-core` CLI when available
 
 ## Conditionally loaded addenda
 
@@ -87,4 +99,4 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-rust.justfile.md`
+- `engineering-rust.justfile.md`

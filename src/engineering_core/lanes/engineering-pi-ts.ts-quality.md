@@ -2,7 +2,7 @@
 
 Read this addendum only when a pi extension package repo is adopting deterministic screening with `ts-quality`.
 
-Use it with the main pi-ts lane, not instead of it.
+Use it with the main pi-ts lane and `disciplines/validation.md`, not instead of them.
 
 ## When to load this addendum
 

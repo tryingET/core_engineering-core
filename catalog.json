@@ -1,0 +1,29 @@
+{
+  "name": "engineering-core",
+  "version": "0.2.0",
+  "cli": "engineering-core",
+  "lanes": [
+    { "id": "py", "path": "src/engineering_core/lanes/engineering-py.md" },
+    { "id": "ts", "path": "src/engineering_core/lanes/engineering-ts.md" },
+    { "id": "ts-frontend", "path": "src/engineering_core/lanes/engineering-ts.frontend.md", "requires": ["ts"] },
+    { "id": "pi-ts", "path": "src/engineering_core/lanes/engineering-pi-ts.md" },
+    { "id": "go", "path": "src/engineering_core/lanes/engineering-go.md" },
+    { "id": "cpp", "path": "src/engineering_core/lanes/engineering-cpp.md" },
+    { "id": "rust", "path": "src/engineering_core/lanes/engineering-rust.md" },
+    { "id": "elixir", "path": "src/engineering_core/lanes/engineering-elixir.md" }
+  ],
+  "disciplines": [
+    { "id": "design-system", "path": "src/engineering_core/disciplines/design-system.md" },
+    { "id": "accessibility", "path": "src/engineering_core/disciplines/accessibility.md" },
+    { "id": "validation", "path": "src/engineering_core/disciplines/validation.md" },
+    { "id": "testing", "path": "src/engineering_core/disciplines/testing.md" },
+    { "id": "local-first-data", "path": "src/engineering_core/disciplines/local-first-data.md" },
+    { "id": "observability", "path": "src/engineering_core/disciplines/observability.md" },
+    { "id": "security-privacy", "path": "src/engineering_core/disciplines/security-privacy.md" },
+    { "id": "documentation", "path": "src/engineering_core/disciplines/documentation.md" },
+    { "id": "dependency-governance", "path": "src/engineering_core/disciplines/dependency-governance.md" }
+  ],
+  "templates": [
+    { "id": "engineering-local", "path": "templates/engineering.local.template.md" }
+  ]
+}

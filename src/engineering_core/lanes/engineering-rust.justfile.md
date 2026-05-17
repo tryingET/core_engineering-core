@@ -2,7 +2,7 @@
 
 Read this addendum only when a repo using the Rust lane is missing the standardized Justfile surface, the standard targets are absent/drifting, or you are explicitly establishing/reconciling `Justfile` behavior.
 
-Use this with the owned-lane generic contract, not instead of it.
+Use this with `disciplines/validation.md` and the repo's applicable standardized Justfile contract, not instead of them.
 
 ## Mapping rule
 

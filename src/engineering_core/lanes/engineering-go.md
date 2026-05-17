@@ -2,7 +2,7 @@
 
 Use this lane when Go is the requested implementation language or when simple static binaries, concurrency, low operational overhead, or network-service performance make Go the best fit.
 
-## Baseline stack
+## Baseline toolchain
 - **Toolchain / module system:** stable Go toolchain + modules
 - **Format:** `go fmt ./...` or `gofmt`/`goimports` where imports need management
 - **Analysis:** `go vet ./...`
@@ -11,7 +11,7 @@ Use this lane when Go is the requested implementation language or when simple st
 - **Testing:** stdlib `testing`; built-in fuzzing via `go test -fuzz` when useful
 - **Template/rendering:** stdlib `text/template` / `html/template` by default
 
-## Optional service stack
+## Optional service defaults
 Use these only when the repo is actually a service/backend that needs them:
 
 - **Web/API:** Chi or Gin
@@ -37,6 +37,18 @@ Use these only when the repo is actually a service/backend that needs them:
 - Template rendering: stdlib `text/template` / `html/template` by default; use `templ` only when typed HTML/component ergonomics justify extra tooling
 - Prefer the smallest deterministic surface that proves the contract
 
+
+## Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for command tiers and test-form choices.
+- `dependency-governance` and `security-privacy` for modules, tool installs, secrets, and supply chain.
+- `observability` for services, CLIs with runtime evidence, and benchmarks.
+- `local-first-data` for files, embedded DBs, migrations, projections, and sync.
+- `documentation` for docs authority and generated artifacts.
+- `design-system` and `accessibility` if the Go repo emits HTML/docs, TUI, or user-facing UI.
+
 ## Command baseline
 
 ```bash
@@ -47,8 +59,9 @@ go build ./...
 go mod verify
 ```
 
-## SLO seed & policy for service repos
-- p95 key journey `< 150–200ms`, 99.9% availability; error-budget gates
+## Service SLO seed
+
+Use `disciplines/observability.md` for runtime evidence and SLO discipline. Example seed for latency-sensitive service repos: p95 key journey `< 150–200ms`, 99.9% availability, and explicit error-budget gates. Treat these numbers as repo-local policy only after the product/runtime contract accepts them.
 
 ## Fit with 6E → CLARITY
 - Strong edges/contracts, reversible slices, explicit rollback—support constraints‑first, risk‑aware delivery.
@@ -65,4 +78,4 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-go.justfile.md`
+- `engineering-go.justfile.md`

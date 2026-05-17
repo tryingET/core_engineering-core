@@ -2,7 +2,7 @@
 
 Read this addendum only when a general TypeScript repo is adopting deterministic screening with `ts-quality`.
 
-Use it with the main TS lane, not instead of it.
+Use it with the main TS lane and `disciplines/validation.md`, not instead of them.
 
 ## When to load this addendum
 

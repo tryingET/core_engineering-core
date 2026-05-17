@@ -1,6 +1,16 @@
 # C++ lane addendum — CUDA / GPU kernels
 
-Read this addendum only after loading `tech-stack-cpp.md`, and only when the repo actually builds, profiles, benchmarks, or validates CUDA/GPU code.
+Read this addendum only after loading `engineering-cpp.md`, and only when the repo actually builds, profiles, benchmarks, or validates CUDA/GPU code.
+
+
+## Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for benchmark/correctness tiers and evidence.
+- `observability` for GPU profiles, runtime measurements, and production claims.
+- `dependency-governance` and `security-privacy` for CUDA/PyTorch/native dependency risk, drivers, and deployment constraints.
+- `documentation` for hardware/toolkit/driver provenance.
 
 ## 1. When to load this addendum
 
@@ -145,8 +155,8 @@ python/                       # optional PyTorch/Python bindings
   pyproject.toml
   tests/
 profiles/                     # optional ignored/output-only unless policy says otherwise
-docs/tech-stack.local.md
-policy/stack-lane.json
+docs/engineering.local.md
+policy/engineering-lane.json
 ```
 
 ## 14. Experimental GPU research repos vs production service repos

@@ -1,4 +1,4 @@
-### **The Definitive 2025 Python Tech Stack**
+### **Python engineering lane**
 
 The philosophy remains: **Everything is a file.** The state of your project is declarative, version-controlled, and instantly reproducible.
 
@@ -7,7 +7,7 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **1. Core Engine** | **`uv`**: The complete Python project and package manager. Replaces `pyenv`, `venv`, `pip`, and `pip-tools`. Manages Python installation, virtual environments (`uv venv`), dependency management (`uv add`), locking (`uv lock`), and installation (`uv sync`). |
 | **2. Web/API Framework** | **FastAPI**: The premier choice for building performant, type-safe APIs with Python. |
 | **3. Data Validation & Settings**| **Pydantic V2**: The core of modern Python data handling. Used by FastAPI for automatic request/response validation and contract generation. Also used for type-safe settings management from environment variables. |
-| **4. Application Server** | **Granian**: A Rust-based, high-performance ASGI server that outpaces traditional servers like Uvicorn, aligning with the stack's focus on speed. |
+| **4. Application Server** | **Granian**: A Rust-based, high-performance ASGI server that outpaces traditional servers like Uvicorn, aligning with the lane's focus on speed. |
 | **5. Data Layer** | **PostgreSQL** • **SQLAlchemy 2.x** (with async support) • **Alembic** (for schema migrations). |
 | **6. Cache / Job Queue** | **Valkey**: The community-driven, open-source successor to Redis. Used for both caching and as a message broker for Celery. |
 | **7. Async Task Processing** | **Celery**: The battle-tested framework for running background tasks, using the Valkey broker. |
@@ -17,9 +17,21 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **11. Deployment** | **Docker**: Using multi-stage builds with `uv sync` for creating minimal, secure, and rapidly built images. Deployed to modern platforms like **Fly.io** or **Cloud Run**. |
 
 ---
+
+### Applicable cross-language disciplines
+
+Load disciplines when the concern applies:
+
+- `validation` and `testing` for tiering, command evidence, and test selection.
+- `dependency-governance` and `security-privacy` for dependency, secret, and privacy review.
+- `observability` for FastAPI/services, workers, and runtime evidence.
+- `local-first-data` for durable local files/DBs, migrations, projections, and sync.
+- `design-system` and `accessibility` for generated HTML/docs, dashboards, or user-facing UI.
+- `documentation` for docs authority, generated outputs, and front matter.
+
 ### **Project Scripts (`pyproject.toml`)**
 
-Define your common tasks in `pyproject.toml` to replace `Makefile` or `justfile`. This makes your project's commands discoverable and runnable on any machine with `uv`.
+Define Python-native tasks in `pyproject.toml` so they are discoverable and runnable with `uv`. When a repo adopts the cross-language `just` command surface, keep `Justfile` recipes as thin aliases over these Python-native commands or existing repo scripts.
 
 ```toml
 [tool.uv.scripts]
@@ -34,8 +46,9 @@ format = "ruff format ."
 ### **Testing & Templating Guidance**
 
 - Default unit/integration runner: **pytest**
-- Property-based testing: **Hypothesis**
-- Behavior/Gherkin testing: **pytest-bdd** when executable shared scenarios materially improve clarity; do **not** add BDD layers for ordinary unit/integration cases
+- Property-based testing implementation: **Hypothesis**
+- Behavior/Gherkin implementation: **pytest-bdd** when `disciplines/testing.md` says executable scenarios are justified
+- OpenAPI contract testing implementation: **schemathesis** when API schema behavior needs executable coverage
 - Text/config/html templating: **Jinja2** when the repo benefits from reusable template files or user-visible rendering surfaces
 - Prefer plain Python functions / f-strings for small local formatting tasks
 
@@ -62,7 +75,6 @@ This is the complete lifecycle, from project creation to daily work.
     *   Run tests: `uv run test`
     *   Run quality checks: `uv run lint && uv run format`
 *   **Ad-Hoc Script Management:** (For utility scripts without polluting the main environment)
-	*
     *   Add dependencies to a script: `uv add --script scripts/my_script.py 'pandas' 'polars'`
     *   Run a script with its managed dependencies: `uv run --script scripts/my_script.py`
 *   **Manage Standalone Tools:** (Install tools like `pre-commit` into a shared, isolated environment)
@@ -107,10 +119,13 @@ uv add --dev pytest-mock      # For mocking
 ```
 
 ---
-#### **Minimal SLOs & policies**
-- SLI latency: p95 `< 200ms` on `/api/*`
+#### **Service SLO seed**
+
+Use `disciplines/observability.md` for runtime evidence and SLO discipline. Example seed for Python API services after repo-local acceptance:
+
+- SLI latency: p95 `< 200ms` on key `/api/*` paths
 - Availability: `99.9%`
-- **Error budget policy:** freeze feature deploys if budget < 25% until back above threshold
+- Error budget policy: freeze feature deploys if budget < 25% until back above threshold
 
 ---
 
@@ -131,4 +146,4 @@ Read the lane-specific Justfile addendum only when:
 Otherwise, do not load the addendum by default.
 
 Companion doc:
-- `tech-stack-py.justfile.md`
+- `engineering-py.justfile.md`
