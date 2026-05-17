@@ -24,6 +24,11 @@ repo engineering.local.md   = repo-specific overrides and chosen subset
 
 Use broad discipline guidance without forcing every repo to ingest every detail.
 
+Governance references:
+
+- `docs/authority-map.md` defines which owner surface owns shared guidance, repo-local deviations, templates, validation policy, and runtime truth.
+- `docs/discipline-lifecycle.md` defines when to add, split, merge, or relocate discipline guidance.
+
 ## Why this is a git repo + CLI (not Codex slash commands)
 
 We intentionally keep the “core + divergence” mechanism **outside** Codex prompts:

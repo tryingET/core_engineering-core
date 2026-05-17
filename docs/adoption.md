@@ -10,6 +10,11 @@ type: "guide"
 
 Use engineering-core as a versioned upstream source for shared engineering guidance, not as a compatibility shim for legacy names.
 
+Related governance docs:
+
+- `docs/authority-map.md` — where shared guidance, repo-local deviations, templates, validation policy, and runtime truth belong.
+- `docs/discipline-lifecycle.md` — when to add, split, merge, or relocate discipline guidance.
+
 ## Adoption surface
 
 A repo that adopts engineering-core should carry:
@@ -34,6 +39,18 @@ Choose the smallest truthful upstream set:
 - cross-language disciplines for invariants such as validation, testing, accessibility, documentation, or security/privacy.
 
 Do not load every lane or every discipline by default.
+
+## Ownership rule
+
+Adoption should preserve the authority map:
+
+- engineering-core owns shared lanes and disciplines;
+- repo docs own local deviations and selected subsets;
+- governance-kernel owns canonical validation policy;
+- templates own generated defaults;
+- Agent Kernel owns runtime task/evidence/decision truth.
+
+Do not move repo-specific commands into shared disciplines, and do not fork shared doctrine into generated templates.
 
 ## Hard rename rule
 

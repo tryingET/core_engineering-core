@@ -38,3 +38,5 @@ Do not load every discipline by default. Load the smallest set that owns the con
 ## Operating rule
 
 A discipline should state invariants and decision rules. It should not duplicate every lane's tool recipe. Lanes map the invariant into ecosystem-native commands.
+
+Lifecycle rules for adding, splitting, merging, or relocating disciplines live in `docs/discipline-lifecycle.md`. Authority boundaries live in `docs/authority-map.md`.
