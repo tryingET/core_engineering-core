@@ -60,6 +60,8 @@ The tag must be annotated and named `v<version>`.
 
 `dist/` is generated output. Build it for proof with `uv build`, but do not commit wheels or source distributions unless the release policy changes explicitly.
 
+Canonical policy: `docs/releases/artifact-policy.md`.
+
 ## Downstream adoption
 
 Downstream consumers should either:

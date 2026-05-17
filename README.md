@@ -145,7 +145,7 @@ python scripts/release-local.py verify --version <next-version>
 python scripts/release-local.py tag --version <next-version> --apply
 ```
 
-`dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly.
+`dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly. See `docs/releases/artifact-policy.md`.
 
 ## CLI
 
