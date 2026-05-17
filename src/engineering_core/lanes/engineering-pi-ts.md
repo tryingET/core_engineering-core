@@ -1,3 +1,11 @@
+---
+summary: "pi extension TypeScript engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is pi-ts."
+  - "Choosing pi extension TypeScript tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 # TypeScript lane — pi extension packages (Node + npm)
 
 Use this lane when building **pi extension packages** (slash-command extensions and prompt bundles),

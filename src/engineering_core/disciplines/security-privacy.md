@@ -1,3 +1,11 @@
+---
+summary: "Cross-language security and privacy discipline for secrets, permissions, supply chain, devices, and user data."
+read_when:
+  - "Work touches secrets, credentials, permissions, devices, local data, telemetry, privacy-sensitive data, or dependency risk."
+  - "Reviewing security/privacy posture before handoff or release."
+type: "guide"
+---
+
 # Discipline — Security and Privacy
 
 ## Purpose

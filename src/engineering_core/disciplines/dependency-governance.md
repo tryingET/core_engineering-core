@@ -1,3 +1,11 @@
+---
+summary: "Cross-language dependency addition, pinning, review, upgrade, and removal discipline."
+read_when:
+  - "Adding, upgrading, replacing, or removing dependencies or toolchains."
+  - "Reviewing dependency risk, reproducibility, provenance, or cleanup posture."
+type: "guide"
+---
+
 # Discipline — Dependency Governance
 
 ## Purpose

@@ -1,3 +1,11 @@
+---
+summary: "Python engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is py."
+  - "Choosing Python tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 ### **Python engineering lane**
 
 The philosophy remains: **Everything is a file.** The state of your project is declarative, version-controlled, and instantly reproducible.

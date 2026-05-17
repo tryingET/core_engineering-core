@@ -1,3 +1,11 @@
+---
+summary: "pi extension TypeScript lane ts-quality adoption addendum."
+read_when:
+  - "A TypeScript repo is adopting deterministic screening with ts-quality."
+  - "Reconciling TypeScript quality gates with lane guidance and validation expectations."
+type: "guide"
+---
+
 # TypeScript lane for pi extension packages — ts-quality addendum
 
 Read this addendum only when a pi extension package repo is adopting deterministic screening with `ts-quality`.

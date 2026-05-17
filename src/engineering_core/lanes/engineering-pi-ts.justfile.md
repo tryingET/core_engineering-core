@@ -1,3 +1,11 @@
+---
+summary: "pi extension TypeScript lane standardized Justfile addendum."
+read_when:
+  - "A repo using the pi extension TypeScript lane is missing, establishing, or reconciling the standardized Justfile surface."
+  - "Standard targets are absent, drifting, or need lane-specific command mapping."
+type: "guide"
+---
+
 # TypeScript lane for pi extension packages — standardized Justfile addendum
 
 Read this addendum only when a repo using the pi extension TypeScript lane is missing the standardized Justfile surface, the standard targets are absent/drifting, or you are explicitly establishing/reconciling `Justfile` behavior.

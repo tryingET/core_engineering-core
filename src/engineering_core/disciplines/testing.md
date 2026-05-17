@@ -1,3 +1,11 @@
+---
+summary: "Cross-language testing discipline for choosing test forms by risk and cost."
+read_when:
+  - "Selecting unit, integration, property, contract, browser, E2E, snapshot, visual, or manual tests."
+  - "Reviewing whether a test suite matches the behavior and risk being changed."
+type: "guide"
+---
+
 # Discipline — Testing
 
 ## Purpose

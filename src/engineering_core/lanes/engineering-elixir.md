@@ -1,3 +1,11 @@
+---
+summary: "Elixir engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is elixir."
+  - "Choosing Elixir tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 ### **Elixir engineering lane**
 
 The philosophy remains: **Everything important is explicit, supervised, and observable.** Keep pure business logic in plain modules, reserve processes for stateful boundaries, and make failure handling part of the design instead of an afterthought.

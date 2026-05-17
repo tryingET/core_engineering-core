@@ -1,3 +1,11 @@
+---
+summary: "TypeScript frontend application addendum for browser apps and interactive user-facing UI."
+read_when:
+  - "A TypeScript repo owns browser app, SPA, camera/media UI, local-first frontend data, or design-heavy frontend behavior."
+  - "Work changes frontend state, routing/forms, media/device lifecycle, Rive/motion, browser tests, or accessibility."
+type: "guide"
+---
+
 # TypeScript Lane — Frontend Application Addendum
 
 Read this addendum when a TypeScript repo is a browser app, SPA, interactive UI, camera/media UI, local-first user-data app, design-heavy frontend, or frontend package that owns product interaction.

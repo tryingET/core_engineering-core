@@ -1,3 +1,11 @@
+---
+summary: "C++ CUDA/GPU addendum for kernels, native extensions, profiling, and GPU benchmark evidence."
+read_when:
+  - "A C++ repo builds, profiles, benchmarks, or validates CUDA/GPU code."
+  - "Work touches CUDA Toolkit usage, GPU kernels, PyTorch C++/CUDA extensions, PTX/SASS, or GPU benchmark evidence."
+type: "guide"
+---
+
 # C++ lane addendum — CUDA / GPU kernels
 
 Read this addendum only after loading `engineering-cpp.md`, and only when the repo actually builds, profiles, benchmarks, or validates CUDA/GPU code.

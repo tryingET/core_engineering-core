@@ -1,3 +1,11 @@
+---
+summary: "Cross-language design-system discipline for tokens, components, motion, assets, and product consistency."
+read_when:
+  - "Work changes UI tokens, components, visual language, motion, assets, or reusable presentation contracts."
+  - "Reviewing whether frontend/native/docs surfaces remain visually coherent."
+type: "guide"
+---
+
 # Discipline — Design System
 
 ## Purpose

@@ -1,3 +1,11 @@
+---
+summary: "Go engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is go."
+  - "Choosing Go tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 # Go lane — modules, CLIs, services, and low-latency backends
 
 Use this lane when Go is the requested implementation language or when simple static binaries, concurrency, low operational overhead, or network-service performance make Go the best fit.

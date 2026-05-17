@@ -1,3 +1,11 @@
+---
+summary: "Cross-language local-first data discipline for persistence, migrations, sync, corruption, and authority."
+read_when:
+  - "Work changes local state, browser storage, filesystem persistence, embedded databases, migrations, export/reset, or sync."
+  - "Reviewing privacy, corruption, or authority boundaries for locally stored user data."
+type: "guide"
+---
+
 # Discipline — Local-First Data
 
 ## Purpose

@@ -1,3 +1,11 @@
+---
+summary: "Cross-language accessibility invariants for UI, docs, CLI/TUI, native, and custom-rendered surfaces."
+read_when:
+  - "Work changes user-facing interaction, semantics, focus, keyboard operation, reduced motion, or assistive-technology behavior."
+  - "Reviewing accessibility expectations independent of implementation language."
+type: "guide"
+---
+
 # Discipline — Accessibility
 
 ## Purpose

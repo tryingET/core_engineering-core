@@ -1,3 +1,11 @@
+---
+summary: "Index and load model for engineering-core cross-language discipline docs."
+read_when:
+  - "Choosing which engineering-core discipline docs to load for a repo or task."
+  - "Explaining how disciplines differ from language lanes."
+type: "reference"
+---
+
 # Engineering Core Disciplines
 
 Disciplines are cross-language engineering contracts. A language lane answers **how this ecosystem implements work**. A discipline answers **what must remain true regardless of ecosystem**.

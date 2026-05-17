@@ -1,3 +1,11 @@
+---
+summary: "C++ engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is cpp."
+  - "Choosing C++ tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 # C++ lane — services, CLIs, libraries, and native acceleration
 
 Use this lane when C++ is the requested implementation language, when ABI/native performance constraints justify C++, or when a repo owns reusable native libraries, services, tools, or Python extension modules.

@@ -1,3 +1,11 @@
+---
+summary: "Elixir lane standardized Justfile addendum."
+read_when:
+  - "A repo using the Elixir lane is missing, establishing, or reconciling the standardized Justfile surface."
+  - "Standard targets are absent, drifting, or need lane-specific command mapping."
+type: "guide"
+---
+
 # Elixir lane — standardized Justfile addendum
 
 Read this addendum only when a repo using the Elixir lane is missing the standardized Justfile surface, the standard targets are absent/drifting, or you are explicitly establishing/reconciling `Justfile` behavior.

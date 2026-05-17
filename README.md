@@ -1,3 +1,11 @@
+---
+summary: "Engineering-core overview, model, lane/discipline catalog, CLI usage, and versioning notes."
+read_when:
+  - "Orienting to engineering-core as the shared engineering lane and discipline source."
+  - "Choosing CLI commands, lane docs, discipline docs, or repo-local override locations."
+type: "reference"
+---
+
 # engineering-core
 
 Shared lane docs and cross-language discipline docs for day-to-day engineering conventions and command surfaces.

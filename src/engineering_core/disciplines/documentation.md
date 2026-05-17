@@ -1,3 +1,11 @@
+---
+summary: "Cross-language documentation discipline for authority, front matter, generated projections, and update hygiene."
+read_when:
+  - "Creating or changing docs, generated documentation projections, read-first surfaces, or docs validation rules."
+  - "Deciding whether documentation is authoritative, narrative, generated, or local override material."
+type: "guide"
+---
+
 # Discipline — Documentation
 
 ## Purpose

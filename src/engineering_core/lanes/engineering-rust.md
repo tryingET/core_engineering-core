@@ -1,3 +1,11 @@
+---
+summary: "Rust engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is rust."
+  - "Choosing Rust tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 # Rust lane — services, CLIs, and systems code
 
 Use this lane when Rust is the requested implementation language or when reliability/performance constraints justify a compiled systems language.

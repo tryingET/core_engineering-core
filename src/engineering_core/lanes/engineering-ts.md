@@ -1,3 +1,11 @@
+---
+summary: "TypeScript engineering lane for ecosystem-specific tooling, commands, and implementation defaults."
+read_when:
+  - "Working in a repo or package whose selected engineering-core lane is ts."
+  - "Choosing TypeScript tooling, command surfaces, quality defaults, or ecosystem-specific validation."
+type: "guide"
+---
+
 ### **TypeScript engineering lane**
 
 The philosophy remains: **Everything is a file.** The state of your project is declarative, version-controlled, and instantly reproducible. Following Matt Pocock's type-safe patterns: **Make impossible states impossible.**
