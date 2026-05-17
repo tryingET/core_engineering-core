@@ -205,7 +205,7 @@ class CliTests(unittest.TestCase):
         self.assertNotIn(legacy_package, pyproject)
 
     def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.3.0")
+        self.assertEqual(__version__, "0.3.1")
 
 
 if __name__ == "__main__":

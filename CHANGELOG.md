@@ -9,6 +9,12 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-05-17
+
+### Changed
+
+- Clarified release history: `v0.3.0` is the first released artifact containing the completed 10,000 ft authority/adoption/lifecycle foundation, 5,000 ft CLI/catalog/template product surface, and 2,000 ft cross-language discipline layer.
+
 ## [0.3.0] - 2026-05-17
 
 ### Added
