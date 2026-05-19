@@ -1,6 +1,6 @@
 {
   "name": "engineering-core",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "cli": "engineering-core",
   "model": {
     "lane": "ecosystem-specific tooling and commands",
@@ -17,7 +17,10 @@
         "Python implementation",
         "FastAPI/Python service",
         "Python package or script"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-py.md",
+      "description": "Python ecosystem tooling, packaging, validation, and command-surface guidance."
     },
     {
       "id": "ts",
@@ -26,7 +29,10 @@
       "load_when": [
         "General TypeScript implementation",
         "Bun-first TypeScript package/service/app"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-ts.md",
+      "description": "General Bun-first TypeScript ecosystem tooling, package, service, and app guidance."
     },
     {
       "id": "ts-frontend",
@@ -42,7 +48,10 @@
         "camera/media UI",
         "local-first frontend user data",
         "design-heavy frontend"
-      ]
+      ],
+      "category": "lane-addendum",
+      "file": "engineering-ts.frontend.md",
+      "description": "Conditional frontend application guidance for browser apps and interactive UI work."
     },
     {
       "id": "pi-ts",
@@ -51,7 +60,10 @@
       "load_when": [
         "Pi extension package",
         "Node/npm Pi slash-command or prompt bundle"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-pi-ts.md",
+      "description": "Node/npm TypeScript guidance for Pi extension package repos."
     },
     {
       "id": "go",
@@ -62,7 +74,10 @@
         "static binary",
         "low-operational-overhead service",
         "Go CLI"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-go.md",
+      "description": "Go ecosystem tooling, CLI/service, and validation guidance."
     },
     {
       "id": "cpp",
@@ -73,7 +88,10 @@
         "native library",
         "ABI/native performance",
         "Python extension module"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-cpp.md",
+      "description": "C++ ecosystem tooling, native library, ABI, and validation guidance."
     },
     {
       "id": "cpp-cuda",
@@ -88,7 +106,10 @@
         "PyTorch C++/CUDA extensions",
         "PTX/SASS inspection",
         "GPU benchmark evidence"
-      ]
+      ],
+      "category": "lane-addendum",
+      "file": "engineering-cpp.cuda.md",
+      "description": "Conditional CUDA/GPU addendum for C++ and PyTorch extension work."
     },
     {
       "id": "rust",
@@ -99,7 +120,10 @@
         "systems code",
         "Rust service",
         "Rust CLI"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-rust.md",
+      "description": "Rust ecosystem tooling, crates, CLI/service, and validation guidance."
     },
     {
       "id": "elixir",
@@ -110,7 +134,10 @@
         "Phoenix",
         "LiveView",
         "OTP service"
-      ]
+      ],
+      "category": "language-lane",
+      "file": "engineering-elixir.md",
+      "description": "Elixir/OTP/Phoenix ecosystem tooling and validation guidance."
     },
     {
       "id": "rust-build-graph",
@@ -126,7 +153,10 @@
         "Rust build time bottleneck",
         "remote cache/execution for Rust",
         "large Rust workspace build acceleration"
-      ]
+      ],
+      "category": "lane-addendum",
+      "file": "engineering-rust.build-graph.md",
+      "description": "Conditional Rust build-graph acceleration addendum for measured build bottlenecks."
     }
   ],
   "disciplines": [
@@ -140,7 +170,11 @@
         "assets",
         "visual consistency",
         "reusable UI"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "design-system.md",
+      "description": "Design tokens, components, motion, assets, and visual consistency invariants."
     },
     {
       "id": "accessibility",
@@ -153,7 +187,11 @@
         "motion",
         "custom rendering",
         "CLI/TUI"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "accessibility.md",
+      "description": "Operability and semantics across UI, docs, CLI/TUI, native UI, and custom renderers."
     },
     {
       "id": "validation",
@@ -163,7 +201,11 @@
         "Justfile/command surface",
         "handoff evidence",
         "CI/local checks"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "validation.md",
+      "description": "Validation tiers, command surfaces, and handoff evidence expectations."
     },
     {
       "id": "testing",
@@ -172,7 +214,11 @@
         "Test strategy",
         "unit/integration/E2E/property/contract tests",
         "coverage decisions"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "testing.md",
+      "description": "Test taxonomy and guidance for when each test form earns its cost."
     },
     {
       "id": "local-first-data",
@@ -184,7 +230,11 @@
         "sync",
         "generated projections",
         "corruption behavior"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "local-first-data.md",
+      "description": "Local state, persistence, migrations, sync, corruption, and authority invariants."
     },
     {
       "id": "observability",
@@ -197,7 +247,11 @@
         "health/readiness",
         "runtime evidence",
         "SLOs"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "observability.md",
+      "description": "Logs, metrics, traces, profiles, health, SLOs, and runtime evidence invariants."
     },
     {
       "id": "security-privacy",
@@ -209,7 +263,11 @@
         "privacy",
         "dependency risk",
         "telemetry redaction"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "security-privacy.md",
+      "description": "Secrets, permissions, dependency risk, data classification, and privacy posture."
     },
     {
       "id": "documentation",
@@ -221,7 +279,11 @@
         "architecture docs",
         "decision docs",
         "generated docs"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "documentation.md",
+      "description": "Docs authority, front matter, generated projections, and update discipline."
     },
     {
       "id": "specification-and-dsls",
@@ -234,7 +296,11 @@
         "policy files",
         "command vocabularies",
         "formalization decisions"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "specification-and-dsls.md",
+      "description": "Implicit DSL audits, formalization thresholds, schemas, generators, and executable policy."
     },
     {
       "id": "engineering-reasoning",
@@ -245,7 +311,11 @@
         "adversarial review",
         "many-of-the-greats",
         "prompt template routing for engineering judgment"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "engineering-reasoning.md",
+      "description": "Lightweight reasoning-mode router for engineering judgment and Prompt Vault-supported methods."
     },
     {
       "id": "build-graph-acceleration",
@@ -260,7 +330,11 @@
         "remote execution",
         "build time bottlenecks",
         "secondary build graph"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "build-graph-acceleration.md",
+      "description": "Evidence-gated adoption of build graph accelerators, remote cache, and remote execution."
     },
     {
       "id": "dependency-governance",
@@ -271,7 +345,11 @@
         "native install risk",
         "package upgrades",
         "dependency removal"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "dependency-governance.md",
+      "description": "Dependency addition, pinning, review, upgrades, and removal invariants."
     },
     {
       "id": "service-api",
@@ -283,7 +361,11 @@
         "Background jobs",
         "Health/readiness",
         "Migrations/deployment/rollback"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "service-api.md",
+      "description": "Service/API boundaries, contracts, auth, errors, idempotency, jobs, deployment, and rollback."
     },
     {
       "id": "ai-ml",
@@ -296,7 +378,11 @@
         "Evals",
         "Dataset/prompt/model provenance",
         "Safety/privacy claims"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "ai-ml.md",
+      "description": "Model assets, inference boundaries, evals, provenance, privacy, safety claims, and reproducibility."
     },
     {
       "id": "performance",
@@ -310,7 +396,11 @@
         "Backend latency",
         "Memory/startup",
         "GPU measurements"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "performance.md",
+      "description": "Profiling, budgets, benchmark hygiene, regression gates, and measurement evidence."
     },
     {
       "id": "release-package",
@@ -323,7 +413,11 @@
         "Artifact provenance",
         "Compatibility/migration releases",
         "Deprecation/rollback"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "release-package.md",
+      "description": "Semantic versions, changelogs, artifact provenance, publishing, compatibility, and rollback."
     },
     {
       "id": "data-governance",
@@ -337,7 +431,11 @@
         "Retention/deletion",
         "Derived projections",
         "Analytics/eval datasets"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "data-governance.md",
+      "description": "Data authority, schemas, lineage, lifecycle, quality, retention, privacy, and projections."
     },
     {
       "id": "domain-modeling",
@@ -350,7 +448,11 @@
         "Permissions/policies",
         "Anti-corruption layers",
         "Duplicated business rules"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "domain-modeling.md",
+      "description": "Domain vocabulary, invariants, workflows, state transitions, aggregates, and anti-corruption layers."
     },
     {
       "id": "design-patterns",
@@ -360,44 +462,76 @@
         "Named design pattern review",
         "Cross-language pattern vocabulary",
         "Avoiding pattern cargo cult"
-      ]
+      ],
+      "kind": "discipline",
+      "category": "cross-language-discipline",
+      "file": "design-patterns.md",
+      "description": "Shared pattern vocabulary and review guidance for recurring solution shapes."
     }
   ],
   "templates": [
     {
       "id": "engineering-local",
       "path": "templates/engineering.local.template.md",
-      "use_for": "Repo-local selected lanes/disciplines and deviations"
+      "use_for": "Repo-local selected lanes/disciplines and deviations",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "engineering.local.template.md",
+      "description": "Repo-local selected lanes/disciplines and deviations"
     },
     {
       "id": "discipline-adoption-checklist",
       "path": "templates/discipline-adoption-checklist.md",
-      "use_for": "Adopting a discipline in a concrete repo"
+      "use_for": "Adopting a discipline in a concrete repo",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "discipline-adoption-checklist.md",
+      "description": "Adopting a discipline in a concrete repo"
     },
     {
       "id": "validation-tier-map",
       "path": "templates/validation-tier-map.template.md",
-      "use_for": "Mapping repo commands to validation tiers"
+      "use_for": "Mapping repo commands to validation tiers",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "validation-tier-map.template.md",
+      "description": "Mapping repo commands to validation tiers"
     },
     {
       "id": "data-classification",
       "path": "templates/data-classification.template.md",
-      "use_for": "Classifying repo data and storage authority"
+      "use_for": "Classifying repo data and storage authority",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "data-classification.template.md",
+      "description": "Classifying repo data and storage authority"
     },
     {
       "id": "observability-plan",
       "path": "templates/observability-plan.template.md",
-      "use_for": "Planning logs, metrics, traces, health, and evidence"
+      "use_for": "Planning logs, metrics, traces, health, and evidence",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "observability-plan.template.md",
+      "description": "Planning logs, metrics, traces, health, and evidence"
     },
     {
       "id": "security-privacy-review",
       "path": "templates/security-privacy-review.template.md",
-      "use_for": "Reviewing secrets, permissions, data, telemetry, and dependency risk"
+      "use_for": "Reviewing secrets, permissions, data, telemetry, and dependency risk",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "security-privacy-review.template.md",
+      "description": "Reviewing secrets, permissions, data, telemetry, and dependency risk"
     },
     {
       "id": "docs-authority-map",
       "path": "templates/docs-authority-map.template.md",
-      "use_for": "Mapping repo docs to authority classes and regeneration paths"
+      "use_for": "Mapping repo docs to authority classes and regeneration paths",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "docs-authority-map.template.md",
+      "description": "Mapping repo docs to authority classes and regeneration paths"
     }
   ],
   "profiles": [

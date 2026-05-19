@@ -8,7 +8,9 @@ type: "reference"
 
 # engineering-core
 
-Shared lane docs and cross-language discipline docs for day-to-day engineering conventions and command surfaces.
+Shared lane docs, cross-language discipline docs, adoption templates, and adoption scanner mechanics for day-to-day engineering conventions and command surfaces.
+
+Vision: make shared engineering doctrine retrievable, repo-local deviations explicit, and adoption coverage visible across `core`, company, lane, repo, and package scopes without turning engineering-core into the runtime authority for every repo. See `docs/vision.md`.
 
 Canonical validation-tier policy lives in:
 `~/ai-society/holdingco/governance-kernel/docs/dev/validation-tier-policy.md`.
@@ -55,7 +57,8 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
 - `disciplines/` — cross-language discipline docs
 - `templates/` — adoption, validation, data, observability, security/privacy, and docs-authority templates
-- `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog
+- `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
+- `engineering-core scan-adoption` — generic consumer adoption scanner for repo/lane/company scopes; scope owners keep generated rollout dashboards and JSON snapshots
 
 ## Which lane?
 
@@ -171,6 +174,30 @@ python scripts/release-local.py tag --version <next-version> --apply
 
 `dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly. See `docs/releases/artifact-policy.md`.
 
+Package-visible changes should bump the patch version. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
+
+## Adoption scanner
+
+`engineering-core scan-adoption` is the reusable scanner for engineering-core adoption across single repos, lane roots, company roots, and workspace scopes. It reports current adoption, legacy surfaces, invalid policy JSON, doc-only/policy-only partials, catalog id issues, and advisory semantic review flags.
+
+Engineering-core owns the scanner semantics. The scanned scope owns generated outputs and rollout interpretation.
+
+Typical multi-scope audit:
+
+```bash
+engineering-core scan-adoption \
+  --scope ~/ai-society/core \
+  --scope ~/ai-society/softwareco/owned \
+  --scope ~/ai-society/softwareco/infra \
+  --scope ~/ai-society/holdingco \
+  --scope ~/ai-society/teachingco \
+  --scope ~/ai-society/healthco \
+  --repo-discovery recursive \
+  --include-scope-root \
+  --include-packages \
+  --format json
+```
+
 ## CLI
 
 ### Run from this repo (no install)
@@ -184,6 +211,8 @@ python scripts/release-local.py tag --version <next-version> --apply
 - Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
 - Recommend a profile: `uv tool run --from . engineering-core recommend browser-app --prefer-repo`
 - Recommend from repo metadata: `uv tool run --from . engineering-core recommend --repo /path/to/repo --prefer-repo`
+- Scan adoption coverage: `uv tool run --from . engineering-core scan-adoption --scope /path/to/root --include-packages --format json --prefer-repo`
+- Scan multiple scopes recursively: `uv tool run --from . engineering-core scan-adoption --scope ~/ai-society/core --scope ~/ai-society/softwareco/infra --repo-discovery recursive --include-scope-root --include-packages --prefer-repo`
 - Print a lane: `uv tool run --from . engineering-core show ts --prefer-repo`
 - Print frontend addendum: `uv tool run --from . engineering-core show ts-frontend --prefer-repo`
 - Print a lane plus selected disciplines: `uv tool run --from . engineering-core show-all-for ts --with validation testing --prefer-repo`

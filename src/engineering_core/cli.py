@@ -6,8 +6,11 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
+from engineering_core.adoption_render import render_markdown
+from engineering_core.adoption_scan import build_scan, load_catalog
 
-LANES = ("py", "ts", "ts-frontend", "pi-ts", "go", "cpp", "rust", "rust-build-graph", "elixir")
+
+LANES = ("py", "ts", "ts-frontend", "pi-ts", "go", "cpp", "cpp-cuda", "rust", "rust-build-graph", "elixir")
 LANE_FILES = {
     "py": "engineering-py.md",
     "ts": "engineering-ts.md",
@@ -15,6 +18,7 @@ LANE_FILES = {
     "pi-ts": "engineering-pi-ts.md",
     "go": "engineering-go.md",
     "cpp": "engineering-cpp.md",
+    "cpp-cuda": "engineering-cpp.cuda.md",
     "rust": "engineering-rust.md",
     "rust-build-graph": "engineering-rust.build-graph.md",
     "elixir": "engineering-elixir.md",
@@ -229,6 +233,18 @@ def main() -> None:
     recommend.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
     recommend.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
 
+    scan_adoption = sub.add_parser("scan-adoption", help="Scan one or more scopes for engineering-core adoption coverage")
+    scan_adoption.add_argument("--scope", action="append", default=[], help="Scope root to scan; repeat for multiple scopes (default: .)")
+    scan_adoption.add_argument("--include-packages", action="store_true", help="Also scan nested package/app/member adoption surfaces")
+    scan_adoption.add_argument("--include-scope-root", action="store_true", help="Include the scope root itself when it is a git repo")
+    scan_adoption.add_argument("--repo-discovery", choices=("immediate", "recursive"), default="immediate", help="Repo discovery mode within each scope")
+    scan_adoption.add_argument("--format", choices=("markdown", "json"), default="markdown", help="Stdout format when --write is not used")
+    scan_adoption.add_argument("--write", action="store_true", help="Write JSON and/or markdown outputs instead of printing to stdout")
+    scan_adoption.add_argument("--json-out", help="JSON output path for --write")
+    scan_adoption.add_argument("--markdown-out", help="Markdown output path for --write")
+    scan_adoption.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
+    scan_adoption.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+
     overview = sub.add_parser("overview", help="Print the disciplines overview doc")
     overview.add_argument("--repo-root", default=".", help="Repo root that contains ./disciplines (default: .)")
     overview.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./disciplines over packaged files")
@@ -307,6 +323,36 @@ def main() -> None:
         if not args.profile:
             raise SystemExit("recommend requires a profile id or --repo <path>")
         _print_recommendation(catalog, args.profile)
+        return
+
+    if args.cmd == "scan-adoption":
+        if args.write and not args.json_out and not args.markdown_out:
+            raise SystemExit("scan-adoption --write requires --json-out and/or --markdown-out")
+        scopes = [Path(scope).resolve() for scope in (args.scope or ["."])]
+        catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
+        scan = build_scan(
+            scopes,
+            include_packages=args.include_packages,
+            include_scope_root=args.include_scope_root,
+            repo_discovery=args.repo_discovery,
+            catalog=catalog,
+        )
+        if args.write:
+            if args.json_out:
+                json_path = Path(args.json_out)
+                json_path.parent.mkdir(parents=True, exist_ok=True)
+                json_path.write_text(json.dumps(scan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+                print(f"wrote: {json_path}")
+            if args.markdown_out:
+                markdown_path = Path(args.markdown_out)
+                markdown_path.parent.mkdir(parents=True, exist_ok=True)
+                markdown_path.write_text(render_markdown(scan), encoding="utf-8")
+                print(f"wrote: {markdown_path}")
+            return
+        if args.format == "json":
+            print(json.dumps(scan, indent=2, sort_keys=True))
+        else:
+            print(render_markdown(scan))
         return
 
     if args.cmd == "overview":

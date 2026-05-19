@@ -56,6 +56,20 @@ Do not move repo-specific commands into shared disciplines, and do not fork shar
 
 The rename to `engineering-core` is intentionally breaking. Do not recreate old CLI aliases, package aliases, file names, or policy names. Consumers should update references directly.
 
+## Adoption scanning
+
+Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, and heuristic semantic discipline flags.
+
+Examples:
+
+```bash
+engineering-core scan-adoption --scope /path/to/lane-root --include-packages --format json
+engineering-core scan-adoption --scope ~/ai-society/core --repo-discovery recursive --include-scope-root --include-packages
+engineering-core scan-adoption --scope ~/ai-society/core --scope ~/ai-society/softwareco/infra --repo-discovery recursive --include-scope-root --include-packages --format json
+```
+
+Keep generated rollout state in the scope owner, not in engineering-core. For example, a lane root may write `governance/engineering-core-adoption-scan.json` and `docs/project/engineering-core-adoption-dashboard.md`, but engineering-core owns the scanner semantics and generic report shape. Start with warning/ratchet use before hard CI gates so scope owners can distinguish true adoption debt from intentional local posture.
+
 ## Version pinning
 
 For local workspace adoption, record the source honestly as `workspace-local-unpinned`. For released adoption, pin to a git tag or package version and record the retrieval command in repo-local policy.

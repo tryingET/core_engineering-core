@@ -9,11 +9,11 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest.mock import patch
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT / "src"))
+
 from engineering_core import __version__
 from engineering_core.cli import DISCIPLINES, LANES, TEMPLATES, main
-
-
-REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 class CliTests(unittest.TestCase):
@@ -173,6 +173,26 @@ class CliTests(unittest.TestCase):
         self.assertIn("ts-frontend", output)
         self.assertIn("accessibility", output)
 
+    def test_scan_adoption_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            (repo / ".git").mkdir()
+            output = self.run_cli(
+                "scan-adoption",
+                "--scope",
+                str(scope),
+                "--format",
+                "json",
+                "--repo-root",
+                str(REPO_ROOT),
+                "--prefer-repo",
+            )
+        scan = json.loads(output)
+        self.assertEqual(scan["summary"]["total"], 1)
+        self.assertEqual(scan["records"][0]["status"], "missing")
+
     def test_show_all_for_prints_lane_and_disciplines(self) -> None:
         output = self.run_cli(
             "show-all-for",
@@ -189,23 +209,37 @@ class CliTests(unittest.TestCase):
         self.assertIn("Discipline — Testing", output)
 
     def test_path(self) -> None:
-        output = self.run_cli("path", "py", "--repo-root", str(REPO_ROOT), "--prefer-repo")
-        self.assertEqual(output.strip(), str(REPO_ROOT / "lanes" / "engineering-py.md"))
+        output = self.run_cli("path", "ts", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertEqual(output.strip(), str(REPO_ROOT / "lanes" / "engineering-ts.md"))
 
     def test_discipline_path(self) -> None:
         output = self.run_cli("discipline-path", "validation", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertEqual(output.strip(), str(REPO_ROOT / "disciplines" / "validation.md"))
 
-    def test_no_legacy_cli_alias(self) -> None:
+    def test_catalog_has_machine_readable_metadata(self) -> None:
+        catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        for collection in ("lanes", "disciplines", "templates"):
+            for entry in catalog[collection]:
+                with self.subTest(collection=collection, entry=entry["id"]):
+                    self.assertIn("kind", entry)
+                    self.assertIn("category", entry)
+                    self.assertIn("file", entry)
+                    self.assertIn("description", entry)
+
+    def test_version_matches_catalogs(self) -> None:
+        root_catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        package_catalog = json.loads((REPO_ROOT / "src" / "engineering_core" / "catalog.json").read_text(encoding="utf-8"))
+        self.assertEqual(root_catalog["version"], __version__)
+        self.assertEqual(package_catalog["version"], __version__)
+
+    def test_no_legacy_cli_or_import_aliases(self) -> None:
         pyproject = (REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8")
         self.assertIn('engineering-core = "engineering_core.cli:main"', pyproject)
-        legacy_cli = "tech" + "-" + "stack" + "-" + "core"
-        legacy_package = "tech" + "_" + "stack" + "_" + "core"
-        self.assertNotIn(legacy_cli, pyproject)
-        self.assertNotIn(legacy_package, pyproject)
+        self.assertNotIn('tech-stack-core', pyproject)
+        self.assertFalse((REPO_ROOT / "src" / "tech_stack_core").exists())
 
     def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.3.1")
+        self.assertEqual(__version__, "0.3.3")
 
 
 if __name__ == "__main__":

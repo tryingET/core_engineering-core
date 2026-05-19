@@ -9,6 +9,30 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.3] - 2026-05-19
+
+### Added
+
+- Added `engineering-core scan-adoption` for generic multi-scope engineering-core adoption coverage scans across repos and package/member surfaces.
+- Added reusable adoption scan/render modules and tests for structural status, legacy detection, invalid policies, package surfaces, and catalog-aware lane/discipline validation.
+- Added `docs/vision.md` for the cross-company adoption scanner/guidance substrate target state.
+
+### Changed
+
+- Documented that engineering-core owns scanner semantics while lane/company roots own generated rollout dashboards and JSON snapshots.
+- Updated repo-local AGENTS guidance to include adoption scanner ownership, change discipline, and validation.
+
+## [0.3.2] - 2026-05-18
+
+### Added
+
+- Added repo-local `AGENTS.md` guardrails for lane/discipline/catalog/template changes.
+
+### Changed
+
+- Enriched the machine-readable catalog with kind/category, file name, and short description metadata for lanes, disciplines, and templates.
+- Documented version-bump, generated `dist/` artifact policy, and no-legacy-alias rename posture in repo-facing guidance.
+
 ## [0.3.1] - 2026-05-17
 
 ### Changed

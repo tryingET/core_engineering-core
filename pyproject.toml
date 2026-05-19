@@ -1,6 +1,6 @@
 [project]
 name = "engineering-core"
-version = "0.3.1"
+version = "0.3.3"
 description = "Shared engineering lanes, cross-language disciplines, and CLI for consistent project workflows."
 readme = "README.md"
 requires-python = ">=3.8"
