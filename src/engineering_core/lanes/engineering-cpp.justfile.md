@@ -113,6 +113,28 @@ clean:
     rm -rf "{{build_dir}}"
 ```
 
+## Optional repo-loop-validation-v1 mappings
+
+C++ repos that participate in agent/prompt orchestration loops may adopt `repo-loop-validation-v1` as thin `just loop-*` recipes that delegate to CMake/preset validation or repo-local wrappers.
+
+Recommended C++ mappings:
+
+- `loop-doctor`
+  - prefer a non-failing diagnostic that reports compiler/CMake/generator versions, configured build directory, dirty tree, task-scope binding, and known blockers
+  - fallback: capture `just doctor` output and documented scope diagnostics without making `loop-doctor` fail
+- `loop-verify-fast`
+  - prefer the fastest truthful focused gate, such as targeted compile/test for touched components, `ctest -R <pattern>`, non-mutating format checks/lint, or existing `just check`
+- `loop-impact-plan`
+  - prefer a repo-local changed-file classifier that maps source/headers, CMake/presets, generated code, ABI/API surfaces, tests, and docs to bounded/expanded/wide checks
+- `loop-impact-run`
+  - prefer the bounded/expanded checks named by the plan, usually configure/build plus targeted CTest/lint for touched components
+- `loop-impact-wide`
+  - prefer `just ci` or the repo's full local validation wrapper when wide impact is accepted
+- `loop-landing-check`
+  - prefer the repo-declared pre-commit/pre-push readiness gate, including build artifact, generated-code, task-scope, and evidence checks where applicable
+
+Shared loop semantics and authority boundaries live in `disciplines/validation.md`; this section only maps lane-specific implementation choices.
+
 ## Omission rule
 
 Do not invent fake long-running `run` behavior or fake benchmark targets.

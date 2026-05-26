@@ -29,6 +29,19 @@ Owner surface: `docs/engineering.local.md`
 - `just ci`: `<maps to>`
 - `just doctor`: `<maps to>`
 
+## Loop validation crosswalk (optional)
+
+Use when this repo exposes `repo-loop-validation-v1` for agent/orchestration loops:
+
+| Loop phase | Command | Validation tier relationship | Notes |
+|---|---|---|---|
+| `loop-doctor` | `<command or n/a>` | diagnostic / pre-task | non-failing; reports blockers |
+| `loop-verify-fast` | `<command or n/a>` | task-scope | focused inner-loop evidence |
+| `loop-impact-plan` | `<command or n/a>` | task-scope planning | classifies changed-file risk |
+| `loop-impact-run` | `<command or n/a>` | task-scope / pre-push | bounded or expanded checks |
+| `loop-impact-wide` | `<command or n/a>` | pre-push / CI rehearsal | explicit wide validation acceptance |
+| `loop-landing-check` | `<command or n/a>` | pre-push / CI / repo gate | repo-declared landing readiness |
+
 ## Evidence rule
 
 Every handoff records:

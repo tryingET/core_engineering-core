@@ -49,3 +49,16 @@ Selected disciplines:
 ## Evidence expectations
 
 Record the smallest truthful validation set for normal handoff and the stronger release/CI-equivalent set when different.
+
+## Repo loop validation (optional)
+
+If this repo participates in agent, slash-command, visible-loop, nexus-loop, or other prompt-driven implementation loops, map `repo-loop-validation-v1` phases to local commands or explicit fallbacks:
+
+- `loop-doctor`: `<command or n/a: reason>`
+- `loop-verify-fast`: `<command or n/a: reason>`
+- `loop-impact-plan`: `<command or n/a: reason>`
+- `loop-impact-run`: `<command or n/a: reason>`
+- `loop-impact-wide`: `<command or n/a: reason>`
+- `loop-landing-check`: `<command or n/a: reason>`
+
+These commands produce evidence for handoff; they do not replace repo, AK, CI, release, or governance authority.

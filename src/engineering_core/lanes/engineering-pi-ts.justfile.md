@@ -43,6 +43,28 @@ Prefer existing package scripts and release-check wrappers over duplicating logi
 - `just dev`
   - usually omit unless the extension package has a real watch/dev loop worth exposing
 
+## Optional repo-loop-validation-v1 mappings
+
+Pi extension TypeScript repos that participate in agent/prompt orchestration loops may adopt `repo-loop-validation-v1` as thin `just loop-*` recipes that delegate to package scripts and pi/release-check wrappers.
+
+Recommended pi extension TypeScript mappings:
+
+- `loop-doctor`
+  - prefer a non-failing diagnostic that reports Node/npm versions, package install posture, pi extension packaging posture, dirty tree, task-scope binding, and known blockers
+  - fallback: capture `just doctor` output and documented scope diagnostics without making `loop-doctor` fail
+- `loop-verify-fast`
+  - prefer the fastest truthful focused gate, usually `npm run check`, targeted `node --test`, or the repo's existing `just check`
+- `loop-impact-plan`
+  - prefer a repo-local changed-file classifier that maps extension source, prompts/skills, package metadata, lockfiles, tests, and docs to bounded/expanded/wide checks
+- `loop-impact-run`
+  - prefer the bounded/expanded checks named by the plan, usually targeted tests plus package check/build for touched extension packages
+- `loop-impact-wide`
+  - prefer `npm run release:check`, `just ci`, or the repo's full local release/validation preflight when wide impact is accepted
+- `loop-landing-check`
+  - prefer the repo-declared release/readiness gate, including package metadata, generated bundle, task-scope, and evidence checks where applicable
+
+Shared loop semantics and authority boundaries live in `disciplines/validation.md`; this section only maps lane-specific implementation choices.
+
 ## Omission rule
 
 Do not create a fake `dev` target for small extension/prompt packages that do not have a meaningful long-running development mode.

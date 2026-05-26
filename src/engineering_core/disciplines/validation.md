@@ -40,6 +40,23 @@ just doctor    environment sanity
 
 Do not invent fake targets. If a target is intentionally unavailable, say why.
 
+## Loop validation surface
+
+Repos that participate in agent or prompt loops may expose a repo-owned `repo-loop-validation-v1` surface so orchestration can ask for validation by phase without hardcoding repo-specific commands:
+
+```text
+loop-doctor         non-failing diagnostics for environment, dirty tree, task scope, and blockers
+loop-verify-fast    focused inner-loop validation for the current slice
+loop-impact-plan    classify changed-file risk and name checks to run
+loop-impact-run     run bounded/expanded impact checks selected by the plan
+loop-impact-wide    explicitly accepted wide validation
+loop-landing-check  repo-declared landing/readiness gate
+```
+
+These commands produce evidence, not authority. Slash commands, visible loops, and agent loops may request them, but repo policy, AK task/decision/evidence surfaces where applicable, CI/release systems, and human/governance approvals retain authority. Use `templates/repo-loop-validation.template.md` to map generic loop phases to local commands or documented fallbacks.
+
+Loop command handoffs should make the invoked phase, validation scope, result, warnings, artifacts, fallback/escalation, and remaining authority boundary recoverable. In particular, `loop-doctor` is diagnostic rather than a validation pass; `loop-impact-plan` should classify bounded/expanded/wide impact and name the next command; `loop-landing-check` should state the repo-declared gate it maps to and any AK, CI, release, or governance handoff that remains.
+
 ## Evidence contract
 
 A validation handoff names:

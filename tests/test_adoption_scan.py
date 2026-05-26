@@ -16,10 +16,27 @@ def mark_git(path: Path) -> None:
     (path / ".git").mkdir(parents=True)
 
 
-def write_adoption(path: Path, *, lane: str = "ts", disciplines: list[str] | None = None) -> None:
+def write_adoption(
+    path: Path,
+    *,
+    lane: str = "ts",
+    disciplines: list[str] | None = None,
+    loop_validation: object | None = None,
+) -> None:
     (path / "docs").mkdir(parents=True, exist_ok=True)
     (path / "policy").mkdir(parents=True, exist_ok=True)
     selected_disciplines = disciplines or ["validation", "testing", "security-privacy", "documentation", "dependency-governance", "observability"]
+    engineering_core = {
+        "tool": "engineering-core",
+        "lane": lane,
+        "ref": "workspace-local-unpinned",
+        "catalog_command": "engineering-core catalog --pretty",
+        "list_disciplines_command": "engineering-core list-disciplines",
+        "list_templates_command": "engineering-core list-templates",
+        "disciplines": selected_disciplines,
+    }
+    if loop_validation is not None:
+        engineering_core["loop_validation"] = loop_validation
     (path / "docs" / "engineering.local.md").write_text(
         "# engineering.local\n\nCanonical local commands: run validation before handoff.\n",
         encoding="utf-8",
@@ -28,19 +45,28 @@ def write_adoption(path: Path, *, lane: str = "ts", disciplines: list[str] | Non
         json.dumps(
             {
                 "lane": lane,
-                "engineering_core": {
-                    "tool": "engineering-core",
-                    "lane": lane,
-                    "ref": "workspace-local-unpinned",
-                    "catalog_command": "engineering-core catalog --pretty",
-                    "list_disciplines_command": "engineering-core list-disciplines",
-                    "list_templates_command": "engineering-core list-templates",
-                    "disciplines": selected_disciplines,
-                },
+                "engineering_core": engineering_core,
             }
         ),
         encoding="utf-8",
     )
+
+
+def complete_loop_validation(**overrides: str) -> dict[str, object]:
+    commands = {
+        "loop-doctor": "just loop-doctor",
+        "loop-verify-fast": "just loop-verify-fast",
+        "loop-impact-plan": "just loop-impact-plan",
+        "loop-impact-run": "just loop-impact-run",
+        "loop-impact-wide": "just loop-impact-wide",
+        "loop-landing-check": "just loop-landing-check",
+    }
+    commands.update(overrides)
+    return {
+        "version": "repo-loop-validation-v1",
+        "contract_doc": "docs/engineering.local.md#repo-loop-validation",
+        "commands": commands,
+    }
 
 
 class AdoptionScanTests(unittest.TestCase):
@@ -64,6 +90,77 @@ class AdoptionScanTests(unittest.TestCase):
             scan = build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
         self.assertEqual(scan["summary"]["status_counts"], {"adopted": 1})
         self.assertEqual(scan["summary"]["semantic_status_counts"], {"ok": 1})
+        self.assertEqual(scan["summary"]["loop_validation_status_counts"], {"absent": 1})
+        self.assertEqual(scan["records"][0]["loop_validation_status"], "absent")
+
+    def test_loop_validation_complete_contract_is_detected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo, loop_validation=complete_loop_validation())
+            scan = build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        record = scan["records"][0]
+        self.assertEqual(record["status"], "adopted")
+        self.assertEqual(record["loop_validation_status"], "complete")
+        self.assertEqual(scan["summary"]["loop_validation_status_counts"], {"complete": 1})
+        self.assertEqual(record["loop_validation_missing_commands"], [])
+
+    def test_loop_validation_explicit_na_counts_as_mapped(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo, loop_validation=complete_loop_validation(**{"loop-impact-wide": "n/a: wide validation belongs to CI"}))
+            scan = build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        self.assertEqual(scan["records"][0]["loop_validation_status"], "complete")
+
+    def test_loop_validation_partial_contract_is_review_candidate(self) -> None:
+        loop_validation = complete_loop_validation()
+        commands = loop_validation["commands"]
+        assert isinstance(commands, dict)
+        commands.pop("loop-impact-wide")
+        commands.pop("loop-landing-check")
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo, loop_validation=loop_validation)
+            scan = build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        record = scan["records"][0]
+        self.assertEqual(record["loop_validation_status"], "partial")
+        self.assertEqual(record["loop_validation_missing_commands"], ["loop-impact-wide", "loop-landing-check"])
+        self.assertEqual(scan["review_candidates"][0]["path"], "service")
+
+    def test_loop_validation_unknown_version_is_review_candidate(self) -> None:
+        loop_validation = complete_loop_validation()
+        loop_validation["version"] = "repo-loop-validation-v0"
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo, loop_validation=loop_validation)
+            scan = build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        self.assertEqual(scan["records"][0]["loop_validation_status"], "unknown-version")
+        self.assertIn("unknown loop validation version", scan["records"][0]["notes"][0])
+        self.assertEqual(scan["review_candidates"][0]["path"], "service")
+
+    def test_loop_validation_malformed_shape_is_invalid_loop_validation_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo, loop_validation=["not", "an", "object"])
+            scan = build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        record = scan["records"][0]
+        self.assertEqual(record["status"], "adopted")
+        self.assertEqual(record["loop_validation_status"], "invalid")
+        self.assertIn("loop_validation must be an object", record["notes"])
 
     def test_scan_invalid_policy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

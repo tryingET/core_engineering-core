@@ -33,6 +33,8 @@ Engineering-core should make broad adoption visible without becoming the runtime
 - Treat semantic adoption flags as advisory review signals, not policy enforcement.
 - Make scanner commands safe by default: read-only stdout unless explicit output paths are provided.
 - Prefer warning/ratchet rollout before hard CI gates.
+- Let repo-local loop validation command contracts guide agent/orchestration loops without turning those loops into validation or authority systems.
+- Make optional loop-validation adoption visible in scanner output while preserving repo ownership of command semantics and landing policy.
 
 ## Adoption horizon
 

@@ -33,6 +33,7 @@ Choose test forms by risk, not fashion. Lanes provide tools; this discipline def
 - Use E2E only for flows whose correctness depends on browser/runtime integration.
 - Use snapshots for intentional stable output; review snapshot changes as behavior changes.
 - Add regression tests for bugs that were plausible, not one-off environmental accidents.
+- In agent or prompt loops, use repo-declared loop validation phases (`loop-verify-fast`, impact planning/running, and `loop-landing-check` where present) to select tests by changed behavior and risk; do not treat loop orchestration itself as test authority.
 
 ## Test data
 

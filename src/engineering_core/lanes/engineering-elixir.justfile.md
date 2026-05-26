@@ -44,6 +44,28 @@ Prefer existing repo-local aliases and scripts when they already express the can
   - prefer an existing repo-local environment/runtime sanity command when present
   - fallback: a lightweight Elixir toolchain check such as `elixir --version && mix --version`
 
+## Optional repo-loop-validation-v1 mappings
+
+Elixir repos that participate in agent/prompt orchestration loops may adopt `repo-loop-validation-v1` as thin `just loop-*` recipes that delegate to Mix aliases or repo-local wrappers.
+
+Recommended Elixir mappings:
+
+- `loop-doctor`
+  - prefer a non-failing diagnostic that reports Erlang/Elixir/Mix versions, dependency/database posture, dirty tree, task-scope binding, and known blockers
+  - fallback: capture `just doctor` output and documented scope diagnostics without making `loop-doctor` fail
+- `loop-verify-fast`
+  - prefer the fastest truthful focused gate, such as targeted `mix test <path>`, `mix compile --warnings-as-errors`, `mix credo` for touched apps, or existing `just check`
+- `loop-impact-plan`
+  - prefer a repo-local changed-file classifier that maps apps, tests, config, migrations, assets, generated files, and docs to bounded/expanded/wide checks
+- `loop-impact-run`
+  - prefer the bounded/expanded checks named by the plan, usually app-local tests/compile/credo plus migration checks when touched
+- `loop-impact-wide`
+  - prefer `just ci`, `mix ci`, or the repo's full local validation wrapper when wide impact is accepted
+- `loop-landing-check`
+  - prefer the repo-declared pre-commit/pre-push readiness gate, including migration, generated-code, task-scope, and evidence checks where applicable
+
+Shared loop semantics and authority boundaries live in `disciplines/validation.md`; this section only maps lane-specific implementation choices.
+
 ## Omission rule
 
 Do not invent fake `dev` or `build` targets if the repo has no meaningful long-running application surface or release contract.

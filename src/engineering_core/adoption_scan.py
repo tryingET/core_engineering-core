@@ -62,6 +62,17 @@ STRUCTURAL_REVIEW_STATUSES = {
     "invalid-policy",
 }
 
+LOOP_VALIDATION_VERSION = "repo-loop-validation-v1"
+LOOP_VALIDATION_COMMANDS = (
+    "loop-doctor",
+    "loop-verify-fast",
+    "loop-impact-plan",
+    "loop-impact-run",
+    "loop-impact-wide",
+    "loop-landing-check",
+)
+LOOP_VALIDATION_REVIEW_STATUSES = {"invalid", "partial", "unknown-version"}
+
 
 @dataclass
 class AdoptionRecord:
@@ -86,6 +97,12 @@ class AdoptionRecord:
     structural_notes: list[str]
     semantic_status: str
     semantic_flags: list[str]
+    has_loop_validation_contract: bool
+    loop_validation_version: str | None
+    loop_validation_status: str
+    loop_validation_commands: list[str]
+    loop_validation_missing_commands: list[str]
+    loop_validation_notes: list[str]
     notes: list[str]
 
 
@@ -131,9 +148,9 @@ def dedupe(items: list[str]) -> list[str]:
     return out
 
 
-def extract_policy(policy: dict[str, Any] | None) -> tuple[list[str], str | None, list[str], list[str], str | None, dict[str, bool]]:
+def extract_policy(policy: dict[str, Any] | None) -> tuple[dict[str, Any], list[str], str | None, list[str], list[str], str | None, dict[str, bool]]:
     if not policy:
-        return [], None, [], [], None, {
+        return {}, [], None, [], [], None, {
             "catalog_command": False,
             "list_disciplines_command": False,
             "list_templates_command": False,
@@ -159,7 +176,44 @@ def extract_policy(policy: dict[str, Any] | None) -> tuple[list[str], str | None
         "list_disciplines_command": isinstance(ec.get("list_disciplines_command"), str) and bool(ec.get("list_disciplines_command")),
         "list_templates_command": isinstance(ec.get("list_templates_command"), str) and bool(ec.get("list_templates_command")),
     }
-    return dedupe(lanes), lane_status, dedupe(implementation_stack), dedupe(disciplines), ref, commands
+    return ec, dedupe(lanes), lane_status, dedupe(implementation_stack), dedupe(disciplines), ref, commands
+
+
+def extract_loop_validation(ec: dict[str, Any]) -> tuple[bool, str | None, str, list[str], list[str], list[str]]:
+    loop_validation = ec.get("loop_validation")
+    if loop_validation is None:
+        return False, None, "absent", [], [], []
+    if not isinstance(loop_validation, dict):
+        return True, None, "invalid", [], list(LOOP_VALIDATION_COMMANDS), ["loop_validation must be an object"]
+
+    version = loop_validation.get("version")
+    if not isinstance(version, str) or not version:
+        return True, None, "invalid", [], list(LOOP_VALIDATION_COMMANDS), ["loop_validation.version must be a non-empty string"]
+
+    raw_commands = loop_validation.get("commands")
+    if not isinstance(raw_commands, dict):
+        return True, version, "invalid", [], list(LOOP_VALIDATION_COMMANDS), ["loop_validation.commands must be an object"]
+
+    mapped_commands: list[str] = []
+    missing_commands: list[str] = []
+    notes: list[str] = []
+    for command in LOOP_VALIDATION_COMMANDS:
+        value = raw_commands.get(command)
+        if isinstance(value, str) and value.strip():
+            mapped_commands.append(command)
+        else:
+            missing_commands.append(command)
+
+    unknown_commands = sorted(str(command) for command in raw_commands if command not in LOOP_VALIDATION_COMMANDS)
+    if unknown_commands:
+        notes.append("unknown loop validation command(s): " + ", ".join(unknown_commands))
+    if version != LOOP_VALIDATION_VERSION:
+        notes.append(f"unknown loop validation version: {version}")
+        return True, version, "unknown-version", mapped_commands, missing_commands, notes
+    if missing_commands:
+        notes.append("missing loop validation command(s): " + ", ".join(missing_commands))
+        return True, version, "partial", mapped_commands, missing_commands, notes
+    return True, version, "complete", mapped_commands, [], notes
 
 
 def classify(
@@ -275,7 +329,15 @@ def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disc
 def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], valid_disciplines: set[str], name: str | None = None) -> AdoptionRecord:
     policy_path = path / ENGINEERING_POLICY
     policy, json_error = load_json(policy_path)
-    lanes, lane_status, implementation_stack, disciplines, ref_value, commands = extract_policy(policy)
+    ec, lanes, lane_status, implementation_stack, disciplines, ref_value, commands = extract_policy(policy)
+    (
+        has_loop_validation_contract,
+        loop_validation_version,
+        loop_validation_status,
+        loop_validation_commands,
+        loop_validation_missing_commands,
+        loop_validation_notes,
+    ) = extract_loop_validation(ec)
     has_doc = (path / ENGINEERING_DOC).exists()
     has_policy = policy_path.exists()
     has_legacy_doc = (path / LEGACY_DOC).exists()
@@ -297,7 +359,7 @@ def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], val
         unknown_disciplines=unknown_disciplines,
     )
     semantic_status, semantic_flags = semantic_audit(path, scope=scope, kind=kind, lanes=lanes, disciplines=disciplines, has_doc=has_doc)
-    notes = structural_notes + semantic_flags
+    notes = structural_notes + semantic_flags + loop_validation_notes
     path_rel = rel_to(path, scope)
     return AdoptionRecord(
         scope=str(scope.resolve()),
@@ -321,6 +383,12 @@ def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], val
         structural_notes=structural_notes,
         semantic_status=semantic_status,
         semantic_flags=semantic_flags,
+        has_loop_validation_contract=has_loop_validation_contract,
+        loop_validation_version=loop_validation_version,
+        loop_validation_status=loop_validation_status,
+        loop_validation_commands=loop_validation_commands,
+        loop_validation_missing_commands=loop_validation_missing_commands,
+        loop_validation_notes=loop_validation_notes,
         notes=notes,
     )
 
@@ -463,13 +531,21 @@ def build_scan(
                 "total": len(scope_records),
                 "status_counts": count(scope_records, "status"),
                 "semantic_status_counts": count(scope_records, "semantic_status"),
+                "loop_validation_status_counts": count(scope_records, "loop_validation_status"),
             }
         )
         records.extend(scope_records)
 
     structural_counts = count(records, "status")
     semantic_counts = count(records, "semantic_status")
-    review_records = [record for record in records if record.status in STRUCTURAL_REVIEW_STATUSES or record.semantic_status != "ok"]
+    loop_validation_counts = count(records, "loop_validation_status")
+    review_records = [
+        record
+        for record in records
+        if record.status in STRUCTURAL_REVIEW_STATUSES
+        or record.semantic_status != "ok"
+        or record.loop_validation_status in LOOP_VALIDATION_REVIEW_STATUSES
+    ]
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "scopes": [str(scope.resolve()) for scope in scopes],
@@ -482,10 +558,12 @@ def build_scan(
             "packages": len([record for record in records if record.kind == "package"]),
             "status_counts": structural_counts,
             "semantic_status_counts": semantic_counts,
+            "loop_validation_status_counts": loop_validation_counts,
         },
         "total": len(records),
         "status_counts": structural_counts,
         "semantic_status_counts": semantic_counts,
+        "loop_validation_status_counts": loop_validation_counts,
         "scope_summaries": scope_summaries,
         "review_candidates": [asdict(record) for record in review_records],
         "records": [asdict(record) for record in records],

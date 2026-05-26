@@ -16,8 +16,8 @@ Engineering-core is a shared guidance source, not the runtime authority for ever
 |---|---|---|
 | Shared language lane guidance | `core/engineering-core` | Ecosystem defaults, command surface patterns, conditional addenda, and CLI retrieval. |
 | Shared cross-language engineering invariants | `core/engineering-core` disciplines | Portable decision rules that apply across languages and repo shapes. |
-| Reusable adoption scanner semantics | `core/engineering-core scan-adoption` | Structural status taxonomy, catalog-aware lane/discipline validation, generic package/member discovery, and generic JSON/Markdown rendering. |
-| Repo/package-local deviations and selected subset | repo-local `docs/engineering.local.md` | Higher priority than shared lane/discipline docs for that repo. Should explain local commands, deviations, and evidence expectations. |
+| Reusable adoption scanner semantics | `core/engineering-core scan-adoption` | Structural status taxonomy, catalog-aware lane/discipline validation, optional repo-loop-validation visibility, generic package/member discovery, and generic JSON/Markdown rendering. |
+| Repo/package-local deviations, selected subset, and loop command semantics | repo-local `docs/engineering.local.md` | Higher priority than shared lane/discipline docs for that repo. Should explain local commands, loop validation mappings when adopted, deviations, and evidence expectations. |
 | Machine-readable lane declaration | repo-local `policy/engineering-lane.json` when needed | Useful for generated repos, package validation, and provenance. Do not create it when local docs are enough. |
 | Generated adoption snapshots and rollout dashboards | scanned scope owner | Examples: lane/company `governance/engineering-core-adoption-scan.json` and `docs/project/engineering-core-adoption-dashboard.md`. These are projections, not core doctrine. |
 | Canonical validation-tier policy | `holdingco/governance-kernel` | Engineering-core may reference and summarize validation tiers, but governance-kernel owns the canonical policy source. |

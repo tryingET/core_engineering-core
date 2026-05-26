@@ -1,6 +1,6 @@
 {
   "name": "engineering-core",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "cli": "engineering-core",
   "model": {
     "lane": "ecosystem-specific tooling and commands",
@@ -496,6 +496,15 @@
       "category": "adoption-template",
       "file": "validation-tier-map.template.md",
       "description": "Mapping repo commands to validation tiers"
+    },
+    {
+      "id": "repo-loop-validation",
+      "path": "templates/repo-loop-validation.template.md",
+      "use_for": "Mapping repo-local loop validation commands for agent and prompt loops",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "repo-loop-validation.template.md",
+      "description": "Mapping repo-local loop validation commands for agent and prompt loops"
     },
     {
       "id": "data-classification",

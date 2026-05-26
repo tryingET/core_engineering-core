@@ -9,6 +9,19 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-05-25
+
+### Added
+
+- Added `repo-loop-validation-v1` as a reusable repo-owned loop validation command contract for agent, slash-command, visible-loop, nexus-loop, and future prompt-loop scenarios.
+- Added the `repo-loop-validation` template to the CLI/catalog and package template resources.
+- Added optional `engineering_core.loop_validation` scanner visibility with loop validation status counts, missing command details, and markdown report rendering.
+- Added engineering-local and validation-tier-map template sections for optional loop validation mappings.
+
+### Changed
+
+- Clarified in validation/testing disciplines, adoption docs, authority map, README, and vision that loop commands produce evidence and do not replace AK, CI/release, repo landing, or governance authority.
+
 ## [0.3.3] - 2026-05-19
 
 ### Added

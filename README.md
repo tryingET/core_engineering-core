@@ -56,7 +56,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/engineering-ts.ts-quality.md` / `engineering-pi-ts.ts-quality.md` — TypeScript quality addenda
 - `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
 - `disciplines/` — cross-language discipline docs
-- `templates/` — adoption, validation, data, observability, security/privacy, and docs-authority templates
+- `templates/` — adoption, validation, repo-loop validation, data, observability, security/privacy, and docs-authority templates
 - `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
 - `engineering-core scan-adoption` — generic consumer adoption scanner for repo/lane/company scopes; scope owners keep generated rollout dashboards and JSON snapshots
 
@@ -178,7 +178,7 @@ Package-visible changes should bump the patch version. New docs and automation s
 
 ## Adoption scanner
 
-`engineering-core scan-adoption` is the reusable scanner for engineering-core adoption across single repos, lane roots, company roots, and workspace scopes. It reports current adoption, legacy surfaces, invalid policy JSON, doc-only/policy-only partials, catalog id issues, and advisory semantic review flags.
+`engineering-core scan-adoption` is the reusable scanner for engineering-core adoption across single repos, lane roots, company roots, and workspace scopes. It reports current adoption, legacy surfaces, invalid policy JSON, doc-only/policy-only partials, catalog id issues, advisory semantic review flags, and optional `repo-loop-validation-v1` status counts when a repo declares that contract.
 
 Engineering-core owns the scanner semantics. The scanned scope owns generated outputs and rollout interpretation.
 
@@ -209,6 +209,7 @@ engineering-core scan-adoption \
 - Print catalog JSON: `uv tool run --from . engineering-core catalog --pretty --prefer-repo`
 - Print discipline overview: `uv tool run --from . engineering-core overview --prefer-repo` or `uv tool run --from . engineering-core show-discipline README --prefer-repo`
 - Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
+- Print the loop validation contract template: `uv tool run --from . engineering-core show-template repo-loop-validation --prefer-repo`
 - Recommend a profile: `uv tool run --from . engineering-core recommend browser-app --prefer-repo`
 - Recommend from repo metadata: `uv tool run --from . engineering-core recommend --repo /path/to/repo --prefer-repo`
 - Scan adoption coverage: `uv tool run --from . engineering-core scan-adoption --scope /path/to/root --include-packages --format json --prefer-repo`

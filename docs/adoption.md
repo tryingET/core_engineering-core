@@ -58,7 +58,7 @@ The rename to `engineering-core` is intentionally breaking. Do not recreate old 
 
 ## Adoption scanning
 
-Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, and heuristic semantic discipline flags.
+Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, heuristic semantic discipline flags, and optional `repo-loop-validation-v1` coverage when declared in `policy/engineering-lane.json`.
 
 Examples:
 
@@ -69,6 +69,8 @@ engineering-core scan-adoption --scope ~/ai-society/core --scope ~/ai-society/so
 ```
 
 Keep generated rollout state in the scope owner, not in engineering-core. For example, a lane root may write `governance/engineering-core-adoption-scan.json` and `docs/project/engineering-core-adoption-dashboard.md`, but engineering-core owns the scanner semantics and generic report shape. Start with warning/ratchet use before hard CI gates so scope owners can distinguish true adoption debt from intentional local posture.
+
+Loop validation visibility is optional. `absent` does not make a repo structurally partial; `partial`, `invalid`, or `unknown-version` only means the repo declared a loop validation contract that needs review.
 
 ## Version pinning
 

@@ -142,6 +142,14 @@ class CliTests(unittest.TestCase):
         output = self.run_cli("show-template", "validation-tier-map", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertIn("Validation Tier Map", output)
 
+    def test_show_repo_loop_validation_template(self) -> None:
+        output = self.run_cli("show-template", "repo-loop-validation", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Repo Loop Validation Contract v1", output)
+        self.assertIn("loop-landing-check", output)
+        self.assertIn("Loop command output contract", output)
+        self.assertIn("result: `passed`, `failed`, `blocked`, `diagnostic`, or `not-run`", output)
+        self.assertIn("Do not claim semantic completion", output)
+
     def test_template_path(self) -> None:
         output = self.run_cli("template-path", "engineering-local", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertEqual(output.strip(), str(REPO_ROOT / "templates" / "engineering.local.template.md"))
@@ -239,7 +247,7 @@ class CliTests(unittest.TestCase):
         self.assertFalse((REPO_ROOT / "src" / "tech_stack_core").exists())
 
     def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.3.3")
+        self.assertEqual(__version__, "0.3.4")
 
 
 if __name__ == "__main__":
