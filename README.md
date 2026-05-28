@@ -142,7 +142,7 @@ Each lane should choose ecosystem-native quality tools, but the desirable charac
 - pinned or toolchain-governed versions when dependencies are introduced
 - minimal baseline tooling; optional tools stay conditional until a repo proves the need
 
-Examples: TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
+Examples: TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff plus `prek` as the preferred hook runner when a Git hook manager is needed; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
 
 ## Per-repo overrides
 

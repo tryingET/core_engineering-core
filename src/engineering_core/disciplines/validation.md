@@ -40,6 +40,17 @@ just doctor    environment sanity
 
 Do not invent fake targets. If a target is intentionally unavailable, say why.
 
+## Normalization before validation
+
+Commit workflows should separate mutation-producing normalization from non-mutating validation:
+
+1. run the repo-declared formatter/fixer or hook stack on the intended file set;
+2. inspect the resulting diff;
+3. explicitly stage only intended normalized paths;
+4. run the repo-declared check/validation mode after normalization.
+
+Hook managers are lane/repo implementation details. Python repos should prefer `prek` when they need a Git hook runner; TypeScript may use Biome/package scripts, Go may use `gofmt`/`goimports`, Rust may use `cargo fmt`, C++ may use `clang-format`, and Elixir may use `mix format`. The invariant is portable: write/fix mode may mutate local files, while validation/CI gates should be non-mutating.
+
 ## Loop validation surface
 
 Repos that participate in agent or prompt loops may expose a repo-owned `repo-loop-validation-v1` surface so orchestration can ask for validation by phase without hardcoding repo-specific commands:

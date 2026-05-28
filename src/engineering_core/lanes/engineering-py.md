@@ -92,9 +92,9 @@ This is the complete lifecycle, from project creation to daily work.
 *   **Ad-Hoc Script Management:** (For utility scripts without polluting the main environment)
     *   Add dependencies to a script: `uv add --script scripts/my_script.py 'pandas' 'polars'`
     *   Run a script with its managed dependencies: `uv run --script scripts/my_script.py`
-*   **Manage Standalone Tools:** (Install tools like `pre-commit` into a shared, isolated environment)
-    *   Install a tool: `uv tool install pre-commit`
-    *   Run an installed tool: `uv tool run pre-commit install`
+*   **Manage Standalone Tools:** (Install hook runners and other CLIs into a shared, isolated environment)
+    *   Preferred Python hook runner when a repo needs Git hooks: `uv tool run prek install` or `uvx prek install`
+    *   `prek` is a fast, language-agnostic hook manager that can run `prek.toml` or compatible `.pre-commit-config.yaml` hook definitions; use `pre-commit` only when a repo explicitly requires that runner.
     *   List installed tools: `uv tool list`
 
 ---
