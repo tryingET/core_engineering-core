@@ -49,7 +49,7 @@ Commit workflows should separate mutation-producing normalization from non-mutat
 3. explicitly stage only intended normalized paths;
 4. run the repo-declared check/validation mode after normalization.
 
-Hook managers are lane/repo implementation details. Python repos should prefer `prek` when they need a Git hook runner; TypeScript may use Biome/package scripts, Go may use `gofmt`/`goimports`, Rust may use `cargo fmt`, C++ may use `clang-format`, and Elixir may use `mix format`. The invariant is portable: write/fix mode may mutate local files, while validation/CI gates should be non-mutating.
+Hook managers are repo implementation details, but when a repo needs a Git hook runner the cross-lane default is `prek`: it is language-agnostic and can run either `prek.toml` or compatible `.pre-commit-config.yaml` hook definitions through deterministic CLI invocation. Use another runner only when the repo has a specific reason. TypeScript may use Biome/package scripts for normalization, Python may use Ruff, Go may use `gofmt`/`goimports`, Rust may use `cargo fmt`, C++ may use `clang-format`, and Elixir may use `mix format`. The invariant is portable: write/fix mode may mutate local files, while validation/CI gates should be non-mutating.
 
 ## Loop validation surface
 
