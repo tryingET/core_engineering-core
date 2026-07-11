@@ -32,7 +32,7 @@
     }
   },
   "catalog": {
-    "source": "repo",
+    "source": "packaged",
     "version": "0.7.0"
   },
   "checks": [
