@@ -1,3 +1,8 @@
+# ---
+# summary: "Renders adoption scan records as escaped Markdown tables and a generated coverage report with structural, semantic, and loop-validation summaries."
+# read_when:
+#   - "Changing adoption scan output fields, report sections or columns, review-candidate presentation, or Markdown escaping rules."
+# ---
 from __future__ import annotations
 
 import json

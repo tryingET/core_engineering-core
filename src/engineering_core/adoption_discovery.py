@@ -1,3 +1,8 @@
+# ---
+# summary: "Discovers repository and package adoption surfaces while enforcing skip rules, nested-repository ownership, traversal budgets, and budgeted text reads."
+# read_when:
+#   - "Changing adoption scan traversal modes, excluded directories, package-surface ownership, or depth, file, and byte budget behavior."
+# ---
 from __future__ import annotations
 
 import os

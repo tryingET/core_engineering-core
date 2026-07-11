@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# ---
+# summary: "Builds a temporary Git repository to verify evidence reconciliation across matched, stale, mismatched, and unsafe owner-receipt inputs."
+# read_when:
+#   - "Changing evidence receipt bindings, reconciliation state classification, Git revision checks, or unsafe receipt-path handling."
+# ---
 """Deterministic, read-only owner-evidence reconciliation dogfood."""
 from __future__ import annotations
 

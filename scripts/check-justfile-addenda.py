@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# ---
+# summary: "Validates that every catalog lane ships a standardized Justfile addendum and links it from lane and README documentation."
+# read_when:
+#   - "Maintaining lane addendum names, required Justfile guidance, catalog lane membership, or the README companion convention."
+# ---
 from __future__ import annotations
 
 import re

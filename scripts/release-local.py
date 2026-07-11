@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# ---
+# summary: "Plans, verifies, and optionally creates local engineering-core release tags after checking versions, release documentation, catalog history, tests, CLI behavior, and built artifacts."
+# read_when:
+#   - "Preparing a local release or changing version consistency, release proof commands, packaged-file requirements, or tag creation safeguards."
+# ---
 from __future__ import annotations
 
 import argparse

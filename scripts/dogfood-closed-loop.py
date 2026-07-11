@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# ---
+# summary: "Runs a deterministic closed-loop fixture from engineering plans and advisor output through owner dispositions, evidence receipts, calibration, and unapplied doctrine proposals."
+# read_when:
+#   - "Changing advisor validation, closed-loop record schemas, calibration and synthesis rules, or doctrine proposal safety guarantees."
+# ---
 """Reproducible, read-only Wave 4 closed-loop dogfood."""
 from __future__ import annotations
 
