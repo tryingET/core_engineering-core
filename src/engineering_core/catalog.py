@@ -1,3 +1,4 @@
+# Summary: Defines typed catalog records, validates catalog collections and protocol identifiers, and loads packaged or repository catalog versions. Read when: evolving catalog schema, dependency validation, protocol defaults, or catalog source precedence.
 from __future__ import annotations
 
 import os

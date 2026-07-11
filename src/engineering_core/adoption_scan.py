@@ -1,3 +1,4 @@
+# Summary: Discovers repository and package adoption surfaces, validates policy selections, and reports structural, semantic, and loop-validation coverage. Read when: changing adoption status taxonomy, scan budgets, discovery behavior, or policy-derived review criteria.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

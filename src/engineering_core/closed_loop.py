@@ -1,4 +1,5 @@
 """Deterministic, read-only processing of owner-authored closed-loop evidence."""
+# Summary: Validates bound owner receipts and dispositions, then derives calibration, recurring-pattern, and unapplied doctrine-proposal artifacts. Read when: changing closed-loop schemas, evidence bindings, state transitions, or synthesis authority boundaries.
 from __future__ import annotations
 
 import hashlib

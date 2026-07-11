@@ -1,3 +1,4 @@
+# Summary: Implements the engineering-core command-line interface for catalog retrieval, recommendations, plans, advice, adoption scans, and delegated capability or closed-loop commands. Read when: adding commands, changing argument contracts, output routing, or repository-versus-packaged resource selection.
 from __future__ import annotations
 
 import argparse

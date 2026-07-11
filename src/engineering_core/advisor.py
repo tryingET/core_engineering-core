@@ -1,3 +1,4 @@
+# Summary: Builds bounded redacted advice requests and validates provider responses, citations, provenance, and owner-local patch proposals. Read when: changing advisor schemas, disclosure budgets, redaction rules, or response trust boundaries.
 from __future__ import annotations
 
 import hashlib
