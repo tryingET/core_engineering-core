@@ -86,7 +86,9 @@ The older structural scanner and the v0.6 capability observer answer different q
 
 A repository may optionally add exact `engineering-core-capabilities-v1` metadata under `engineering_core.capability_contract`. The contract contains protocol identifiers and declaration status only—never shell commands, argv, URLs, credentials, or executable hooks. Missing declarations remain valid and report `absent/not-declared/not-supplied`.
 
-Static observation is not execution evidence. V1 does not ingest receipts and cannot emit `execution-observed` or `evidence-verified`. Keep canonical repository populations, rollout dashboards, exceptions, tasks, and runtime evidence with their owner surfaces.
+Static observation is not execution evidence. Doctor and capability scan v1 remain receipt-free and cannot emit `execution-observed` or `evidence-verified`. Keep canonical repository populations, rollout dashboards, exceptions, tasks, and runtime evidence with their owner surfaces.
+
+Use `reconcile-evidence` only when an owner explicitly supplies stable repository-id/path mappings and receipt paths. Its matched result means the supplied receipt, bounded artifact, plan bindings, and revision ancestry reconcile; it does not authenticate the owner or promote evidence into AK, CI, release, compliance, or rollout authority.
 
 ```bash
 engineering-core doctor --repo /path/to/repo --pretty

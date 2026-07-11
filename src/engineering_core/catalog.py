@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-import json
+import os
 from dataclasses import dataclass
 from importlib import resources
 from pathlib import Path
 from typing import Any
+
+from engineering_core.safe_io import SafeInputError, read_bounded_json
 
 
 @dataclass(frozen=True)
@@ -22,6 +24,7 @@ class CatalogProtocols:
     advice_response: str
     evidence_receipt: str
     recommendation_disposition: str
+    evidence_reconciliation: str = "engineering-evidence-reconciliation-v1"
 
 
 @dataclass(frozen=True)
@@ -74,7 +77,7 @@ def parse_catalog(raw: Any) -> Catalog:
     required = ("engineering_plan", "advice_request", "advice_response")
     if not isinstance(protocol_raw, dict) or not all(isinstance(protocol_raw.get(key), str) and protocol_raw[key] and len(protocol_raw[key].encode("utf-8")) <= 4096 for key in required):
         raise ValueError("catalog.protocols is missing required protocol identifiers")
-    optional = ("evidence_receipt", "recommendation_disposition")
+    optional = ("evidence_receipt", "recommendation_disposition", "evidence_reconciliation")
     if any(key in protocol_raw and (not isinstance(protocol_raw[key], str) or not protocol_raw[key] or len(protocol_raw[key].encode("utf-8")) > 4096) for key in optional):
         raise ValueError("catalog.protocols closed-loop identifiers must be non-empty strings")
     # v0.5 catalogs predate closed-loop protocol metadata. Keep existing
@@ -84,6 +87,7 @@ def parse_catalog(raw: Any) -> Catalog:
         *(protocol_raw[key] for key in required),
         protocol_raw.get("evidence_receipt", "engineering-evidence-receipt-v1"),
         protocol_raw.get("recommendation_disposition", "engineering-recommendation-disposition-v1"),
+        protocol_raw.get("evidence_reconciliation", "engineering-evidence-reconciliation-v1"),
     )
     catalog = Catalog(raw, _items(raw, "lanes"), _items(raw, "disciplines"), _items(raw, "templates"), protocols)
     known = set(catalog.ids("lanes")) | set(catalog.ids("disciplines"))
@@ -109,8 +113,24 @@ def parse_catalog(raw: Any) -> Catalog:
     return catalog
 
 
+def _load_catalog_path(path: Path) -> Catalog:
+    try:
+        value, _ = read_bounded_json(path, max_bytes=2_097_152)
+    except SafeInputError as exc:
+        raise ValueError(f"catalog input rejected: {exc}") from exc
+    return parse_catalog(value)
+
+
 def load_catalog(repo_root: Path | None = None, *, prefer_repo: bool = False) -> Catalog:
     path = Path(repo_root) / "catalog.json" if repo_root is not None and prefer_repo else None
-    if path is None or not path.exists():
+    if path is None or not os.path.lexists(path):
         path = Path(resources.files("engineering_core").joinpath("catalog.json"))
-    return parse_catalog(json.loads(path.read_text(encoding="utf-8")))
+    return _load_catalog_path(path)
+
+
+def load_catalog_history(version: str, repo_root: Path | None = None, *, prefer_repo: bool = False) -> Catalog:
+    filename = f"{version}.json"
+    path = Path(repo_root) / "catalog-history" / filename if repo_root is not None and prefer_repo else None
+    if path is None or not os.path.lexists(path):
+        path = Path(resources.files("engineering_core").joinpath("catalog-history", filename))
+    return _load_catalog_path(path)

@@ -22,7 +22,18 @@ Inputs are capped at 256 KiB each, arrays are bounded, schemas reject extra fiel
 
 ## Relationship to capability observation
 
-`engineering-core-capabilities-v1` may declare the closed-loop receipt and disposition schema identifiers, but v0.6 doctor/capability scanning reports that capability as `not-observed/not-supplied`. It does not discover or ingest receipts. Promotion to execution-observed or evidence-verified requires a later explicitly designed owner-evidence input and cannot be inferred from a declaration or this document.
+`engineering-core-capabilities-v1` may declare the closed-loop receipt and disposition schema identifiers, but doctor/capability scanning remains receipt-free and reports that capability as `not-observed/not-supplied`. It does not discover or ingest receipts.
+
+v0.7 adds a separate explicit reconciliation surface:
+
+```bash
+engineering-core reconcile-evidence \
+  --repo <stable-repository-id> /path/to/repo \
+  --receipt /path/to/repo/governance/engineering-core-evidence-receipt-v1.json \
+  --pretty
+```
+
+The command validates bounded no-follow receipt/artifact inputs, exact repository identity, current plan bindings, artifact schemas and digests, advice recommendation identity, and Git revision ancestry. It emits only `matched`, `stale`, or `mismatched` reconciliation results and preserves the supplied owner state without upgrading it. It never changes doctor health, capability declarations, AK evidence, CI/release state, or compliance authority. See `docs/rfc/2026-07-11-evidence-reconciliation.md`.
 
 ## Reproducible dogfood
 

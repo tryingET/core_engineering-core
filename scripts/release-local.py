@@ -93,17 +93,26 @@ def verify(version: str) -> None:
     assert_semver(version)
     assert_versions_match(version)
     assert_release_docs(version)
+    history_root = ROOT / "catalog-history/0.6.0.json"
+    history_package = ROOT / "src/engineering_core/catalog-history/0.6.0.json"
+    tagged_catalog = run(["git", "show", "v0.6.0:catalog.json"], check=False)
+    if tagged_catalog.returncode != 0 or not history_root.exists() or not history_package.exists():
+        raise SystemExit("v0.6.0 catalog history proof is unavailable")
+    if history_root.read_text(encoding="utf-8") != history_package.read_text(encoding="utf-8") or history_root.read_text(encoding="utf-8") != tagged_catalog.stdout:
+        raise SystemExit("catalog-history/0.6.0.json does not match the tagged v0.6.0 catalog")
     commands = [
         [sys.executable, "-m", "compileall", "-q", "src/engineering_core"],
         [sys.executable, "scripts/check-justfile-addenda.py"],
         [sys.executable, "scripts/dogfood-closed-loop.py"],
         [sys.executable, "scripts/dogfood-capabilities.py"],
+        [sys.executable, "scripts/dogfood-evidence-reconcile.py"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
         ["uv", "run", "engineering-core", "list"],
         ["uv", "run", "engineering-core", "list-disciplines"],
         ["uv", "run", "engineering-core", "catalog", "--prefer-repo"],
         ["uv", "run", "engineering-core", "doctor", "--repo", ".", "--prefer-repo"],
         ["uv", "run", "engineering-core", "scan-capabilities", "--repo", ".", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "reconcile-evidence", "--help"],
         ["uv", "run", "engineering-core", "scan-adoption", "--scope", ".", "--include-scope-root", "--format", "json", "--prefer-repo", "--max-repositories", "10"],
         ["uv", "run", "engineering-core", "show", "ts", "--prefer-repo"],
         ["uv", "run", "engineering-core", "show-discipline", "validation", "--prefer-repo"],
@@ -127,12 +136,12 @@ def verify(version: str) -> None:
         wheel_names = archive.namelist()
     with tarfile.open(sdist) as archive:
         sdist_names = archive.getnames()
-    required = ("engineering_core/catalog.json", "engineering_core/cli.py", "engineering_core/policy.py", "engineering_core/capabilities.py", "engineering_core/doctor.py", "engineering_core/capability_scan.py")
+    required = ("engineering_core/catalog.json", "engineering_core/catalog-history/0.6.0.json", "engineering_core/cli.py", "engineering_core/policy.py", "engineering_core/capabilities.py", "engineering_core/doctor.py", "engineering_core/capability_scan.py", "engineering_core/evidence_reconcile.py", "engineering_core/evidence_reconcile_cli.py", "engineering_core/safe_io.py")
     if any(not any(name.endswith(item) for name in wheel_names) for item in required):
         raise SystemExit("wheel is missing required package files")
     if any(not any(name.endswith(item) for name in sdist_names) for item in required):
         raise SystemExit("sdist is missing required package files")
-    for harness in ("scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py"):
+    for harness in ("scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py"):
         if not any(name.endswith(harness) for name in sdist_names):
             raise SystemExit(f"sdist is missing reproducible harness: {harness}")
     print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok", "artifacts_inspected": [wheel.name, sdist.name]}, indent=2))

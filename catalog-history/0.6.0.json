@@ -1,6 +1,6 @@
 {
   "name": "engineering-core",
-  "version": "0.7.0",
+  "version": "0.6.0",
   "cli": "engineering-core",
   "model": {
     "lane": "ecosystem-specific tooling and commands",
@@ -673,7 +673,6 @@
     "advice_response": "engineering-advice-response-v1",
     "advice_authority": "advisory-only; deterministic validation and owner review required",
     "evidence_receipt": "engineering-evidence-receipt-v1",
-    "recommendation_disposition": "engineering-recommendation-disposition-v1",
-    "evidence_reconciliation": "engineering-evidence-reconciliation-v1"
+    "recommendation_disposition": "engineering-recommendation-disposition-v1"
   }
 }

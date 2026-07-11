@@ -152,22 +152,17 @@ def build_request(repo: Path, plan: dict[str, Any], catalog_ids: set[str], *, ma
     return request
 
 
-def validate_response(request: dict[str, Any], response: Any) -> dict[str, Any]:
+def validate_response_intrinsic(response: Any, allowed_catalog_ids: set[str]) -> dict[str, Any]:
     top = {"schema", "request_sha256", "provenance", "status", "summary", "recommendations", "critiques", "patch_proposals"}
     _exact(response, top, "response")
-    if response["schema"] != RESPONSE_SCHEMA or response["request_sha256"] != request.get("request_sha256"):
-        raise AdviceError("response schema or request digest mismatch")
+    if response["schema"] != RESPONSE_SCHEMA or not isinstance(response["request_sha256"], str) or not re.fullmatch(r"[0-9a-f]{64}", response["request_sha256"]):
+        raise AdviceError("response schema or request digest is invalid")
     _exact(response["provenance"], {"provider", "model", "model_version", "adapter", "adapter_version", "prompt_id", "prompt_version"}, "provenance")
     for key, value in response["provenance"].items():
         _text(value, f"provenance.{key}")
-    prompt = request["prompt"]
-    if response["provenance"]["prompt_id"] != prompt["id"] or response["provenance"]["prompt_version"] != prompt["version"]:
-        raise AdviceError("prompt provenance mismatch")
     if response["status"] not in ("advice", "abstain", "unknown"):
         raise AdviceError("status must be advice, abstain, or unknown")
     _text(response["summary"], "summary")
-    evidence = {item["id"]: item for item in request["evidence"]}
-    allowed = set(request["allowed_catalog_ids"])
     if not all(isinstance(response[k], list) for k in ("recommendations", "critiques", "patch_proposals")):
         raise AdviceError("recommendations, critiques, and patch_proposals must be arrays")
     if response["status"] != "advice" and (response["recommendations"] or response["patch_proposals"]):
@@ -184,30 +179,52 @@ def validate_response(request: dict[str, Any], response: Any) -> dict[str, Any]:
         if not isinstance(rec["confidence"], (int, float)) or isinstance(rec["confidence"], bool) or not 0 <= rec["confidence"] <= 1:
             raise AdviceError("confidence must be between 0 and 1")
         for key in ("catalog_ids", "unknowns", "counterevidence", "falsification", "citations", "competes_with"):
-            if not isinstance(rec[key], list): raise AdviceError(f"{key} must be an array")
+            if not isinstance(rec[key], list):
+                raise AdviceError(f"{key} must be an array")
         for key in ("catalog_ids", "unknowns", "counterevidence", "falsification", "competes_with"):
             for item in rec[key]:
                 _text(item, f"recommendation.{key} item")
-        if not set(rec["catalog_ids"]).issubset(allowed): raise AdviceError("unknown catalog id")
+        if not set(rec["catalog_ids"]).issubset(allowed_catalog_ids):
+            raise AdviceError("unknown catalog id")
         _text(rec["recommendation"], "recommendation")
         for citation in rec["citations"]:
             _exact(citation, {"evidence_id", "path", "start", "end"}, "citation")
-            source = evidence.get(citation["evidence_id"])
-            if source is None or citation["path"] != source["path"] or type(citation["start"]) is not int or type(citation["end"]) is not int or not 0 <= citation["start"] < citation["end"] <= source["span"]["end"]:
-                raise AdviceError("citation is not within request-bound evidence")
+            _text(citation["evidence_id"], "citation.evidence_id")
+            _owner_local_path(_text(citation["path"], "citation.path"), "citation.path")
+            if type(citation["start"]) is not int or type(citation["end"]) is not int or not 0 <= citation["start"] < citation["end"]:
+                raise AdviceError("citation span is invalid")
     for rec in response["recommendations"]:
-        if not set(rec["competes_with"]).issubset(recommendation_ids): raise AdviceError("competes_with references unknown recommendation")
+        if not set(rec["competes_with"]).issubset(recommendation_ids):
+            raise AdviceError("competes_with references unknown recommendation")
     for critique in response["critiques"]:
         _exact(critique, {"recommendation_id", "critique", "severity", "falsification"}, "critique")
-        if critique["recommendation_id"] not in recommendation_ids or critique["severity"] not in ("low", "medium", "high"): raise AdviceError("invalid critique reference or severity")
-        _text(critique["critique"], "critique"); _text(critique["falsification"], "critique.falsification")
+        if critique["recommendation_id"] not in recommendation_ids or critique["severity"] not in ("low", "medium", "high"):
+            raise AdviceError("invalid critique reference or severity")
+        _text(critique["critique"], "critique")
+        _text(critique["falsification"], "critique.falsification")
     for patch in response["patch_proposals"]:
         _exact(patch, {"path", "unified_diff", "rationale", "recommendation_id"}, "patch proposal")
         path = _owner_local_path(_text(patch["path"], "patch.path"), "patch.path")
-        if patch["recommendation_id"] not in recommendation_ids: raise AdviceError("patch must be owner-local and recommendation-bound")
-        diff = _text(patch["unified_diff"], "patch.diff")
-        _validate_diff(diff, Path(path).as_posix())
+        if patch["recommendation_id"] not in recommendation_ids:
+            raise AdviceError("patch must be owner-local and recommendation-bound")
+        _validate_diff(_text(patch["unified_diff"], "patch.diff"), Path(path).as_posix())
         _text(patch["rationale"], "patch.rationale")
+    return response
+
+
+def validate_response(request: dict[str, Any], response: Any) -> dict[str, Any]:
+    validate_response_intrinsic(response, set(request["allowed_catalog_ids"]))
+    if response["request_sha256"] != request.get("request_sha256"):
+        raise AdviceError("response schema or request digest mismatch")
+    prompt = request["prompt"]
+    if response["provenance"]["prompt_id"] != prompt["id"] or response["provenance"]["prompt_version"] != prompt["version"]:
+        raise AdviceError("prompt provenance mismatch")
+    evidence = {item["id"]: item for item in request["evidence"]}
+    for rec in response["recommendations"]:
+        for citation in rec["citations"]:
+            source = evidence.get(citation["evidence_id"])
+            if source is None or citation["path"] != source["path"] or citation["end"] > source["span"]["end"]:
+                raise AdviceError("citation is not within request-bound evidence")
     return response
 
 

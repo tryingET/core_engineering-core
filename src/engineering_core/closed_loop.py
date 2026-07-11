@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 from typing import Any, Iterable
 
+from engineering_core.safe_io import SafeInputError, read_bounded_json
+
 MAX_INPUT_BYTES = 262_144
 MAX_ITEMS = 1000
 RECEIPT_SCHEMA = "engineering-evidence-receipt-v1"
@@ -23,15 +25,21 @@ class ClosedLoopError(ValueError):
 def canonical_digest(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
 
-def load_record(path: Path) -> Any:
+def load_record_with_bytes(path: Path) -> tuple[Any, bytes]:
     try:
-        raw = path.read_bytes()
-        if len(raw) > MAX_INPUT_BYTES: raise ClosedLoopError(f"input exceeds {MAX_INPUT_BYTES} bytes")
+        value, raw = read_bounded_json(path, max_bytes=MAX_INPUT_BYTES)
         text = raw.decode("utf-8")
-        if _SECRET.search(text): raise ClosedLoopError("secret-bearing input rejected")
-        return json.loads(text)
-    except ClosedLoopError: raise
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc: raise ClosedLoopError(f"invalid JSON: {exc}") from exc
+        if _SECRET.search(text):
+            raise ClosedLoopError("secret-bearing input rejected")
+        return value, raw
+    except ClosedLoopError:
+        raise
+    except SafeInputError as exc:
+        raise ClosedLoopError(f"invalid JSON input: {exc}") from exc
+
+
+def load_record(path: Path) -> Any:
+    return load_record_with_bytes(path)[0]
 
 def _exact(value: Any, keys: set[str], where: str) -> None:
     if not isinstance(value, dict) or set(value) != keys: raise ClosedLoopError(f"{where} must contain exactly: {', '.join(sorted(keys))}")

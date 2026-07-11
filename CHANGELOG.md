@@ -9,6 +9,19 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-07-11
+
+### Added
+
+- Added explicit `reconcile-evidence` joins over owner-supplied repository mappings, receipts, plans, bounded advice artifacts, and Git revision ancestry.
+- Added deterministic matched/stale/mismatched projections that preserve owner-reported states without promoting CI, release, AK, compliance, or rollout authority.
+- Added bounded no-follow regular-file JSON ingestion and reproducible evidence-reconciliation dogfood.
+
+### Changed
+
+- Hardened existing closed-loop record loading against symlinks, symlinked parents, FIFO/special files, oversized inputs, read races, and invalid UTF-8 JSON.
+- Kept `engineering-doctor-v1` and `engineering-capability-scan-v1` receipt-free and backward compatible.
+
 ## [0.6.0] - 2026-07-11
 
 ### Added

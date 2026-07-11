@@ -293,8 +293,10 @@ class CliTests(unittest.TestCase):
         raw["version"] = "0.5.0"
         raw["protocols"].pop("evidence_receipt")
         raw["protocols"].pop("recommendation_disposition")
+        raw["protocols"].pop("evidence_reconciliation")
         parsed = parse_catalog(raw)
         self.assertEqual(parsed.protocols.evidence_receipt, "engineering-evidence-receipt-v1")
+        self.assertEqual(parsed.protocols.evidence_reconciliation, "engineering-evidence-reconciliation-v1")
 
     def test_version_matches_catalogs(self) -> None:
         root_catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
@@ -309,7 +311,7 @@ class CliTests(unittest.TestCase):
         self.assertFalse((REPO_ROOT / "src" / "tech_stack_core").exists())
 
     def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.6.0")
+        self.assertEqual(__version__, "0.7.0")
 
     def test_plan_rejects_symlink_and_oversized_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

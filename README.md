@@ -64,6 +64,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `engineering-core receipt|disposition|calibration|patterns|doctrine-propose` — read-only, digest-bound closed-loop evidence and review projections; see `docs/closed-loop.md`
 - `engineering-core doctor --repo …` — deterministic static readiness diagnostics; never executes consumer commands or invokes models
 - `engineering-core scan-capabilities --repo … [--repo-file …]` — bounded capability observations over an explicit owner-produced population
+- `engineering-core reconcile-evidence --repo <id> <path> --receipt …` — explicit, read-only owner-receipt reconciliation with matched/stale/mismatched results; never changes doctor health or authority
 
 ## Which lane?
 

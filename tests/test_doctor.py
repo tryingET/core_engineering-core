@@ -11,7 +11,7 @@ from engineering_core.doctor import build_doctor
 
 
 class DoctorTests(unittest.TestCase):
-    def repo(self, root: Path, contract=None, ref="v0.6.0") -> Path:
+    def repo(self, root: Path, contract=None, ref="v0.7.0") -> Path:
         (root / "policy").mkdir()
         ec = {"ref": ref, "lane": "py", "disciplines": []}
         if contract is not None: ec["capability_contract"] = contract

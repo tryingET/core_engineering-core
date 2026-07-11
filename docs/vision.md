@@ -15,7 +15,8 @@ The target operator experience:
 2. ask engineering-core what guidance applies;
 3. inspect local deviations in `docs/engineering.local.md` and `policy/engineering-lane.json`;
 4. scan adoption coverage across `core`, `softwareco`, `holdingco`, `teachingco`, `healthco`, and future companies;
-5. leave rollout dashboards and generated snapshots in the owning scope, not in engineering-core.
+5. reconcile explicitly supplied owner receipts against bounded artifacts and current repository facts without promoting authority;
+6. leave rollout dashboards and generated snapshots in the owning scope, not in engineering-core.
 
 ## North star
 
@@ -35,6 +36,7 @@ Engineering-core should make broad adoption visible without becoming the runtime
 - Prefer warning/ratchet rollout before hard CI gates.
 - Let repo-local loop validation command contracts guide agent/orchestration loops without turning those loops into validation or authority systems.
 - Make optional loop-validation adoption visible in scanner output while preserving repo ownership of command semantics and landing policy.
+- Keep evidence reconciliation separate from static doctor/scan health; matched owner claims remain supplied claims rather than authenticated execution truth.
 
 ## Adoption horizon
 
