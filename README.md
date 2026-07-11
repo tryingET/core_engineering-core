@@ -62,6 +62,8 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `engineering-core plan --repo …` — deterministic advisory `engineering-plan-v1` compiler over declarative repository facts and catalog dependencies
 - `engineering-core explain [id] --repo …` — provenance and dependency explanation for the whole plan or one selection
 - `engineering-core receipt|disposition|calibration|patterns|doctrine-propose` — read-only, digest-bound closed-loop evidence and review projections; see `docs/closed-loop.md`
+- `engineering-core doctor --repo …` — deterministic static readiness diagnostics; never executes consumer commands or invokes models
+- `engineering-core scan-capabilities --repo … [--repo-file …]` — bounded capability observations over an explicit owner-produced population
 
 ## Which lane?
 
@@ -178,6 +180,15 @@ python scripts/release-local.py tag --version <next-version> --apply
 `dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly. See `docs/releases/artifact-policy.md`.
 
 Package-visible changes should bump the patch version. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
+
+## Capability observation
+
+Repositories may optionally declare exact `engineering-core-capabilities-v1` metadata under `engineering_core.capability_contract` in `policy/engineering-lane.json`. `doctor` reports declaration, static observation, and evidence separately. `scan-capabilities` accepts only repeated explicit `--repo` paths and bounded newline-delimited `--repo-file` inputs; engineering-core does not invent a society-wide denominator. V1 never executes declared commands, invokes models, mutates consumer repositories, consumes receipts, or labels static results adopted/verified. See `docs/adoption.md` and the capability-observation RFC.
+
+```bash
+engineering-core doctor --repo . --prefer-repo --pretty
+engineering-core scan-capabilities --repo . --repo-file owner-population.txt --pretty
+```
 
 ## Bounded advisory protocol
 

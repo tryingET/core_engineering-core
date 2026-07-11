@@ -16,11 +16,25 @@ class CatalogItem:
 
 
 @dataclass(frozen=True)
+class CatalogProtocols:
+    engineering_plan: str
+    advice_request: str
+    advice_response: str
+    evidence_receipt: str
+    recommendation_disposition: str
+
+
+@dataclass(frozen=True)
 class Catalog:
     raw: dict[str, Any]
     lanes: tuple[CatalogItem, ...]
     disciplines: tuple[CatalogItem, ...]
     templates: tuple[CatalogItem, ...]
+    protocols: CatalogProtocols
+
+    @property
+    def version(self) -> str:
+        return self.raw["version"]
 
     def ids(self, collection: str) -> tuple[str, ...]:
         return tuple(item.id for item in getattr(self, collection))
@@ -54,7 +68,24 @@ def _items(raw: dict[str, Any], key: str) -> tuple[CatalogItem, ...]:
 def parse_catalog(raw: Any) -> Catalog:
     if not isinstance(raw, dict):
         raise ValueError("catalog must be an object")
-    catalog = Catalog(raw, _items(raw, "lanes"), _items(raw, "disciplines"), _items(raw, "templates"))
+    if not isinstance(raw.get("version"), str) or not raw["version"] or len(raw["version"].encode("utf-8")) > 4096:
+        raise ValueError("catalog.version must be bounded non-empty text")
+    protocol_raw = raw.get("protocols")
+    required = ("engineering_plan", "advice_request", "advice_response")
+    if not isinstance(protocol_raw, dict) or not all(isinstance(protocol_raw.get(key), str) and protocol_raw[key] and len(protocol_raw[key].encode("utf-8")) <= 4096 for key in required):
+        raise ValueError("catalog.protocols is missing required protocol identifiers")
+    optional = ("evidence_receipt", "recommendation_disposition")
+    if any(key in protocol_raw and (not isinstance(protocol_raw[key], str) or not protocol_raw[key] or len(protocol_raw[key].encode("utf-8")) > 4096) for key in optional):
+        raise ValueError("catalog.protocols closed-loop identifiers must be non-empty strings")
+    # v0.5 catalogs predate closed-loop protocol metadata. Keep existing
+    # catalog/plan/scan consumers compatible while doctor reports the version
+    # mismatch separately when such a catalog is selected.
+    protocols = CatalogProtocols(
+        *(protocol_raw[key] for key in required),
+        protocol_raw.get("evidence_receipt", "engineering-evidence-receipt-v1"),
+        protocol_raw.get("recommendation_disposition", "engineering-recommendation-disposition-v1"),
+    )
+    catalog = Catalog(raw, _items(raw, "lanes"), _items(raw, "disciplines"), _items(raw, "templates"), protocols)
     known = set(catalog.ids("lanes")) | set(catalog.ids("disciplines"))
     for item in (*catalog.lanes, *catalog.disciplines):
         unknown = set(item.requires) - known

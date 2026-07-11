@@ -12,6 +12,7 @@ from engineering_core.adoption_render import render_markdown
 from engineering_core.adoption_scan import build_scan
 from engineering_core.advisor import AdviceError, build_request, load_json, validate_response
 from engineering_core.catalog import load_catalog
+from engineering_core.capability_cli import add_parsers as add_capability_parsers, run as run_capability
 from engineering_core.closed_loop_cli import add_parsers as add_closed_loop_parsers, run as run_closed_loop
 from engineering_core.engineering_plan import compile_plan, explain_plan
 from engineering_core.policy import load_policy
@@ -205,6 +206,7 @@ def main() -> None:
     advise.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
 
     add_closed_loop_parsers(sub)
+    add_capability_parsers(sub)
 
     scan_adoption = sub.add_parser("scan-adoption", help="Scan one or more scopes for engineering-core adoption coverage")
     scan_adoption.add_argument("--scope", action="append", default=[], help="Scope root to scan; repeat for multiple scopes (default: .)")
@@ -263,6 +265,9 @@ def main() -> None:
     discipline_path.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./disciplines over packaged files")
 
     args = parser.parse_args()
+
+    if run_capability(args, parser):
+        return
 
     if args.cmd == "list":
         for lane in LANES:

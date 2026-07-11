@@ -20,6 +20,10 @@ Engineering-core ingests owner-produced JSON; it does not execute discovered com
 
 Inputs are capped at 256 KiB each, arrays are bounded, schemas reject extra fields, SHA-256 bindings are mandatory, and obvious secret-bearing input (including JSON key/value syntax) fails closed. These records are evidence and review aids, not authority promotion mechanisms.
 
+## Relationship to capability observation
+
+`engineering-core-capabilities-v1` may declare the closed-loop receipt and disposition schema identifiers, but v0.6 doctor/capability scanning reports that capability as `not-observed/not-supplied`. It does not discover or ingest receipts. Promotion to execution-observed or evidence-verified requires a later explicitly designed owner-evidence input and cannot be inferred from a declaration or this document.
+
 ## Reproducible dogfood
 
 Run `python scripts/dogfood-closed-loop.py`. The temporary, deterministic fixture executes the complete read-only flow: two plans, request-bound advisor validation, all four owner dispositions, verified/failed/stale/mismatched receipt records, calibration, recurring multi-plan patterns, and an unapplied doctrine proposal. It also proves malformed, secret-bearing, hallucinated-path, unknown-ID, and provenance-mismatched inputs are rejected. A sentinel consumer command is declared but never executed; proposed patches are never applied. Running the command twice must produce byte-identical JSON.

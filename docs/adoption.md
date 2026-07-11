@@ -76,6 +76,25 @@ Scanner traversal is explicitly bounded. Defaults are 1,000 repositories, depth 
 
 Both scanning and `recommend --repo` use the same typed policy parser. Malformed policy is reported as `invalid-policy` by scanning and rejected by recommendation rather than being interpreted differently.
 
+## Capability observation
+
+The older structural scanner and the v0.6 capability observer answer different questions:
+
+- `scan-adoption` observes local docs, policy, lane/discipline declarations, command mappings, and optional loop-validation structure.
+- `doctor` observes whether one repository can be inspected deterministically and whether declared planning/advisor schemas are statically compatible.
+- `scan-capabilities` aggregates doctor results over repeated explicit `--repo` paths and/or bounded owner-produced `--repo-file` lists.
+
+A repository may optionally add exact `engineering-core-capabilities-v1` metadata under `engineering_core.capability_contract`. The contract contains protocol identifiers and declaration status only—never shell commands, argv, URLs, credentials, or executable hooks. Missing declarations remain valid and report `absent/not-declared/not-supplied`.
+
+Static observation is not execution evidence. V1 does not ingest receipts and cannot emit `execution-observed` or `evidence-verified`. Keep canonical repository populations, rollout dashboards, exceptions, tasks, and runtime evidence with their owner surfaces.
+
+```bash
+engineering-core doctor --repo /path/to/repo --pretty
+engineering-core scan-capabilities --repo /path/to/repo --repo-file owner-repositories.txt --pretty
+```
+
+Architecture and exact schemas: `docs/rfc/2026-07-11-capability-observation-and-doctor.md`.
+
 ## Version pinning
 
 For local workspace adoption, record the source honestly as `workspace-local-unpinned`. For released adoption, pin to a git tag or package version and record the retrieval command in repo-local policy.

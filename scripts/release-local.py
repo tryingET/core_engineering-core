@@ -96,10 +96,14 @@ def verify(version: str) -> None:
     commands = [
         [sys.executable, "-m", "compileall", "-q", "src/engineering_core"],
         [sys.executable, "scripts/check-justfile-addenda.py"],
+        [sys.executable, "scripts/dogfood-closed-loop.py"],
+        [sys.executable, "scripts/dogfood-capabilities.py"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
         ["uv", "run", "engineering-core", "list"],
         ["uv", "run", "engineering-core", "list-disciplines"],
         ["uv", "run", "engineering-core", "catalog", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "doctor", "--repo", ".", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "scan-capabilities", "--repo", ".", "--prefer-repo"],
         ["uv", "run", "engineering-core", "scan-adoption", "--scope", ".", "--include-scope-root", "--format", "json", "--prefer-repo", "--max-repositories", "10"],
         ["uv", "run", "engineering-core", "show", "ts", "--prefer-repo"],
         ["uv", "run", "engineering-core", "show-discipline", "validation", "--prefer-repo"],
@@ -123,13 +127,14 @@ def verify(version: str) -> None:
         wheel_names = archive.namelist()
     with tarfile.open(sdist) as archive:
         sdist_names = archive.getnames()
-    required = ("engineering_core/catalog.json", "engineering_core/cli.py", "engineering_core/policy.py")
+    required = ("engineering_core/catalog.json", "engineering_core/cli.py", "engineering_core/policy.py", "engineering_core/capabilities.py", "engineering_core/doctor.py", "engineering_core/capability_scan.py")
     if any(not any(name.endswith(item) for name in wheel_names) for item in required):
         raise SystemExit("wheel is missing required package files")
     if any(not any(name.endswith(item) for name in sdist_names) for item in required):
         raise SystemExit("sdist is missing required package files")
-    if not any(name.endswith("scripts/dogfood-closed-loop.py") for name in sdist_names):
-        raise SystemExit("sdist is missing the reproducible closed-loop dogfood harness")
+    for harness in ("scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py"):
+        if not any(name.endswith(harness) for name in sdist_names):
+            raise SystemExit(f"sdist is missing reproducible harness: {harness}")
     print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok", "artifacts_inspected": [wheel.name, sdist.name]}, indent=2))
 
 

@@ -16,6 +16,7 @@ class EngineeringPolicy:
     disciplines: tuple[str, ...]
     ref: str | None
     commands: dict[str, bool]
+    capability_contract: Any | None
 
 
 def _strings(value: Any, field: str, errors: list[str]) -> list[str]:
@@ -68,6 +69,7 @@ def parse_policy(value: Any) -> tuple[EngineeringPolicy | None, list[str]]:
         dedupe(_strings(ec.get("disciplines"), "engineering_core.disciplines", errors)),
         ec.get("ref") if isinstance(ec.get("ref"), str) else None,
         commands,
+        ec.get("capability_contract"),
     )
     return policy, errors
 

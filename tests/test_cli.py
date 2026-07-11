@@ -15,6 +15,7 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from engineering_core import __version__
 from engineering_core.adoption_render import md_table
+from engineering_core.catalog import parse_catalog
 from engineering_core.cli import DISCIPLINES, LANES, TEMPLATES, main
 
 
@@ -287,6 +288,14 @@ class CliTests(unittest.TestCase):
                     self.assertIn("file", entry)
                     self.assertIn("description", entry)
 
+    def test_v05_catalog_protocols_remain_compatible(self) -> None:
+        raw = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        raw["version"] = "0.5.0"
+        raw["protocols"].pop("evidence_receipt")
+        raw["protocols"].pop("recommendation_disposition")
+        parsed = parse_catalog(raw)
+        self.assertEqual(parsed.protocols.evidence_receipt, "engineering-evidence-receipt-v1")
+
     def test_version_matches_catalogs(self) -> None:
         root_catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
         package_catalog = json.loads((REPO_ROOT / "src" / "engineering_core" / "catalog.json").read_text(encoding="utf-8"))
@@ -300,7 +309,7 @@ class CliTests(unittest.TestCase):
         self.assertFalse((REPO_ROOT / "src" / "tech_stack_core").exists())
 
     def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.5.0")
+        self.assertEqual(__version__, "0.6.0")
 
     def test_plan_rejects_symlink_and_oversized_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

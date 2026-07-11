@@ -9,6 +9,19 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-11
+
+### Added
+
+- Added package-native `engineering-core-capabilities-v1` parsing and independent declaration, static-observation, and evidence dimensions.
+- Added deterministic, non-executing `doctor` and explicit-population `scan-capabilities` JSON commands.
+- Added typed catalog protocol access, bounded no-follow repository-file ingestion, dedicated tests, and deterministic capability dogfood.
+
+### Changed
+
+- Integrated capability dogfood and package-module inspection into local release verification.
+- Preserved existing planning, advice, closed-loop, and `scan-adoption` contracts without consumer execution or mutation.
+
 ## [0.5.0] - 2026-07-11
 
 ### Added
