@@ -9,6 +9,24 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-11
+
+### Added
+
+- Added deterministic advisory planning/explanation, bounded provider-neutral advice validation, and strict catalog/policy/repository-fact parsing.
+- Added owner-bound dispositions and receipts, calibration, multi-input pattern synthesis, and unapplied doctrine proposals.
+- Added a reproducible end-to-end closed-loop dogfood harness with fail-closed negative probes.
+- Added bounded recursive scanner completeness, omission, failure, and usage reporting.
+
+### Changed
+
+- Strengthened local release verification, catalog consistency, and wheel/sdist inspection.
+- Preserved explicit consumer, CI/release/AK/compliance, and doctrine-owner authority boundaries.
+
+### Fixed
+
+- Rejected JSON-form secret-bearing records, unsafe or hallucinated paths, unknown IDs, malformed inputs, and provenance mismatches.
+
 ## [0.3.4] - 2026-05-25
 
 ### Added

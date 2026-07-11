@@ -6,8 +6,13 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT / "src"))
+
+from engineering_core.catalog import load_catalog  # noqa: E402
+
 LANES_DIR = REPO_ROOT / "src" / "engineering_core" / "lanes"
-LANES = ("py", "ts", "pi-ts", "go", "cpp", "rust", "elixir")
+CATALOG = load_catalog(REPO_ROOT, prefer_repo=True)
+LANES = tuple(item.id for item in CATALOG.lanes if item.kind == "lane")
 MAIN_TEMPLATE = "engineering-{lane}.md"
 ADDENDUM_TEMPLATE = "engineering-{lane}.justfile.md"
 HEADER = "## Conditionally loaded addenda"

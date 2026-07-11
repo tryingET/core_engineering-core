@@ -2,71 +2,28 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import tempfile
 from importlib import resources
 from pathlib import Path
 from typing import Any
 
 from engineering_core.adoption_render import render_markdown
-from engineering_core.adoption_scan import build_scan, load_catalog
+from engineering_core.adoption_scan import build_scan
+from engineering_core.advisor import AdviceError, build_request, load_json, validate_response
+from engineering_core.catalog import load_catalog
+from engineering_core.closed_loop_cli import add_parsers as add_closed_loop_parsers, run as run_closed_loop
+from engineering_core.engineering_plan import compile_plan, explain_plan
+from engineering_core.policy import load_policy
 
 
-LANES = ("py", "ts", "ts-frontend", "pi-ts", "go", "cpp", "cpp-cuda", "rust", "rust-build-graph", "elixir")
-LANE_FILES = {
-    "py": "engineering-py.md",
-    "ts": "engineering-ts.md",
-    "ts-frontend": "engineering-ts.frontend.md",
-    "pi-ts": "engineering-pi-ts.md",
-    "go": "engineering-go.md",
-    "cpp": "engineering-cpp.md",
-    "cpp-cuda": "engineering-cpp.cuda.md",
-    "rust": "engineering-rust.md",
-    "rust-build-graph": "engineering-rust.build-graph.md",
-    "elixir": "engineering-elixir.md",
-}
-
-DISCIPLINES = (
-    "design-system",
-    "accessibility",
-    "validation",
-    "testing",
-    "local-first-data",
-    "observability",
-    "security-privacy",
-    "documentation",
-    "specification-and-dsls",
-    "engineering-reasoning",
-    "build-graph-acceleration",
-    "dependency-governance",
-    "service-api",
-    "ai-ml",
-    "performance",
-    "release-package",
-    "data-governance",
-    "domain-modeling",
-    "design-patterns",
-)
-DISCIPLINE_FILES = {name: f"{name}.md" for name in DISCIPLINES}
-
-TEMPLATES = (
-    "engineering-local",
-    "discipline-adoption-checklist",
-    "validation-tier-map",
-    "repo-loop-validation",
-    "data-classification",
-    "observability-plan",
-    "security-privacy-review",
-    "docs-authority-map",
-)
-TEMPLATE_FILES = {
-    "engineering-local": "engineering.local.template.md",
-    "discipline-adoption-checklist": "discipline-adoption-checklist.md",
-    "validation-tier-map": "validation-tier-map.template.md",
-    "repo-loop-validation": "repo-loop-validation.template.md",
-    "data-classification": "data-classification.template.md",
-    "observability-plan": "observability-plan.template.md",
-    "security-privacy-review": "security-privacy-review.template.md",
-    "docs-authority-map": "docs-authority-map.template.md",
-}
+_PACKAGED_CATALOG = load_catalog()
+LANES = _PACKAGED_CATALOG.ids("lanes")
+LANE_FILES = _PACKAGED_CATALOG.files("lanes")
+DISCIPLINES = _PACKAGED_CATALOG.ids("disciplines")
+DISCIPLINE_FILES = _PACKAGED_CATALOG.files("disciplines")
+TEMPLATES = _PACKAGED_CATALOG.ids("templates")
+TEMPLATE_FILES = _PACKAGED_CATALOG.files("templates")
 
 
 def _repo_lane_path(repo_root: Path, lane: str) -> Path:
@@ -114,9 +71,7 @@ def _print_doc(path: Path) -> None:
 
 
 def _load_catalog(repo_root: Path, prefer_repo: bool) -> dict[str, Any]:
-    repo_path = _repo_catalog_path(repo_root)
-    path = repo_path if prefer_repo and repo_path.exists() else _package_catalog_path()
-    return json.loads(path.read_text(encoding="utf-8"))
+    return load_catalog(repo_root, prefer_repo=prefer_repo).raw
 
 
 def _print_catalog(catalog: dict[str, Any], *, pretty: bool) -> None:
@@ -161,20 +116,10 @@ def _repo_policy_recommendation(repo_root: Path) -> tuple[list[str], list[str]] 
     policy_path = repo_root / "policy" / "engineering-lane.json"
     if not policy_path.exists():
         return None
-    policy = json.loads(policy_path.read_text(encoding="utf-8"))
-    engineering_core = policy.get("engineering_core", {})
-    lanes: list[str] = []
-    if isinstance(engineering_core.get("lane"), str):
-        lanes.append(engineering_core["lane"])
-    if isinstance(policy.get("lane"), str) and policy["lane"] not in lanes:
-        lanes.append(policy["lane"])
-    for entry in engineering_core.get("lanes", []):
-        if isinstance(entry, dict) and isinstance(entry.get("lane"), str):
-            lanes.append(entry["lane"])
-        elif isinstance(entry, str):
-            lanes.append(entry)
-    disciplines = [item for item in engineering_core.get("disciplines", []) if isinstance(item, str)]
-    return _dedupe(lanes), _dedupe(disciplines)
+    policy, errors = load_policy(policy_path)
+    if errors or policy is None:
+        raise SystemExit(f"invalid engineering policy {policy_path}: {'; '.join(errors)}")
+    return list(policy.lanes), list(policy.disciplines)
 
 
 def _infer_repo_recommendation(repo_root: Path) -> tuple[list[str], list[str]]:
@@ -235,6 +180,32 @@ def main() -> None:
     recommend.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
     recommend.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
 
+    plan_cmd = sub.add_parser("plan", help="Compile an advisory engineering-plan-v1 JSON projection")
+    plan_cmd.add_argument("--repo", required=True, help="Repository to inspect declaratively; commands are never executed")
+    plan_cmd.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
+    plan_cmd.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    plan_cmd.add_argument("--pretty", action="store_true", help="Pretty-print deterministic JSON")
+
+    explain = sub.add_parser("explain", help="Explain a compiled plan or one selected catalog id")
+    explain.add_argument("subject", nargs="?", help="Optional lane, addendum, or discipline id")
+    explain.add_argument("--repo", required=True, help="Repository to inspect declaratively; commands are never executed")
+    explain.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
+    explain.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    explain.add_argument("--pretty", action="store_true", help="Pretty-print deterministic JSON")
+
+    advise = sub.add_parser("advise", help="Export a bounded provider-neutral advice request or validate a response; never applies patches")
+    advise.add_argument("--repo", required=True, help="Repository to inspect declaratively; commands are never executed")
+    advise.add_argument("--response", help="JSON response to validate against the freshly compiled request")
+    advise.add_argument("--request-out", help="Write the request JSON for an external model adapter")
+    advise.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
+    advise.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    advise.add_argument("--max-files", type=int, default=12)
+    advise.add_argument("--max-file-bytes", type=int, default=65536)
+    advise.add_argument("--max-total-bytes", type=int, default=262144)
+    advise.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
+
+    add_closed_loop_parsers(sub)
+
     scan_adoption = sub.add_parser("scan-adoption", help="Scan one or more scopes for engineering-core adoption coverage")
     scan_adoption.add_argument("--scope", action="append", default=[], help="Scope root to scan; repeat for multiple scopes (default: .)")
     scan_adoption.add_argument("--include-packages", action="store_true", help="Also scan nested package/app/member adoption surfaces")
@@ -246,6 +217,10 @@ def main() -> None:
     scan_adoption.add_argument("--markdown-out", help="Markdown output path for --write")
     scan_adoption.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
     scan_adoption.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    scan_adoption.add_argument("--max-repositories", type=int, default=1000, help="Maximum repositories to inspect (default: 1000)")
+    scan_adoption.add_argument("--max-depth", type=int, default=12, help="Maximum recursive discovery depth (default: 12)")
+    scan_adoption.add_argument("--max-files", type=int, default=100000, help="Maximum discovery files to visit (default: 100000)")
+    scan_adoption.add_argument("--max-read-bytes", type=int, default=10485760, help="Maximum policy/doc bytes to read (default: 10485760)")
 
     overview = sub.add_parser("overview", help="Print the disciplines overview doc")
     overview.add_argument("--repo-root", default=".", help="Repo root that contains ./disciplines (default: .)")
@@ -327,17 +302,65 @@ def main() -> None:
         _print_recommendation(catalog, args.profile)
         return
 
+    if args.cmd in ("plan", "explain"):
+        catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
+        plan = compile_plan(Path(args.repo), catalog)
+        output = plan if args.cmd == "plan" else explain_plan(plan, args.subject)
+        print(json.dumps(output, indent=2 if args.pretty else None, sort_keys=True, separators=None if args.pretty else (",", ":")))
+        return
+
+    if args.cmd == "advise":
+        catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
+        plan = compile_plan(Path(args.repo), catalog)
+        ids = set(catalog.ids("lanes")) | set(catalog.ids("disciplines"))
+        try:
+            request = build_request(Path(args.repo), plan, ids, max_files=args.max_files, max_file_bytes=args.max_file_bytes, max_total_bytes=args.max_total_bytes)
+            if args.request_out:
+                destination = Path(args.request_out)
+                payload = (json.dumps(request, indent=2, sort_keys=True) + "\n").encode("utf-8")
+                temporary_name: str | None = None
+                try:
+                    fd, temporary_name = tempfile.mkstemp(prefix=f".{destination.name}.", dir=destination.parent)
+                    os.chmod(temporary_name, 0o600)
+                    with os.fdopen(fd, "wb") as stream:
+                        stream.write(payload)
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    os.link(temporary_name, destination)
+                except FileExistsError as exc:
+                    raise AdviceError(f"request output already exists: {destination}") from exc
+                except OSError as exc:
+                    raise AdviceError(f"cannot write request output: {exc}") from exc
+                finally:
+                    if temporary_name:
+                        try:
+                            os.unlink(temporary_name)
+                        except FileNotFoundError:
+                            pass
+            output = request if not args.response else {"schema": "engineering-advice-validation-v1", "valid": True, "authority": request["authority"], "response": validate_response(request, load_json(Path(args.response))), "patches_applied": False}
+        except AdviceError as exc:
+            raise SystemExit(f"advice rejected: {exc}") from exc
+        print(json.dumps(output, indent=2 if args.pretty else None, sort_keys=True, separators=None if args.pretty else (",", ":")))
+        return
+
+    if run_closed_loop(args):
+        return
+
     if args.cmd == "scan-adoption":
         if args.write and not args.json_out and not args.markdown_out:
             raise SystemExit("scan-adoption --write requires --json-out and/or --markdown-out")
         scopes = [Path(scope).resolve() for scope in (args.scope or ["."])]
-        catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
+        catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo).raw
         scan = build_scan(
             scopes,
             include_packages=args.include_packages,
             include_scope_root=args.include_scope_root,
             repo_discovery=args.repo_discovery,
             catalog=catalog,
+            max_repositories=args.max_repositories,
+            max_depth=args.max_depth,
+            max_files=args.max_files,
+            max_read_bytes=args.max_read_bytes,
         )
         if args.write:
             if args.json_out:

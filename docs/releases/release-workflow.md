@@ -39,10 +39,12 @@ python scripts/release-local.py verify --version <next-version>
 
 The verifier checks:
 
-- `pyproject.toml`, `src/engineering_core/__init__.py`, and `catalog.json` versions match;
+- `pyproject.toml`, `src/engineering_core/__init__.py`, and both catalog copies match exactly and validate;
 - `CHANGELOG.md` has a section for the version;
 - release notes exist under `docs/releases/`;
-- CLI compile, Justfile addendum checks, CLI tests, key CLI smoke commands, and `uv build` pass.
+- every package module compiles, Justfile addendum checks and the full unittest suite pass;
+- list/catalog/show and bounded scan smoke commands pass;
+- `uv build` passes and both wheel and sdist contain the catalog, CLI, and typed policy module, and the sdist contains the reproducible closed-loop dogfood harness.
 
 ## Commit and tag
 

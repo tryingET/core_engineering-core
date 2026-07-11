@@ -1,56 +1,25 @@
 from __future__ import annotations
 
-import json
-import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
-from importlib import resources
 from pathlib import Path
 from typing import Any
+
+from engineering_core.adoption_discovery import (
+    BudgetedReader,
+    ReadBudgetExceeded,
+    rel_to,
+    repo_roots,
+    surface_roots,
+)
+from engineering_core.catalog import load_catalog as load_typed_catalog
+from engineering_core.policy import parse_policy_text
 
 
 ENGINEERING_DOC = Path("docs/engineering.local.md")
 ENGINEERING_POLICY = Path("policy/engineering-lane.json")
 LEGACY_DOC = Path("docs/tech-stack.local.md")
 LEGACY_POLICY = Path("policy/stack-lane.json")
-
-DEFAULT_SKIP_DIR_NAMES = {
-    ".git",
-    ".hg",
-    ".svn",
-    ".autoresearch",
-    ".autoresearch-worktrees",
-    ".migration-backup",
-    ".mypy_cache",
-    ".ontology",
-    ".pytest_cache",
-    ".ruff_cache",
-    ".tmp",
-    ".venv",
-    ".worktrees",
-    "__pycache__",
-    "archive",
-    "backups",
-    "bak",
-    "build",
-    "dist",
-    "node_modules",
-    "out",
-    "target",
-    "vendor",
-    "venv",
-}
-
-CONTROL_DIR_NAMES = {
-    "contracts",
-    "diary",
-    "docs",
-    "governance",
-    "ontology",
-    "policy",
-    "scripts",
-    "tools",
-}
 
 STRUCTURAL_REVIEW_STATUSES = {
     "partial",
@@ -107,35 +76,12 @@ class AdoptionRecord:
 
 
 def load_catalog(repo_root: Path | None = None, *, prefer_repo: bool = False) -> dict[str, Any]:
-    if repo_root is not None and prefer_repo:
-        repo_catalog = repo_root / "catalog.json"
-        if repo_catalog.exists():
-            return json.loads(repo_catalog.read_text(encoding="utf-8"))
-    catalog_path = resources.files("engineering_core").joinpath("catalog.json")
-    return json.loads(catalog_path.read_text(encoding="utf-8"))
+    """Compatibility wrapper returning validated raw catalog metadata."""
+    return load_typed_catalog(repo_root, prefer_repo=prefer_repo).raw
 
 
 def catalog_ids(catalog: dict[str, Any], key: str) -> set[str]:
     return {entry["id"] for entry in catalog.get(key, []) if isinstance(entry, dict) and isinstance(entry.get("id"), str)}
-
-
-def rel_to(path: Path, scope: Path) -> str:
-    try:
-        return str(path.resolve().relative_to(scope.resolve())) or "."
-    except ValueError:
-        return str(path.resolve())
-
-
-def load_json(path: Path) -> tuple[dict[str, Any] | None, str | None]:
-    if not path.exists():
-        return None, None
-    try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        return None, f"invalid json: {exc}"
-    if not isinstance(value, dict):
-        return None, f"invalid json type: expected object, got {type(value).__name__}"
-    return value, None
 
 
 def dedupe(items: list[str]) -> list[str]:
@@ -267,7 +213,7 @@ def classify(
     return "partial", notes
 
 
-def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disciplines: list[str], has_doc: bool) -> tuple[str, list[str]]:
+def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disciplines: list[str], has_doc: bool, reader: BudgetedReader) -> tuple[str, list[str]]:
     flags: list[str] = []
     rel_path = rel_to(path, scope).lower()
     lane_set = set(lanes)
@@ -275,7 +221,7 @@ def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disc
     doc_text = ""
     doc_path = path / ENGINEERING_DOC
     if doc_path.exists():
-        doc_text = doc_path.read_text(encoding="utf-8", errors="replace").lower()
+        doc_text = reader.read_text(doc_path).lower()
 
     def missing(discipline: str, reason: str) -> None:
         explicitly_not_selected = discipline in doc_text and ("not selected" in doc_text or "not selected by default" in doc_text)
@@ -326,10 +272,20 @@ def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disc
     return "needs-review", flags
 
 
-def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], valid_disciplines: set[str], name: str | None = None) -> AdoptionRecord:
+def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], valid_disciplines: set[str], reader: BudgetedReader, name: str | None = None) -> AdoptionRecord:
     policy_path = path / ENGINEERING_POLICY
-    policy, json_error = load_json(policy_path)
-    ec, lanes, lane_status, implementation_stack, disciplines, ref_value, commands = extract_policy(policy)
+    parsed_policy, policy_errors = parse_policy_text(reader.read_text(policy_path)) if policy_path.exists() else (None, [])
+    json_error = "; ".join(policy_errors) or None
+    if parsed_policy is None:
+        ec, lanes, lane_status, implementation_stack, disciplines, ref_value, commands = extract_policy(None)
+    else:
+        ec = parsed_policy.engineering_core
+        lanes = list(parsed_policy.lanes)
+        lane_status = parsed_policy.lane_status
+        implementation_stack = list(parsed_policy.implementation_stack)
+        disciplines = list(parsed_policy.disciplines)
+        ref_value = parsed_policy.ref
+        commands = parsed_policy.commands
     (
         has_loop_validation_contract,
         loop_validation_version,
@@ -358,7 +314,7 @@ def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], val
         unknown_lanes=unknown_lanes,
         unknown_disciplines=unknown_disciplines,
     )
-    semantic_status, semantic_flags = semantic_audit(path, scope=scope, kind=kind, lanes=lanes, disciplines=disciplines, has_doc=has_doc)
+    semantic_status, semantic_flags = semantic_audit(path, scope=scope, kind=kind, lanes=lanes, disciplines=disciplines, has_doc=has_doc, reader=reader)
     notes = structural_notes + semantic_flags + loop_validation_notes
     path_rel = rel_to(path, scope)
     return AdoptionRecord(
@@ -393,94 +349,6 @@ def record_for(path: Path, *, scope: Path, kind: str, valid_lanes: set[str], val
     )
 
 
-def should_skip_dir(path: Path) -> bool:
-    return path.name in DEFAULT_SKIP_DIR_NAMES or path.name.startswith(".tmp") or path.name.endswith(".backup")
-
-
-def has_git_marker(path: Path) -> bool:
-    return (path / ".git").exists()
-
-
-def immediate_repo_roots(scope: Path, *, include_scope_root: bool) -> list[Path]:
-    repos: list[Path] = []
-    if include_scope_root and has_git_marker(scope):
-        repos.append(scope)
-    if not scope.exists():
-        return repos
-    for child in sorted(scope.iterdir(), key=lambda p: p.name):
-        if not child.is_dir() or should_skip_dir(child) or child.name in CONTROL_DIR_NAMES:
-            continue
-        if has_git_marker(child):
-            repos.append(child)
-    return repos
-
-
-def recursive_repo_roots(scope: Path, *, include_scope_root: bool) -> list[Path]:
-    repos: list[Path] = []
-    if not scope.exists():
-        return repos
-    for root, dirs, files in os.walk(scope):
-        root_path = Path(root)
-        has_marker = ".git" in dirs or ".git" in files
-        dirs[:] = [d for d in dirs if not should_skip_dir(root_path / d)]
-        if root_path == scope and not include_scope_root:
-            pass
-        elif has_marker:
-            repos.append(root_path)
-    return sorted(set(repos), key=lambda p: rel_to(p, scope))
-
-
-def repo_roots(scope: Path, *, discovery: str, include_scope_root: bool) -> list[Path]:
-    if not scope.exists():
-        raise FileNotFoundError(f"scan scope does not exist: {scope}")
-    if discovery == "recursive":
-        repos = recursive_repo_roots(scope, include_scope_root=include_scope_root)
-    elif discovery == "immediate":
-        repos = immediate_repo_roots(scope, include_scope_root=include_scope_root)
-    else:
-        raise ValueError(f"unknown repo discovery mode: {discovery}")
-    if not repos and not include_scope_root and has_git_marker(scope):
-        return [scope]
-    return repos
-
-
-def is_under(path: Path, ancestor: Path) -> bool:
-    try:
-        path.resolve().relative_to(ancestor.resolve())
-        return True
-    except ValueError:
-        return False
-
-
-def surface_roots(repo: Path, *, repo_set: set[Path]) -> list[Path]:
-    roots: set[Path] = set()
-    repo_resolved = repo.resolve()
-    for relative_file in (ENGINEERING_DOC, ENGINEERING_POLICY, LEGACY_DOC, LEGACY_POLICY):
-        for surface in repo.rglob(str(relative_file)):
-            rel_surface = surface.relative_to(repo)
-            if any(should_skip_dir(Path(part)) for part in rel_surface.parts):
-                continue
-            root = surface.parent.parent
-            root_resolved = root.resolve()
-            if root_resolved == repo_resolved:
-                continue
-            nested_repo_owner = False
-            for other_repo in repo_set:
-                # Only skip surfaces owned by a git repo nested inside this repo.
-                # Ancestor scope roots should not steal package/member surfaces.
-                if other_repo != repo_resolved and is_under(other_repo, repo_resolved) and is_under(root_resolved, other_repo):
-                    nested_repo_owner = True
-                    break
-            if not nested_repo_owner:
-                roots.add(root)
-    pruned_roots: list[Path] = []
-    for root in sorted(roots, key=lambda p: (len(p.parts), rel_to(p, repo))):
-        if any(is_under(root, ancestor) for ancestor in pruned_roots):
-            continue
-        pruned_roots.append(root)
-    return sorted(pruned_roots, key=lambda p: rel_to(p, repo))
-
-
 def count(records: list[AdoptionRecord], attr: str) -> dict[str, int]:
     counts: dict[str, int] = {}
     for record in records:
@@ -496,32 +364,87 @@ def build_scan(
     include_scope_root: bool = False,
     repo_discovery: str = "immediate",
     catalog: dict[str, Any] | None = None,
+    max_repositories: int = 1000,
+    max_depth: int = 12,
+    max_files: int = 100000,
+    max_read_bytes: int = 10485760,
 ) -> dict[str, Any]:
+    limits = {
+        "max_repositories": max_repositories,
+        "max_depth": max_depth,
+        "max_files": max_files,
+        "max_read_bytes": max_read_bytes,
+    }
+    invalid_limits = [name for name, value in limits.items() if value < 0]
+    if invalid_limits:
+        raise ValueError(f"scan limits must be non-negative: {', '.join(invalid_limits)}")
     loaded_catalog = catalog if catalog is not None else load_catalog()
     valid_lanes = catalog_ids(loaded_catalog, "lanes")
     valid_disciplines = catalog_ids(loaded_catalog, "disciplines")
     records: list[AdoptionRecord] = []
     scope_summaries: list[dict[str, Any]] = []
+    omissions: list[dict[str, str]] = []
+    failures: list[dict[str, str]] = []
+    files_visited = 0
+    reader = BudgetedReader(max_read_bytes)
+    repositories_inspected = 0
 
     for raw_scope in scopes:
         scope = raw_scope.resolve()
-        repos = repo_roots(scope, discovery=repo_discovery, include_scope_root=include_scope_root)
+        try:
+            repos, scope_omissions, visited = repo_roots(scope, discovery=repo_discovery, include_scope_root=include_scope_root, max_depth=max_depth, max_files=max_files - files_visited)
+        except (OSError, ValueError) as exc:
+            failures.append({"path": str(scope), "reason": str(exc)})
+            continue
+        files_visited += visited
+        omissions.extend({"path": str(scope / item["path"]), "reason": item["reason"]} for item in scope_omissions)
+        if len(repos) > max_repositories - repositories_inspected:
+            allowed = max(0, max_repositories - repositories_inspected)
+            omissions.append({"path": str(scope), "reason": "repository budget reached"})
+            repos = repos[:allowed]
         repo_set = {repo.resolve() for repo in repos}
-        repo_records = [record_for(repo, scope=scope, kind="repo", valid_lanes=valid_lanes, valid_disciplines=valid_disciplines) for repo in repos]
+        repo_records: list[AdoptionRecord] = []
+        for repo in repos:
+            repositories_inspected += 1
+            try:
+                repo_records.append(record_for(repo, scope=scope, kind="repo", valid_lanes=valid_lanes, valid_disciplines=valid_disciplines, reader=reader))
+            except ReadBudgetExceeded as exc:
+                omissions.append({"path": str(repo), "reason": str(exc)})
+            except OSError as exc:
+                failures.append({"path": str(repo), "reason": str(exc)})
         package_records: list[AdoptionRecord] = []
         if include_packages:
             for repo in repos:
-                for package in surface_roots(repo, repo_set=repo_set):
-                    package_records.append(
-                        record_for(
-                            package,
-                            scope=scope,
-                            kind="package",
-                            valid_lanes=valid_lanes,
-                            valid_disciplines=valid_disciplines,
-                            name=f"{repo.name}:{package.relative_to(repo)}",
-                        )
+                try:
+                    packages, package_omissions, package_files = surface_roots(
+                        repo,
+                        repo_set=repo_set,
+                        surface_paths=(ENGINEERING_DOC, ENGINEERING_POLICY, LEGACY_DOC, LEGACY_POLICY),
+                        max_files=max(0, max_files - files_visited),
+                        max_depth=max_depth,
                     )
+                    files_visited += package_files
+                    omissions.extend(package_omissions)
+                except OSError as exc:
+                    failures.append({"path": str(repo), "reason": str(exc)})
+                    continue
+                for package in packages:
+                    try:
+                        package_records.append(
+                            record_for(
+                                package,
+                                scope=scope,
+                                kind="package",
+                                valid_lanes=valid_lanes,
+                                valid_disciplines=valid_disciplines,
+                                reader=reader,
+                                name=f"{repo.name}:{package.relative_to(repo)}",
+                            )
+                        )
+                    except ReadBudgetExceeded as exc:
+                        omissions.append({"path": str(package), "reason": str(exc)})
+                    except OSError as exc:
+                        failures.append({"path": str(package), "reason": str(exc)})
         scope_records = repo_records + package_records
         scope_summaries.append(
             {
@@ -552,6 +475,11 @@ def build_scan(
         "include_packages": include_packages,
         "include_scope_root": include_scope_root,
         "repo_discovery": repo_discovery,
+        "completeness": "complete" if not omissions and not failures else "partial",
+        "limits": limits,
+        "usage": {"repositories": repositories_inspected, "files": files_visited, "read_bytes": reader.used},
+        "omissions": omissions,
+        "failures": failures,
         "summary": {
             "total": len(records),
             "repos": len([record for record in records if record.kind == "repo"]),

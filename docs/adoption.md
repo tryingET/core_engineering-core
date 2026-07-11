@@ -72,6 +72,10 @@ Keep generated rollout state in the scope owner, not in engineering-core. For ex
 
 Loop validation visibility is optional. `absent` does not make a repo structurally partial; `partial`, `invalid`, or `unknown-version` only means the repo declared a loop validation contract that needs review.
 
+Scanner traversal is explicitly bounded. Defaults are 1,000 repositories, depth 12, 100,000 visited files, and 10 MiB of policy/doc reads; override them with `--max-repositories`, `--max-depth`, `--max-files`, and `--max-read-bytes`. JSON and Markdown report `completeness`, budget `limits`/`usage`, `omissions`, and per-path `failures`. A `partial` result is truthful usable evidence, not complete coverage. Paths and policy-derived text are escaped before Markdown table rendering. Discovery and policy reads are advisory only: the scanner never executes commands found in consumer repositories.
+
+Both scanning and `recommend --repo` use the same typed policy parser. Malformed policy is reported as `invalid-policy` by scanning and rejected by recommendation rather than being interpreted differently.
+
 ## Version pinning
 
 For local workspace adoption, record the source honestly as `workspace-local-unpinned`. For released adoption, pin to a git tag or package version and record the retrieval command in repo-local policy.

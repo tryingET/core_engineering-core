@@ -59,6 +59,9 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `templates/` — adoption, validation, repo-loop validation, data, observability, security/privacy, and docs-authority templates
 - `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
 - `engineering-core scan-adoption` — generic consumer adoption scanner for repo/lane/company scopes; scope owners keep generated rollout dashboards and JSON snapshots
+- `engineering-core plan --repo …` — deterministic advisory `engineering-plan-v1` compiler over declarative repository facts and catalog dependencies
+- `engineering-core explain [id] --repo …` — provenance and dependency explanation for the whole plan or one selection
+- `engineering-core receipt|disposition|calibration|patterns|doctrine-propose` — read-only, digest-bound closed-loop evidence and review projections; see `docs/closed-loop.md`
 
 ## Which lane?
 
@@ -176,6 +179,22 @@ python scripts/release-local.py tag --version <next-version> --apply
 
 Package-visible changes should bump the patch version. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
 
+## Bounded advisory protocol
+
+`engineering-core advise --repo . --request-out /tmp/advice-request.json` exports a versioned, provider-neutral request downstream of `engineering-plan-v1`. The request contains only digest-verified evidence under fixed file/byte budgets, with secret/email redaction and an explicit advisory-only authority statement. Send that JSON through an owner-selected model adapter, then validate its JSON response:
+
+```bash
+engineering-core advise --repo . --response /tmp/advice-response.json --pretty
+```
+
+Validation fails closed on malformed fields, unknown catalog IDs, uncaptured paths or spans, budget excess, provenance mismatch, and unsafe patch paths. Responses must expose confidence, unknowns, counterevidence, falsification, competing recommendations, and critique. `abstain` and `unknown` are first-class outcomes. Patch proposals are returned for owner review and are **never applied**; the advisor never executes repository commands, decides compliance, or creates exceptions. No provider or credentials are built in.
+
+Protocol ceilings are 12 files, 64 KiB per file, and 256 KiB total. Lower them with `--max-files`, `--max-file-bytes`, and `--max-total-bytes`.
+
+## Closed-loop evidence
+
+Owner-produced evidence receipts and recommendation dispositions can be validated and summarized without promoting them to CI, release, AK, compliance, or doctrine authority. Calibration separates model confidence from owner acceptance and evidence verification. Pattern synthesis consumes only explicitly supplied records, and doctrine proposals always remain unapplied. Run `python scripts/dogfood-closed-loop.py` for the deterministic end-to-end fixture. See `docs/closed-loop.md` for schemas, states, controlled reason codes, bounds, and commands.
+
 ## Adoption scanner
 
 `engineering-core scan-adoption` is the reusable scanner for engineering-core adoption across single repos, lane roots, company roots, and workspace scopes. It reports current adoption, legacy surfaces, invalid policy JSON, doc-only/policy-only partials, catalog id issues, advisory semantic review flags, and optional `repo-loop-validation-v1` status counts when a repo declares that contract.
@@ -212,6 +231,8 @@ engineering-core scan-adoption \
 - Print the loop validation contract template: `uv tool run --from . engineering-core show-template repo-loop-validation --prefer-repo`
 - Recommend a profile: `uv tool run --from . engineering-core recommend browser-app --prefer-repo`
 - Recommend from repo metadata: `uv tool run --from . engineering-core recommend --repo /path/to/repo --prefer-repo`
+- Compile an advisory plan: `uv tool run --from . engineering-core plan --repo /path/to/repo --repo-root . --prefer-repo --pretty`
+- Explain a selection: `uv tool run --from . engineering-core explain validation --repo /path/to/repo --repo-root . --prefer-repo --pretty`
 - Scan adoption coverage: `uv tool run --from . engineering-core scan-adoption --scope /path/to/root --include-packages --format json --prefer-repo`
 - Scan multiple scopes recursively: `uv tool run --from . engineering-core scan-adoption --scope ~/ai-society/core --scope ~/ai-society/softwareco/infra --repo-discovery recursive --include-scope-root --include-packages --prefer-repo`
 - Print a lane: `uv tool run --from . engineering-core show ts --prefer-repo`

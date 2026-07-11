@@ -13,6 +13,7 @@ PACKAGE_NAME = "engineering-core"
 PYPROJECT = ROOT / "pyproject.toml"
 INIT = ROOT / "src" / "engineering_core" / "__init__.py"
 CATALOG = ROOT / "catalog.json"
+PACKAGE_CATALOG = ROOT / "src" / "engineering_core" / "catalog.json"
 CHANGELOG = ROOT / "CHANGELOG.md"
 
 
@@ -44,10 +45,14 @@ def assert_semver(version: str) -> None:
 def assert_versions_match(version: str) -> None:
     init_text = read_text(INIT)
     catalog = json.loads(read_text(CATALOG))
+    package_catalog = json.loads(read_text(PACKAGE_CATALOG))
     if f'__version__ = "{version}"' not in init_text:
         raise SystemExit(f"src/engineering_core/__init__.py does not match {version}")
     if catalog.get("version") != version:
         raise SystemExit(f"catalog.json version {catalog.get('version')!r} does not match {version}")
+    if package_catalog != catalog:
+        raise SystemExit("catalog.json and src/engineering_core/catalog.json differ")
+    run([sys.executable, "-c", "from engineering_core.catalog import load_catalog; load_catalog()"], env={"PYTHONPATH": "src"})
 
 
 def tag_exists(tag: str) -> bool:
@@ -89,11 +94,13 @@ def verify(version: str) -> None:
     assert_versions_match(version)
     assert_release_docs(version)
     commands = [
-        [sys.executable, "-m", "py_compile", "src/engineering_core/cli.py"],
+        [sys.executable, "-m", "compileall", "-q", "src/engineering_core"],
         [sys.executable, "scripts/check-justfile-addenda.py"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
         ["uv", "run", "engineering-core", "list"],
         ["uv", "run", "engineering-core", "list-disciplines"],
+        ["uv", "run", "engineering-core", "catalog", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "scan-adoption", "--scope", ".", "--include-scope-root", "--format", "json", "--prefer-repo", "--max-repositories", "10"],
         ["uv", "run", "engineering-core", "show", "ts", "--prefer-repo"],
         ["uv", "run", "engineering-core", "show-discipline", "validation", "--prefer-repo"],
         ["uv", "build"],
@@ -106,7 +113,24 @@ def verify(version: str) -> None:
             print(result.stdout, end="")
             print(result.stderr, end="", file=sys.stderr)
             raise SystemExit(result.returncode)
-    print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok"}, indent=2))
+    wheel = ROOT / "dist" / f"engineering_core-{version}-py3-none-any.whl"
+    sdist = ROOT / "dist" / f"engineering_core-{version}.tar.gz"
+    import tarfile
+    import zipfile
+    if not wheel.exists() or not sdist.exists():
+        raise SystemExit("uv build did not produce expected wheel and sdist")
+    with zipfile.ZipFile(wheel) as archive:
+        wheel_names = archive.namelist()
+    with tarfile.open(sdist) as archive:
+        sdist_names = archive.getnames()
+    required = ("engineering_core/catalog.json", "engineering_core/cli.py", "engineering_core/policy.py")
+    if any(not any(name.endswith(item) for name in wheel_names) for item in required):
+        raise SystemExit("wheel is missing required package files")
+    if any(not any(name.endswith(item) for name in sdist_names) for item in required):
+        raise SystemExit("sdist is missing required package files")
+    if not any(name.endswith("scripts/dogfood-closed-loop.py") for name in sdist_names):
+        raise SystemExit("sdist is missing the reproducible closed-loop dogfood harness")
+    print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok", "artifacts_inspected": [wheel.name, sdist.name]}, indent=2))
 
 
 def plan(args: argparse.Namespace) -> None:

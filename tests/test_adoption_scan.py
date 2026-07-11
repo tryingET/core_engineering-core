@@ -198,11 +198,59 @@ class AdoptionScanTests(unittest.TestCase):
         self.assertEqual(scan["summary"]["total"], 1)
         self.assertEqual(scan["records"][0]["path"], ".")
 
-    def test_missing_scope_fails(self) -> None:
+    def test_missing_scope_is_isolated_and_reported_partial(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             missing = Path(tmp) / "missing"
-            with self.assertRaises(FileNotFoundError):
-                build_scan([missing], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+            scan = build_scan([missing], catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        self.assertEqual(scan["completeness"], "partial")
+        self.assertEqual(scan["summary"]["total"], 0)
+        self.assertIn("does not exist", scan["failures"][0]["reason"])
+
+    def test_repository_budget_reports_omission(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            for name in ("a", "b"):
+                repo = scope / name
+                repo.mkdir()
+                mark_git(repo)
+            scan = build_scan([scope], max_repositories=1, catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        self.assertEqual(scan["completeness"], "partial")
+        self.assertEqual(scan["summary"]["repos"], 1)
+        self.assertEqual(scan["omissions"][0]["reason"], "repository budget reached")
+
+    def test_package_discovery_consumes_shared_file_budget(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            package = repo / "packages" / "api"
+            package.mkdir(parents=True)
+            mark_git(repo)
+            write_adoption(package)
+            scan = build_scan(
+                [scope], include_packages=True, max_files=1,
+                catalog=load_catalog(REPO_ROOT, prefer_repo=True),
+            )
+        self.assertEqual(scan["completeness"], "partial")
+        self.assertLessEqual(scan["usage"]["files"], 1)
+        self.assertTrue(any("package discovery" in item["reason"] for item in scan["omissions"]))
+
+    def test_read_budget_counts_policy_and_semantic_document_reads(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo)
+            policy_size = (repo / "policy" / "engineering-lane.json").stat().st_size
+            scan = build_scan(
+                [scope], max_read_bytes=policy_size,
+                catalog=load_catalog(REPO_ROOT, prefer_repo=True),
+            )
+        self.assertEqual(scan["completeness"], "partial")
+        self.assertEqual(scan["usage"]["read_bytes"], policy_size)
+        self.assertEqual(scan["usage"]["repositories"], 1)
+        self.assertEqual(scan["summary"]["repos"], 0)
+        self.assertIn("read-byte budget reached", scan["omissions"][0]["reason"])
 
     def test_scan_legacy_only(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -236,6 +284,18 @@ class AdoptionScanTests(unittest.TestCase):
         self.assertEqual(scan_with["summary"]["total"], 2)
         package_record = [record for record in scan_with["records"] if record["kind"] == "package"][0]
         self.assertEqual(package_record["status"], "doc-only")
+
+    def test_include_packages_requires_exact_surface_path_components(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "monorepo"
+            false_surface = repo / "packages" / "ui" / "foopolicy"
+            false_surface.mkdir(parents=True)
+            mark_git(repo)
+            write_adoption(repo)
+            (false_surface / "engineering-lane.json").write_text("{}", encoding="utf-8")
+            scan = build_scan([scope], include_packages=True, catalog=load_catalog(REPO_ROOT, prefer_repo=True))
+        self.assertEqual(scan["summary"]["packages"], 0)
 
     def test_include_packages_suppresses_nested_surfaces_by_default(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -1,6 +1,6 @@
 {
   "name": "engineering-core",
-  "version": "0.3.4",
+  "version": "0.5.0",
   "cli": "engineering-core",
   "model": {
     "lane": "ecosystem-specific tooling and commands",
@@ -666,5 +666,11 @@
         "design-patterns"
       ]
     }
-  ]
+  ],
+  "protocols": {
+    "engineering_plan": "engineering-plan-v1",
+    "advice_request": "engineering-advice-request-v1",
+    "advice_response": "engineering-advice-response-v1",
+    "advice_authority": "advisory-only; deterministic validation and owner review required"
+  }
 }
