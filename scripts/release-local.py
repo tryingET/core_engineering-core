@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# summary: "Plans, verifies, and explicitly applies local engineering-core release tags against synchronized versions, catalogs, notes, and validation."
+# read_when:
+#   - "Preparing or verifying a local release, changing release prerequisites, or updating the release validation matrix."
+
 from __future__ import annotations
 
 import argparse

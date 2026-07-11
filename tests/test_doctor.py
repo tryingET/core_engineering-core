@@ -1,3 +1,7 @@
+# summary: "Tests non-executing doctor health, capability readiness, release-pin and blocked-target handling, and unsafe policy rejection."
+# read_when:
+#   - "Changing doctor status aggregation, capability declarations, repository target bounds, policy safety, or non-execution guarantees."
+
 import json
 import sys
 import tempfile

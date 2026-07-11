@@ -1,3 +1,7 @@
+# summary: "Builds a deterministic non-executing readiness report from repository facts, policy, catalog protocols, planning, and advisory compatibility."
+# read_when:
+#   - "Changing doctor checks, health aggregation, release-pin posture, capability observations, or blocked-target reporting."
+
 from __future__ import annotations
 
 import hashlib

@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# summary: "Proves matched, stale, mismatched, and unsafe-input outcomes for read-only owner-evidence reconciliation."
+# read_when:
+#   - "Changing evidence reconciliation, revision-drift handling, safe receipt reads, or reconciliation result semantics."
+
 """Deterministic, read-only owner-evidence reconciliation dogfood."""
 from __future__ import annotations
 

@@ -1,3 +1,7 @@
+# summary: "Defines and dispatches receipt, disposition, calibration, pattern, and doctrine-proposal CLI workflows over explicit record files."
+# read_when:
+#   - "Changing closed-loop CLI arguments, record loading, validation dispatch, output schemas, or command exit behavior."
+
 from __future__ import annotations
 
 import argparse

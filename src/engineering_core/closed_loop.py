@@ -1,3 +1,7 @@
+# summary: "Validates and deterministically projects owner-authored receipts, dispositions, calibration outcomes, recurring patterns, and unapplied doctrine proposals."
+# read_when:
+#   - "Changing closed-loop record schemas, provenance bindings, state validation, calibration, pattern synthesis, or proposal generation."
+
 """Deterministic, read-only processing of owner-authored closed-loop evidence."""
 from __future__ import annotations
 

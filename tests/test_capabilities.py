@@ -1,3 +1,7 @@
+# summary: "Tests capability-contract absence, exact valid declarations, observation transitions, and fail-closed unsupported or mixed-invalid states."
+# read_when:
+#   - "Changing capability declaration schemas, protocol compatibility, contract status, findings, or observation/evidence transitions."
+
 import sys
 import unittest
 from pathlib import Path

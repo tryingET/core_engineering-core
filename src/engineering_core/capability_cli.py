@@ -1,3 +1,7 @@
+# summary: "Defines and dispatches the doctor and explicit-population capability-scan CLI commands."
+# read_when:
+#   - "Changing doctor or scan-capabilities arguments, exit behavior, JSON emission, or command routing."
+
 from __future__ import annotations
 
 import argparse

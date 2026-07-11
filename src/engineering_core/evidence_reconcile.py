@@ -1,3 +1,7 @@
+# summary: "Reconciles explicit owner receipts with safe artifacts, plan/advice bindings, catalog history, repository identity, and Git ancestry."
+# read_when:
+#   - "Changing reconciliation outcomes, artifact validation, revision ancestry checks, historical catalog support, or owner-state preservation."
+
 from __future__ import annotations
 
 import hashlib

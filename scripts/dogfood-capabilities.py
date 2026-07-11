@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# summary: "Exercises capability declarations, doctor reports, population scanning, CLI behavior, and fail-closed input bounds in deterministic fixtures."
+# read_when:
+#   - "Changing capability contracts, doctor observations, capability population scanning, or their CLI exposure."
+
 """Deterministic orchestration over public capability APIs; defines no product semantics."""
 from __future__ import annotations
 

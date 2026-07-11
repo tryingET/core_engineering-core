@@ -1,3 +1,7 @@
+# summary: "Extracts bounded no-follow repository evidence and deterministic manifest, policy, and local-document facts for planning."
+# read_when:
+#   - "Changing repository-facts schema, safe path traversal, evidence budgets, manifest inference inputs, diagnostics, or fact digests."
+
 from __future__ import annotations
 
 import errno

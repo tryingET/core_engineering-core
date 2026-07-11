@@ -1,3 +1,7 @@
+# summary: "Tests explicit capability population resolution, deterministic aggregation, repo-file safety, deduplication, and population limits."
+# read_when:
+#   - "Changing scan-capabilities population inputs, path validation, deterministic ordering, completeness, or repository bounds."
+
 import sys
 import tempfile
 import unittest

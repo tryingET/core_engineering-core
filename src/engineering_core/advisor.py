@@ -1,3 +1,7 @@
+# summary: "Builds bounded redacted advisory requests and validates provider responses, citations, and review-only patch proposals."
+# read_when:
+#   - "Changing advisory request/response schemas, evidence capture bounds, redaction, citation validation, or patch proposal safety."
+
 from __future__ import annotations
 
 import hashlib

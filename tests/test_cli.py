@@ -1,3 +1,7 @@
+# summary: "Tests catalog-backed retrieval, recommendation, planning, explanation, adoption output, version consistency, and legacy-alias rejection across the main CLI."
+# read_when:
+#   - "Changing main CLI commands, catalog/document mappings, planning and scan output, package versions, or supported compatibility boundaries."
+
 from __future__ import annotations
 
 import io

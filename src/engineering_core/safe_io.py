@@ -1,3 +1,7 @@
+# summary: "Reads bounded regular files and duplicate-key-safe JSON through no-follow path traversal."
+# read_when:
+#   - "Changing shared input path safety, byte bounds, file-kind rejection, race checks, UTF-8 decoding, or duplicate JSON member handling."
+
 from __future__ import annotations
 
 import json

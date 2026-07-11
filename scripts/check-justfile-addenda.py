@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+# summary: "Validates that every catalog lane has a linked, structurally complete Justfile addendum."
+# read_when:
+#   - "Changing lane docs, Justfile addenda, catalog lane membership, or their required cross-links."
+
 from __future__ import annotations
 
 import re
