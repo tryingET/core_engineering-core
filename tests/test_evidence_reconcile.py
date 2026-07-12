@@ -1,7 +1,3 @@
-# summary: "Tests matched, stale, and mismatched reconciliation across planning/advice artifacts, Git ancestry, owner identity, and unsafe receipt inputs."
-# read_when:
-#   - "Changing evidence reconciliation, catalog-history compatibility, artifact digests, revision classification, safe I/O, or failure isolation."
-
 from __future__ import annotations
 
 import hashlib

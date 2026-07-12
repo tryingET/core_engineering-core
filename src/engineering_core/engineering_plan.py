@@ -1,7 +1,3 @@
-# summary: "Compiles and explains deterministic advisory engineering plans from repository facts, policy selections, and catalog dependencies."
-# read_when:
-#   - "Changing plan selection or inference, dependency expansion, diagnostics, provenance, digests, or explanation output."
-
 from __future__ import annotations
 
 import hashlib

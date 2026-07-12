@@ -1,7 +1,3 @@
-# summary: "Tests adoption discovery, classification, loop-validation parsing, catalog validation, traversal limits, and shared scan budgets."
-# read_when:
-#   - "Changing adoption scan statuses, repository/package discovery, loop-validation contracts, semantic reads, or completeness budgets."
-
 from __future__ import annotations
 
 import json

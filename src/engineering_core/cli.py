@@ -1,7 +1,3 @@
-# summary: "Implements the main engineering-core retrieval, recommendation, planning, advisory, adoption-scan, and delegated command surface."
-# read_when:
-#   - "Adding or changing top-level CLI commands, catalog-backed document retrieval, recommendation behavior, planning/advice flows, or output handling."
-
 from __future__ import annotations
 
 import argparse

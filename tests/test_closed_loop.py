@@ -1,7 +1,3 @@
-# summary: "Tests receipt and disposition validation, outcome separation, provenance isolation, deterministic synthesis, and unapplied proposal safeguards."
-# read_when:
-#   - "Changing closed-loop schemas, receipt summaries, calibration joins, duplicate handling, pattern provenance, or doctrine proposals."
-
 from __future__ import annotations
 import copy, json, sys, tempfile, unittest
 from pathlib import Path

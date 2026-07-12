@@ -1,7 +1,3 @@
-# summary: "Parses exact capability declarations and derives static observation and evidence statuses without promoting authority."
-# read_when:
-#   - "Changing capability contract versions, declared capability schemas, transition rules, findings, or observation status semantics."
-
 from __future__ import annotations
 
 import hashlib

@@ -1,7 +1,3 @@
-# summary: "Tests bounded advisory request construction and fail-closed response, citation, redaction, and review-only patch validation."
-# read_when:
-#   - "Changing advisory evidence budgets, response schemas, abstention, citations, secret handling, or patch proposal constraints."
-
 from __future__ import annotations
 
 import copy

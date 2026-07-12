@@ -1,7 +1,3 @@
-# summary: "Parses typed engineering-lane policy selections, command declarations, release references, and optional capability contracts."
-# read_when:
-#   - "Changing policy field validation, lane or discipline extraction, command mapping, capability-contract handoff, or parse errors."
-
 from __future__ import annotations
 
 import json

@@ -1,7 +1,3 @@
-# summary: "Parses typed lanes, disciplines, templates, profiles, and protocol identifiers from current or historical catalogs."
-# read_when:
-#   - "Changing catalog schema interpretation, dependency validation, packaged-versus-repo loading, or historical catalog lookup."
-
 from __future__ import annotations
 
 import os

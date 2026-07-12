@@ -1,7 +1,3 @@
-# summary: "Renders adoption scan records and completeness diagnostics as escaped Markdown."
-# read_when:
-#   - "Changing scan report presentation, Markdown escaping, status columns, counts, omissions, or failure rendering."
-
 from __future__ import annotations
 
 import json

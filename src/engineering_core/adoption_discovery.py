@@ -1,7 +1,3 @@
-# summary: "Provides bounded repository and package-surface discovery plus shared read-budget accounting for adoption scans."
-# read_when:
-#   - "Changing scan traversal, skip rules, nested repository ownership, package discovery, or read/file/depth budgets."
-
 from __future__ import annotations
 
 import os

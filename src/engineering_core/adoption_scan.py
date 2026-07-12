@@ -1,7 +1,3 @@
-# summary: "Classifies repository adoption from catalog-aware policy, local docs, legacy surfaces, semantic hints, and optional loop-validation declarations."
-# read_when:
-#   - "Changing adoption status taxonomy, policy/doc interpretation, semantic review signals, loop-validation checks, or scan completeness accounting."
-
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass

@@ -1,7 +1,3 @@
-# summary: "Resolves bounded owner-supplied repository populations and aggregates deterministic doctor reports into a capability scan."
-# read_when:
-#   - "Changing repo-file parsing, population identity or limits, scan completeness, failure isolation, or aggregate counts."
-
 from __future__ import annotations
 
 import hashlib

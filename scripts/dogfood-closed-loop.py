@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-# summary: "Runs the deterministic end-to-end fixture for receipts, dispositions, calibration, pattern synthesis, and unapplied doctrine proposals."
-# read_when:
-#   - "Changing closed-loop evidence schemas, advisory bindings, calibration, pattern synthesis, or doctrine proposal behavior."
-
 """Reproducible, read-only Wave 4 closed-loop dogfood."""
 from __future__ import annotations
 

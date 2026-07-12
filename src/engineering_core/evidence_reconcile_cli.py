@@ -1,7 +1,3 @@
-# summary: "Defines and dispatches the explicit repository-to-receipt evidence reconciliation CLI command."
-# read_when:
-#   - "Changing reconcile-evidence arguments, repository identity mapping, output emission, or failure exit criteria."
-
 from __future__ import annotations
 
 import argparse
