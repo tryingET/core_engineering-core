@@ -97,6 +97,18 @@ engineering-core scan-capabilities --repo /path/to/repo --repo-file owner-reposi
 
 Architecture and exact schemas: `docs/rfc/2026-07-11-capability-observation-and-doctor.md`.
 
+## Owner-use packets
+
+After static adoption, an owner may connect a real task to planning and externally supplied advice without changing capability-observation semantics:
+
+```bash
+engineering-core prepare-work --repo . --repo-id <stable-owner-id> --context context.json --pretty > packet.json
+engineering-core finalize-work --packet packet.json --advice advice.json --disposition disposition.json --pretty > bundle.json
+engineering-core verify-work --repo . --repo-id <stable-owner-id> --bundle bundle.json --pretty
+```
+
+These commands use only explicit owner inputs. They do not discover AK tasks, invoke models, execute declared commands, apply patches, or promote receipts. Keep canonical task/evidence state with AK or the declared owner; store generated packets and bundles only when the owner finds them useful. See `docs/owner-use-workflow.md`.
+
 ## Version pinning
 
 For local workspace adoption, record the source honestly as `workspace-local-unpinned`. For released adoption, pin to a git tag or package version and record the retrieval command in repo-local policy.

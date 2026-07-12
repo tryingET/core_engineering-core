@@ -11,6 +11,8 @@ import stat
 from pathlib import Path
 from typing import Any
 
+from engineering_core.safe_io import SafeInputError, read_bounded_json
+
 REQUEST_SCHEMA = "engineering-advice-request-v1"
 RESPONSE_SCHEMA = "engineering-advice-response-v1"
 MAX_FILES = 12
@@ -108,7 +110,7 @@ def _validate_diff(diff: str, target: str) -> None:
         raise AdviceError("diff headers must match patch.path")
 
 
-def build_request(repo: Path, plan: dict[str, Any], catalog_ids: set[str], *, max_files: int = MAX_FILES, max_file_bytes: int = MAX_FILE_BYTES, max_total_bytes: int = MAX_TOTAL_BYTES) -> dict[str, Any]:
+def build_request(repo: Path, plan: dict[str, Any], catalog_ids: set[str], *, focus_files: dict[str, str] | None = None, max_files: int = MAX_FILES, max_file_bytes: int = MAX_FILE_BYTES, max_total_bytes: int = MAX_TOTAL_BYTES) -> dict[str, Any]:
     if plan.get("schema") != "engineering-plan-v1":
         raise AdviceError("advisor requires engineering-plan-v1")
     if not (1 <= max_files <= MAX_FILES and 1 <= max_file_bytes <= MAX_FILE_BYTES and 1 <= max_total_bytes <= MAX_TOTAL_BYTES):
@@ -117,17 +119,23 @@ def build_request(repo: Path, plan: dict[str, Any], catalog_ids: set[str], *, ma
     evidence = []
     total = 0
     redactions = 0
+    candidates: list[tuple[str, str | None]] = []
+    for relative, digest in (focus_files or {}).items():
+        candidates.append((relative, digest))
     for item in plan.get("evidence", []):
+        candidates.append((item.get("path"), item.get("sha256")))
+    seen: set[str] = set()
+    for relative, expected_sha in candidates:
         if len(evidence) >= max_files:
             break
-        relative = item.get("path")
-        if not isinstance(relative, str) or relative.startswith("/") or ".." in Path(relative).parts:
+        if not isinstance(relative, str) or relative in seen or relative.startswith("/") or ".." in Path(relative).parts:
             continue
+        seen.add(relative)
         try:
             raw = _read_owner_local(root, relative, min(max_file_bytes, max_total_bytes - total))
         except OSError:
             continue
-        if total + len(raw) > max_total_bytes or hashlib.sha256(raw).hexdigest() != item.get("sha256"):
+        if total + len(raw) > max_total_bytes or not isinstance(expected_sha, str) or hashlib.sha256(raw).hexdigest() != expected_sha:
             continue
         try:
             content, count = _redact(raw.decode("utf-8"))
@@ -233,11 +241,6 @@ def validate_response(request: dict[str, Any], response: Any) -> dict[str, Any]:
 
 def load_json(path: Path) -> Any:
     try:
-        raw = path.read_bytes()
-        if len(raw) > MAX_TOTAL_BYTES:
-            raise AdviceError("response JSON exceeds byte budget")
-        return json.loads(raw.decode("utf-8"))
-    except AdviceError:
-        raise
-    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise AdviceError(f"invalid JSON: {exc}") from exc
+        return read_bounded_json(path, max_bytes=MAX_TOTAL_BYTES)[0]
+    except SafeInputError as exc:
+        raise AdviceError(f"invalid bounded no-follow JSON: {exc}") from exc

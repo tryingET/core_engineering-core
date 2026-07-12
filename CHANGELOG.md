@@ -9,6 +9,20 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-07-12
+
+### Added
+
+- Added deterministic `prepare-work`, `finalize-work`, and `verify-work` commands for explicit owner task context, plans, optional external advice, owner dispositions/receipts, and matched/stale/mismatched repository verification.
+- Added owner-use context, bounded-work-plan, task-bound advice-request, work-packet, evidence-bundle, and work-verification contracts with full Git revisions, focused no-follow file snapshots, transitive digest bindings, and explicit non-authority effects.
+- Added deterministic owner-use dogfood and real canary evidence over current Agent Kernel, DSPx, and pi-extensions work.
+
+### Changed
+
+- Reused the canonical advisor response validator in closed-loop processing instead of maintaining a weaker duplicate validator.
+- Hardened advisor and general safe JSON loading against symlinks, special files, duplicate members, and non-finite JSON values.
+- Added the v0.7 catalog snapshot to historical reconciliation support while preserving v0.6/v0.7 doctor, scan, and reconciliation boundaries.
+
 ## [0.7.0] - 2026-07-11
 
 ### Added

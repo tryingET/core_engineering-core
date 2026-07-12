@@ -43,9 +43,9 @@ The verifier checks:
 - `CHANGELOG.md` has a section for the version;
 - release notes exist under `docs/releases/`;
 - every package module compiles, Justfile addendum checks and the full unittest suite pass;
-- closed-loop, capability, and evidence-reconciliation dogfoods pass;
-- list/catalog/show, bounded scan, and reconciliation CLI discovery smoke commands pass;
-- `uv build` passes and both wheel and sdist contain the catalog, CLI, typed policy, capability, reconciliation, and safe-input modules, and the sdist contains all reproducible dogfood harnesses.
+- closed-loop, capability, evidence-reconciliation, and owner-use dogfoods pass;
+- list/catalog/show, bounded scan, reconciliation, and owner-use CLI discovery smoke commands pass;
+- `uv build` passes and both wheel and sdist contain the catalog, CLI, typed policy, capability, reconciliation, safe-input, and owner-use modules, and the sdist contains all reproducible dogfood harnesses.
 
 ## Commit and tag
 

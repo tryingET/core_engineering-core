@@ -35,6 +35,10 @@ engineering-core reconcile-evidence \
 
 The command validates bounded no-follow receipt/artifact inputs, exact repository identity, current plan bindings, artifact schemas and digests, advice recommendation identity, and Git revision ancestry. It emits only `matched`, `stale`, or `mismatched` reconciliation results and preserves the supplied owner state without upgrading it. It never changes doctor health, capability declarations, AK evidence, CI/release state, or compliance authority. See `docs/rfc/2026-07-11-evidence-reconciliation.md`.
 
+## Owner-use workflow
+
+v0.8 adds `prepare-work`, `finalize-work`, and `verify-work` as deterministic glue over explicit owner context, plans, optional external advice, dispositions, and receipts. It preserves owner states verbatim and does not treat bundle validation as tracked-artifact reconciliation or independent evidence verification. See `docs/owner-use-workflow.md`.
+
 ## Reproducible dogfood
 
 Run `python scripts/dogfood-closed-loop.py`. The temporary, deterministic fixture executes the complete read-only flow: two plans, request-bound advisor validation, all four owner dispositions, verified/failed/stale/mismatched receipt records, calibration, recurring multi-plan patterns, and an unapplied doctrine proposal. It also proves malformed, secret-bearing, hallucinated-path, unknown-ID, and provenance-mismatched inputs are rejected. A sentinel consumer command is declared but never executed; proposed patches are never applied. Running the command twice must produce byte-identical JSON.

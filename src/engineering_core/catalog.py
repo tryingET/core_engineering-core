@@ -28,6 +28,13 @@ class CatalogProtocols:
     evidence_receipt: str
     recommendation_disposition: str
     evidence_reconciliation: str = "engineering-evidence-reconciliation-v1"
+    work_context: str | None = None
+    bounded_work_plan: str | None = None
+    work_advice_request: str | None = None
+    work_packet: str | None = None
+    evidence_bundle: str | None = None
+    work_verification: str | None = None
+    work_summary: str | None = None
 
 
 @dataclass(frozen=True)
@@ -80,7 +87,7 @@ def parse_catalog(raw: Any) -> Catalog:
     required = ("engineering_plan", "advice_request", "advice_response")
     if not isinstance(protocol_raw, dict) or not all(isinstance(protocol_raw.get(key), str) and protocol_raw[key] and len(protocol_raw[key].encode("utf-8")) <= 4096 for key in required):
         raise ValueError("catalog.protocols is missing required protocol identifiers")
-    optional = ("evidence_receipt", "recommendation_disposition", "evidence_reconciliation")
+    optional = ("evidence_receipt", "recommendation_disposition", "evidence_reconciliation", "work_context", "bounded_work_plan", "work_advice_request", "work_packet", "evidence_bundle", "work_verification", "work_summary")
     if any(key in protocol_raw and (not isinstance(protocol_raw[key], str) or not protocol_raw[key] or len(protocol_raw[key].encode("utf-8")) > 4096) for key in optional):
         raise ValueError("catalog.protocols closed-loop identifiers must be non-empty strings")
     # v0.5 catalogs predate closed-loop protocol metadata. Keep existing
@@ -91,6 +98,13 @@ def parse_catalog(raw: Any) -> Catalog:
         protocol_raw.get("evidence_receipt", "engineering-evidence-receipt-v1"),
         protocol_raw.get("recommendation_disposition", "engineering-recommendation-disposition-v1"),
         protocol_raw.get("evidence_reconciliation", "engineering-evidence-reconciliation-v1"),
+        protocol_raw.get("work_context"),
+        protocol_raw.get("bounded_work_plan"),
+        protocol_raw.get("work_advice_request"),
+        protocol_raw.get("work_packet"),
+        protocol_raw.get("evidence_bundle"),
+        protocol_raw.get("work_verification"),
+        protocol_raw.get("work_summary"),
     )
     catalog = Catalog(raw, _items(raw, "lanes"), _items(raw, "disciplines"), _items(raw, "templates"), protocols)
     known = set(catalog.ids("lanes")) | set(catalog.ids("disciplines"))

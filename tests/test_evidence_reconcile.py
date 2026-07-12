@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from engineering_core.advisor import build_request
-from engineering_core.catalog import load_catalog
+from engineering_core.catalog import load_catalog, load_catalog_history
 from engineering_core.closed_loop import canonical_digest
 from engineering_core.engineering_plan import compile_plan
 from engineering_core.evidence_reconcile import reconcile_evidence
@@ -33,7 +33,7 @@ class EvidenceReconcileTests(unittest.TestCase):
         (self.repo / "policy").mkdir(parents=True)
         (self.repo / "governance").mkdir()
         (self.repo / "pyproject.toml").write_text("[project]\nname='fixture'\nversion='1.0.0'\n")
-        (self.repo / "policy/engineering-lane.json").write_text(json.dumps({"engineering_core": {"ref": "v0.7.0", "lane": "py", "disciplines": ["validation"]}}))
+        (self.repo / "policy/engineering-lane.json").write_text(json.dumps({"engineering_core": {"ref": "v0.8.0", "lane": "py", "disciplines": ["validation"]}}))
         subprocess.run(["git", "init", "-q", "-b", "main"], cwd=self.repo, check=True)
         subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=self.repo, check=True)
         subprocess.run(["git", "config", "user.name", "Test"], cwd=self.repo, check=True)
@@ -75,6 +75,18 @@ class EvidenceReconcileTests(unittest.TestCase):
 
     def reconcile(self, *receipts: Path) -> dict:
         return reconcile_evidence([("fixture/repo", self.repo)], list(receipts), repo_root=ROOT, prefer_repo=True)
+
+    def test_v07_catalog_receipt_reconciles_without_projecting_v08_protocols(self):
+        historical = load_catalog_history("0.7.0", ROOT, prefer_repo=True)
+        self.assertIsNone(historical.protocols.work_packet)
+        policy = json.loads((self.repo / "policy/engineering-lane.json").read_text()); policy["engineering_core"]["ref"] = "v0.7.0"
+        (self.repo / "policy/engineering-lane.json").write_text(json.dumps(policy))
+        subprocess.run(["git", "add", "policy"], cwd=self.repo, check=True); subprocess.run(["git", "commit", "-qm", "v07 policy"], cwd=self.repo, check=True)
+        self.target_revision = self.head(); plan = compile_plan(self.repo, historical)
+        artifact = self.repo / "governance/plan.json"; artifact.write_text(json.dumps(plan)); receipt = self.receipt(artifact, plan); self.commit_artifacts()
+        output = self.reconcile(receipt)
+        self.assertEqual("0.7.0", output["catalog"]["version"])
+        self.assertEqual(1, output["summary"]["result_counts"]["matched"])
 
     def test_planning_artifact_matches_advanced_compatible_revision(self):
         plan = self.plan()

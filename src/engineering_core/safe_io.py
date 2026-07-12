@@ -50,6 +50,25 @@ def _open_nofollow(path: Path) -> int:
         os.close(directory_fd)
 
 
+def validate_nofollow_parent(path: Path) -> None:
+    path = _bounded_path(path)
+    directory_flags = os.O_RDONLY | getattr(os, "O_CLOEXEC", 0) | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    try:
+        directory_fd = os.open(path.anchor, directory_flags)
+    except OSError as exc:
+        raise SafeInputError(f"unable to open input root: {path}") from exc
+    try:
+        for part in path.parts[1:-1]:
+            try:
+                next_fd = os.open(part, directory_flags, dir_fd=directory_fd)
+            except OSError as exc:
+                raise SafeInputError(f"symlinked or unavailable parent rejected: {path}") from exc
+            os.close(directory_fd)
+            directory_fd = next_fd
+    finally:
+        os.close(directory_fd)
+
+
 def read_bounded_bytes(path: Path, *, max_bytes: int) -> bytes:
     path = _bounded_path(path)
     if not isinstance(max_bytes, int) or isinstance(max_bytes, bool) or max_bytes < 1:
@@ -91,10 +110,14 @@ def _object_without_duplicates(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def _reject_nonfinite_constant(value: str) -> None:
+    raise ValueError(f"non-finite JSON number rejected: {value}")
+
+
 def read_bounded_json(path: Path, *, max_bytes: int) -> tuple[Any, bytes]:
     raw = read_bounded_bytes(path, max_bytes=max_bytes)
     try:
-        value = json.loads(raw.decode("utf-8"), object_pairs_hook=_object_without_duplicates)
+        value = json.loads(raw.decode("utf-8"), object_pairs_hook=_object_without_duplicates, parse_constant=_reject_nonfinite_constant)
         return value, raw
     except (UnicodeDecodeError, json.JSONDecodeError, ValueError, RecursionError, MemoryError) as exc:
         raise SafeInputError("input is not valid bounded UTF-8 JSON") from exc

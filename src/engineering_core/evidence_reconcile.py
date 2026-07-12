@@ -7,7 +7,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -15,6 +14,7 @@ from engineering_core.advisor import AdviceError, build_request, validate_respon
 from engineering_core.catalog import Catalog, load_catalog, load_catalog_history
 from engineering_core.closed_loop import STATES, ClosedLoopError, canonical_digest, load_record_with_bytes, validate_receipt
 from engineering_core.engineering_plan import compile_plan
+from engineering_core.safe_git import SafeGitError, read_git
 from engineering_core.safe_io import SafeInputError
 
 SCHEMA = "engineering-evidence-reconciliation-v1"
@@ -23,7 +23,7 @@ RESULTS = ("matched", "stale", "mismatched")
 CAPABILITIES = ("planning", "advisor")
 MAX_RECEIPTS = 1000
 MAX_REPOSITORIES = 1000
-HISTORICAL_CATALOGS = ("0.6.0",)
+HISTORICAL_CATALOGS = ("0.6.0", "0.7.0")
 _GIT_OBJECT_ID = re.compile(r"^(?:[0-9a-f]{40}|[0-9a-f]{64})$")
 
 
@@ -33,9 +33,9 @@ def _finding(code: str, message: str, *, severity: str = "error", evidence: list
 
 def _git(repo: Path, *args: str) -> str:
     try:
-        return subprocess.check_output(["git", "-C", str(repo), *args], text=True, stderr=subprocess.DEVNULL, timeout=10).strip()
-    except (OSError, subprocess.SubprocessError) as exc:
-        raise ValueError(f"fixed git probe failed: {' '.join(args)}") from exc
+        return str(read_git(repo, *args))
+    except SafeGitError as exc:
+        raise ValueError(str(exc)) from exc
 
 
 def _git_blob(repo: Path, revision: str, relative_path: Path) -> bytes:
@@ -43,8 +43,10 @@ def _git_blob(repo: Path, revision: str, relative_path: Path) -> bytes:
     if not text or text.startswith("-") or ":" in text or ".." in relative_path.parts or any(ord(char) < 32 for char in text):
         raise ValueError("tracked artifact path is unsafe for fixed Git blob lookup")
     try:
-        return subprocess.check_output(["git", "-C", str(repo), "show", "--no-ext-diff", "--no-textconv", f"{revision}:{text}"], stderr=subprocess.DEVNULL, timeout=10)
-    except (OSError, subprocess.SubprocessError) as exc:
+        value = read_git(repo, "show", "--no-ext-diff", "--no-textconv", f"{revision}:{text}", binary=True)
+        if not isinstance(value, bytes): raise SafeGitError("tracked blob did not return bytes")
+        return value
+    except SafeGitError as exc:
         raise ValueError("tracked artifact blob is unavailable at the stable HEAD") from exc
 
 
@@ -60,8 +62,8 @@ def _revision(repo: Path, target: str, current: str) -> tuple[str, list[dict[str
     if resolved == current:
         return "current", []
     try:
-        subprocess.run(["git", "-C", str(repo), "merge-base", "--is-ancestor", resolved, current], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=10)
-    except (OSError, subprocess.SubprocessError):
+        read_git(repo, "merge-base", "--is-ancestor", resolved, current)
+    except SafeGitError:
         return "mismatched", [_finding("revision-not-ancestor", "target revision is not an ancestor of current HEAD")]
     return "ancestor", []
 

@@ -65,6 +65,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `engineering-core doctor --repo …` — deterministic static readiness diagnostics; never executes consumer commands or invokes models
 - `engineering-core scan-capabilities --repo … [--repo-file …]` — bounded capability observations over an explicit owner-produced population
 - `engineering-core reconcile-evidence --repo <id> <path> --receipt …` — explicit, read-only owner-receipt reconciliation with matched/stale/mismatched results; never changes doctor health or authority
+- `engineering-core prepare-work|finalize-work|verify-work|summarize-work` — deterministic owner-use glue from explicit task context through optional external advice, owner disposition/receipts, repository drift verification, and concise owner handoff; see `docs/owner-use-workflow.md`
 
 ## Which lane?
 

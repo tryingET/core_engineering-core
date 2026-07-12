@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 from typing import Any, Iterable
 
+from engineering_core.advisor import AdviceError, validate_response_intrinsic
 from engineering_core.safe_io import SafeInputError, read_bounded_json
 
 MAX_INPUT_BYTES = 262_144
@@ -19,7 +20,7 @@ DISPOSITION_SCHEMA = "engineering-recommendation-disposition-v1"
 STATES = ("declared", "schema-valid", "target-resolved", "execution-observed", "evidence-verified", "stale", "mismatched", "unknown")
 DECISIONS = ("accepted", "deferred", "rejected", "abstained")
 REASONS = ("adopted", "needs-evidence", "needs-owner-decision", "out-of-scope", "conflicting-evidence", "superseded", "not-applicable", "insufficient-evidence")
-_SECRET = re.compile(r'''(?ix)["']?(api[_-]?key|access[_-]?token|password|secret|authorization)["']?\s*[=:]\s*["']?[^\s,;"'}]+''')
+_SECRET = re.compile(r'''(?ix)(?:["']?(api[_-]?key|access[_-]?token|password|secret|authorization)["']?\s*[=:]\s*["']?[^\s,;"'}]+|authorization\s*:\s*bearer\s+[^\s,;"'}]+|-----BEGIN\s+(?:[A-Z]+\s+)?PRIVATE\s+KEY-----)''')
 _SHA = re.compile(r"^[0-9a-f]{64}$")
 
 class ClosedLoopError(ValueError):
@@ -28,11 +29,25 @@ class ClosedLoopError(ValueError):
 def canonical_digest(value: Any) -> str:
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
 
-def load_record_with_bytes(path: Path) -> tuple[Any, bytes]:
+def _contains_secret(value: Any) -> bool:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if isinstance(item, str) and _contains_secret(f"{key}: {item}"):
+                return True
+            if not isinstance(item, str) and _contains_secret(item):
+                return True
+        return False
+    if isinstance(value, list):
+        return any(_contains_secret(item) for item in value)
+    if isinstance(value, str):
+        return any("[REDACTED]" not in match.group(0) for match in _SECRET.finditer(value))
+    return False
+
+
+def load_record_with_bytes(path: Path, *, max_bytes: int = MAX_INPUT_BYTES) -> tuple[Any, bytes]:
     try:
-        value, raw = read_bounded_json(path, max_bytes=MAX_INPUT_BYTES)
-        text = raw.decode("utf-8")
-        if _SECRET.search(text):
+        value, raw = read_bounded_json(path, max_bytes=max_bytes)
+        if _contains_secret(value):
             raise ClosedLoopError("secret-bearing input rejected")
         return value, raw
     except ClosedLoopError:
@@ -111,26 +126,18 @@ def _reject_duplicate(records: list[dict[str, Any]], key: str, where: str) -> No
 
 
 def _validate_advice_shape(value: Any) -> dict[str, Any]:
-    _exact(value, {"schema", "request_sha256", "provenance", "status", "summary", "recommendations", "critiques", "patch_proposals"}, "advice")
-    if value["schema"] != "engineering-advice-response-v1": raise ClosedLoopError("unsupported advice schema")
-    _digest(value["request_sha256"], "advice.request_sha256")
-    _exact(value["provenance"], {"provider", "model", "model_version", "adapter", "adapter_version", "prompt_id", "prompt_version"}, "advice.provenance")
-    for key in value["provenance"]: _text(value["provenance"][key], f"advice.provenance.{key}")
-    if value["status"] not in ("advice", "abstain", "unknown"): raise ClosedLoopError("invalid advice status")
-    _text(value["summary"], "advice.summary")
-    if not all(isinstance(value[key], list) for key in ("recommendations", "critiques", "patch_proposals")): raise ClosedLoopError("advice collections must be arrays")
-    if len(value["recommendations"]) > 20 or len(value["critiques"]) > 20 or len(value["patch_proposals"]) > 10: raise ClosedLoopError("advice item budget exceeded")
-    recommendation_ids: set[str] = set()
-    for index, item in enumerate(value["recommendations"]):
-        _exact(item, {"id", "catalog_ids", "recommendation", "confidence", "unknowns", "counterevidence", "falsification", "citations", "competes_with"}, f"advice.recommendations[{index}]")
-        recommendation_id = _text(item["id"], "advice recommendation id")
-        if recommendation_id in recommendation_ids: raise ClosedLoopError("duplicate advice recommendation id")
-        recommendation_ids.add(recommendation_id)
-        if not isinstance(item["confidence"], (int, float)) or isinstance(item["confidence"], bool) or not 0 <= item["confidence"] <= 1: raise ClosedLoopError("invalid advice confidence")
-        if not all(isinstance(item[key], list) for key in ("catalog_ids", "unknowns", "counterevidence", "falsification", "citations", "competes_with")): raise ClosedLoopError("advice recommendation collections must be arrays")
-        _text(item["recommendation"], "advice recommendation")
-    if value["status"] != "advice" and (value["recommendations"] or value["patch_proposals"]): raise ClosedLoopError("abstain/unknown advice cannot recommend or patch")
-    return value
+    # Closed-loop consumers do not load a catalog, so they cannot prove that a
+    # catalog id is current. They still use the canonical advisor validator for
+    # every intrinsic shape, citation, competition, critique, and patch rule.
+    allowed: set[str] = set()
+    if isinstance(value, dict) and isinstance(value.get("recommendations"), list):
+        for item in value["recommendations"]:
+            if isinstance(item, dict) and isinstance(item.get("catalog_ids"), list):
+                allowed.update(entry for entry in item["catalog_ids"] if isinstance(entry, str))
+    try:
+        return validate_response_intrinsic(value, allowed)
+    except AdviceError as exc:
+        raise ClosedLoopError(f"invalid advice response: {exc}") from exc
 
 
 def _receipt_matches_disposition(receipt: dict[str, Any], disposition: dict[str, Any]) -> bool:

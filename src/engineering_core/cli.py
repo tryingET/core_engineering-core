@@ -20,6 +20,7 @@ from engineering_core.closed_loop_cli import add_parsers as add_closed_loop_pars
 from engineering_core.engineering_plan import compile_plan, explain_plan
 from engineering_core.evidence_reconcile_cli import add_parser as add_evidence_reconcile_parser, run as run_evidence_reconcile
 from engineering_core.policy import load_policy
+from engineering_core.work_cli import add_parsers as add_work_parsers, run as run_work
 
 
 _PACKAGED_CATALOG = load_catalog()
@@ -212,6 +213,7 @@ def main() -> None:
     add_closed_loop_parsers(sub)
     add_capability_parsers(sub)
     add_evidence_reconcile_parser(sub)
+    add_work_parsers(sub)
 
     scan_adoption = sub.add_parser("scan-adoption", help="Scan one or more scopes for engineering-core adoption coverage")
     scan_adoption.add_argument("--scope", action="append", default=[], help="Scope root to scan; repeat for multiple scopes (default: .)")
@@ -356,6 +358,8 @@ def main() -> None:
     if run_closed_loop(args):
         return
     if run_evidence_reconcile(args):
+        return
+    if run_work(args):
         return
 
     if args.cmd == "scan-adoption":
