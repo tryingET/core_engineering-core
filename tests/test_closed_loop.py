@@ -1,3 +1,9 @@
+# ---
+# summary: "Verifies closed-loop receipt states, recommendation dispositions, calibration matching, pattern synthesis, and fail-closed record handling."
+# read_when:
+#   - "Changing closed-loop receipt or disposition schemas, calibration identity, pattern synthesis, secret checks, or doctrine proposals."
+# ---
+
 from __future__ import annotations
 import copy, json, sys, tempfile, unittest
 from pathlib import Path

@@ -1,3 +1,9 @@
+# ---
+# summary: "Exercises adoption discovery, structural and semantic status, repository budgets, package surfaces, and loop-validation contracts."
+# read_when:
+#   - "Changing adoption-scan discovery, status taxonomy, budget accounting, package handling, or loop-validation reporting."
+# ---
+
 from __future__ import annotations
 
 import json

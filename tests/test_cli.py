@@ -1,3 +1,9 @@
+# ---
+# summary: "Exercises CLI listing, retrieval, recommendation, planning, explanation, catalog compatibility, adoption output, and safe evidence handling."
+# read_when:
+#   - "Changing engineering-core commands, catalog-backed CLI surfaces, plan diagnostics, renderers, release metadata, or input safety."
+# ---
+
 from __future__ import annotations
 
 import io

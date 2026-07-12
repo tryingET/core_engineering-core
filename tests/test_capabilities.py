@@ -1,3 +1,9 @@
+# ---
+# summary: "Covers capability-contract parsing and the declaration, observation, and evidence statuses exposed for supported capabilities."
+# read_when:
+#   - "Changing capability contract versions, schema bindings, invalid declarations, or capability result transitions."
+# ---
+
 import sys
 import unittest
 from pathlib import Path

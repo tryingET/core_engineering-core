@@ -1,3 +1,9 @@
+# ---
+# summary: "Tests non-executing doctor reports for absent, healthy, invalid, oversized, and symlinked consumer capability policies."
+# read_when:
+#   - "Changing doctor health classification, capability observations, policy safety checks, or blocked-report structure."
+# ---
+
 import json
 import sys
 import tempfile

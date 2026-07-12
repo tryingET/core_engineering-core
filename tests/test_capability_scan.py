@@ -1,3 +1,9 @@
+# ---
+# summary: "Tests deterministic capability-scan population resolution, repository-list parsing, deduplication, bounds, and unsafe-input rejection."
+# read_when:
+#   - "Changing capability-scan population inputs, repository-list syntax, path safety, completeness, or repository limits."
+# ---
+
 import sys
 import tempfile
 import unittest

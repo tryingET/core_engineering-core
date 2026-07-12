@@ -1,3 +1,9 @@
+# ---
+# summary: "Exercises owner-evidence reconciliation across revisions, plans, advice, receipts, repository identity, artifact integrity, and bounded safe I/O."
+# read_when:
+#   - "Changing evidence reconciliation results, revision checks, receipt validation, repository mapping, artifact verification, or safe readers."
+# ---
+
 from __future__ import annotations
 
 import hashlib

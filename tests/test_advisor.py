@@ -1,3 +1,9 @@
+# ---
+# summary: "Verifies bounded advisor requests, response validation, redaction, evidence citations, and unapplied patch proposals."
+# read_when:
+#   - "Changing advisor request safeguards, response schemas, citation checks, recommendation limits, or patch validation."
+# ---
+
 from __future__ import annotations
 
 import copy
