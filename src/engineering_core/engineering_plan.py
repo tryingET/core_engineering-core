@@ -1,3 +1,7 @@
+# summary: "Compiles deterministic engineering plans by resolving repository evidence, policy selections, catalog requirements, and diagnostics."
+# read_when:
+#   - "When changing plan selection provenance, dependency resolution, completeness rules, explanations, or plan digests."
+
 from __future__ import annotations
 
 import hashlib

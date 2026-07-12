@@ -1,3 +1,7 @@
+# summary: "Defines the reconcile-evidence CLI, converts explicit repository and receipt arguments, and enforces matched-only success."
+# read_when:
+#   - "When changing reconcile-evidence flags, path conversion, deterministic JSON rendering, or failure exit criteria."
+
 from __future__ import annotations
 
 import argparse

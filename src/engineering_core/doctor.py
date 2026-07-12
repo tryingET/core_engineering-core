@@ -1,3 +1,7 @@
+# summary: "Builds a static engineering-doctor report from catalog, policy, repository facts, plans, and capability contracts."
+# read_when:
+#   - "When changing doctor checks, health classification, pin posture, capability observations, or blocked-target handling."
+
 from __future__ import annotations
 
 import hashlib

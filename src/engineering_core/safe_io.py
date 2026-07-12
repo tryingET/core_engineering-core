@@ -1,3 +1,7 @@
+# summary: "Provides bounded no-follow regular-file reads and duplicate-key-rejecting UTF-8 JSON decoding for untrusted inputs."
+# read_when:
+#   - "When changing input path bounds, symlink defenses, file identity checks, byte limits, or strict JSON parsing."
+
 from __future__ import annotations
 
 import json

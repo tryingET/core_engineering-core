@@ -1,3 +1,7 @@
+# summary: "Extracts deterministic repository facts from a fixed, byte-bounded set of no-follow manifests, policy, and local guidance files."
+# read_when:
+#   - "When changing safe repository inspection, lane inference, evidence diagnostics, read budgets, or repository-facts digests."
+
 from __future__ import annotations
 
 import errno

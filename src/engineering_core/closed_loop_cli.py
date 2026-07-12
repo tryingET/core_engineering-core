@@ -1,3 +1,7 @@
+# summary: "Registers closed-loop CLI parsers and dispatches receipt, disposition, calibration, pattern, and doctrine operations."
+# read_when:
+#   - "When changing closed-loop command arguments, JSON output, validation dispatch, or exit behavior."
+
 from __future__ import annotations
 
 import argparse

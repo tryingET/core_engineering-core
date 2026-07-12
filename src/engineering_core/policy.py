@@ -1,3 +1,7 @@
+# summary: "Parses engineering lane policy JSON into a typed, deduplicated policy model with field-level validation errors."
+# read_when:
+#   - "When changing policy file loading, lane or discipline parsing, command declarations, references, or capability contracts."
+
 from __future__ import annotations
 
 import json

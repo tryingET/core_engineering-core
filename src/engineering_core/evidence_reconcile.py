@@ -1,3 +1,7 @@
+# summary: "Reconciles owner receipts with tracked artifacts, stable Git revisions, catalog snapshots, and current plan bindings without mutation."
+# read_when:
+#   - "When changing reconciliation safety checks, receipt matching, artifact validation, staleness classification, or aggregate evidence results."
+
 from __future__ import annotations
 
 import hashlib
