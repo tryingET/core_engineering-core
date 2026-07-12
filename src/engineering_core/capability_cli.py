@@ -1,4 +1,6 @@
-# Summary: Registers and dispatches doctor and explicit-population capability-scan CLI commands with JSON output and failure exits. Read when: changing capability command arguments, population error handling, or CLI exit behavior.
+# summary: Registers and dispatches doctor and explicit-population capability-scan CLI commands with JSON output and failure exits.
+# read_when:
+#   - "Changing capability command arguments, population error handling, or CLI exit behavior."
 from __future__ import annotations
 
 import argparse

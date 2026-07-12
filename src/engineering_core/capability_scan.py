@@ -1,4 +1,6 @@
-# Summary: Resolves bounded explicit repository populations and aggregates per-repository doctor observations into capability scan reports. Read when: changing population input safety, repository limits, scan completeness, or summary counters.
+# summary: Resolves bounded explicit repository populations and aggregates per-repository doctor observations into capability scan reports.
+# read_when:
+#   - "Changing population input safety, repository limits, scan completeness, or summary counters."
 from __future__ import annotations
 
 import hashlib

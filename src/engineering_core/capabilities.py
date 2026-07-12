@@ -1,4 +1,6 @@
-# Summary: Parses catalog-bound capability declarations and converts them into deterministic declaration, observation, and finding results. Read when: adding capabilities, revising capability contract fields, or changing observation status semantics.
+# summary: Parses catalog-bound capability declarations and converts them into deterministic declaration, observation, and finding results.
+# read_when:
+#   - "Adding capabilities, revising capability contract fields, or changing observation status semantics."
 from __future__ import annotations
 
 import hashlib
