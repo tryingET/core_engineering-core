@@ -319,6 +319,34 @@ class CliTests(unittest.TestCase):
     def test_version_matches_current_release(self) -> None:
         self.assertEqual(__version__, "0.9.0")
 
+    def test_v080_self_adoption_uses_portable_immutable_remote(self) -> None:
+        commit = "8f59f4178f0c40f73d64c417e7a591de42a0f0d2"
+        repository = "https://github.com/tryingET/core_engineering-core.git"
+        source = f"git+{repository}@{commit}"
+        policy = json.loads((REPO_ROOT / "policy" / "engineering-lane.json").read_text(encoding="utf-8"))["engineering_core"]
+
+        self.assertEqual(policy["repository"], repository)
+        self.assertEqual(policy["ref"], "v0.8.0")
+        self.assertEqual(
+            policy["release_pin"],
+            {"kind": "git-commit", "ref": "v0.8.0", "resolved_commit": commit, "source": source},
+        )
+        for key in ("catalog_command", "list_disciplines_command", "list_templates_command", "command"):
+            self.assertIn(source, policy[key])
+            self.assertNotIn("git+file", policy[key])
+
+        root_template = (REPO_ROOT / "templates" / "engineering.local.template.md").read_text(encoding="utf-8")
+        package_template = (REPO_ROOT / "src" / "engineering_core" / "templates" / "engineering.local.template.md").read_text(encoding="utf-8")
+        self.assertEqual(root_template, package_template)
+        self.assertIn(source, root_template)
+        self.assertIn("## Local self-development only", root_template)
+        self.assertIn("workspace-local-unpinned", root_template)
+        self.assertIn("uv tool -n run --from .", root_template)
+
+        adoption = (REPO_ROOT / "docs" / "adoption.md").read_text(encoding="utf-8")
+        self.assertIn(source, adoption)
+        self.assertIn("For explicitly local self-development", adoption)
+
     def test_plan_rejects_symlink_and_oversized_evidence(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)

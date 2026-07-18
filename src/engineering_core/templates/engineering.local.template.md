@@ -7,13 +7,26 @@ type: "template"
 
 # engineering.local
 
-Shared lane owner: `/home/tryinget/ai-society/core/engineering-core`.
+Shared lane owner: `https://github.com/tryingET/core_engineering-core.git`.
 
 This file records repo-local overrides and integration choices on top of engineering-core. It is the repo-local source for the selected subset; do not infer that every engineering-core lane, addendum, or discipline applies here.
 
-## Upstream retrieval
+## Released upstream retrieval
 
-Read upstream guidance from engineering-core only when the relevant surface is in scope:
+Read upstream guidance only when the relevant surface is in scope. For v0.8.0 adoption, use its immutable remote commit:
+
+```bash
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core list
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core list-disciplines
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core show <lane> --prefer-repo
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core show-discipline <discipline> --prefer-repo
+```
+
+Record the matching remote repository, `v0.8.0` ref, resolved commit, and `git+https` source in `policy/engineering-lane.json` as an explicit `release_pin`.
+
+## Local self-development only
+
+When developing engineering-core itself from a local checkout, use the checkout honestly as `workspace-local-unpinned` rather than calling it a released pin:
 
 ```bash
 cd /home/tryinget/ai-society/core/engineering-core

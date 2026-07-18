@@ -144,4 +144,24 @@ These commands use only explicit owner inputs. They do not discover AK tasks, in
 
 ## Version pinning
 
-For local workspace adoption, record the source honestly as `workspace-local-unpinned`. For released adoption, pin to a git tag or package version and record the retrieval command in repo-local policy.
+For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.8.0 release resolves to `8f59f4178f0c40f73d64c417e7a591de42a0f0d2`:
+
+```json
+{
+  "engineering_core": {
+    "repository": "https://github.com/tryingET/core_engineering-core.git",
+    "ref": "v0.8.0",
+    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core show <lane>",
+    "release_pin": {
+      "kind": "git-commit",
+      "ref": "v0.8.0",
+      "resolved_commit": "8f59f4178f0c40f73d64c417e7a591de42a0f0d2",
+      "source": "git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2"
+    }
+  }
+}
+```
+
+This keeps the human-readable release tag while making retrieval reproducible from the accessible remote commit. A package-version pin is also valid when the package is published from the intended release.
+
+For explicitly local self-development, record the source honestly as `workspace-local-unpinned` and run from the checkout (for example, `uv tool -n run --from . engineering-core ...`). Do not present that local workflow as a released adoption pin.
