@@ -8,6 +8,7 @@ import os
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +20,7 @@ from engineering_core.work_bundle import WorkBundleError, finalize_work
 from engineering_core.work_packet import WorkPacketError, prepare_work
 from engineering_core.work_verify import verify_work
 
-ROOT = Path("/tmp/engineering-core-owner-use-dogfood")
+ROOT = Path(tempfile.gettempdir()) / "engineering-core-owner-use-dogfood"
 REPO_ID = "dogfood/owner-use"
 
 

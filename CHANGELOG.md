@@ -31,6 +31,10 @@ type: "release-history"
 - Replaced per-PR pseudo-release bumps in a stacked change with one coherent `0.9.0` release.
 - Added deterministic cleanup for merged `agent/*` and `recovery/*` branches even when the repository auto-delete setting is disabled.
 
+### Fixed
+
+- Moved owner-use release dogfood scratch from hardcoded `/tmp` to the environment-selected managed temporary directory.
+
 ## [0.8.0] - 2026-07-12
 
 ### Added
