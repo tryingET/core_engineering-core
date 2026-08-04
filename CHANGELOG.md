@@ -7,7 +7,16 @@ type: "release-history"
 
 # Changelog
 
-## [Unreleased]
+## [0.8.2] - Unreleased
+
+### Added
+
+- Added the reversible advisory `agent-interaction` recommendation profile with no preset lanes and the existing disciplines `validation`, `testing`, `security-privacy`, `observability`, `local-first-data`, `specification-and-dsls`, and `documentation`, in that order.
+- Added exact CLI list/recommendation coverage for the lane-neutral profile.
+
+### Evidence boundary
+
+- Agent Kernel task 4667 remains the execution membrane. Bounded cross-owner G3 read-only canary evidence has an independent PASS before candidate catalog inclusion. This supports only the advisory candidate catalog change and does not claim consumer adoption, runtime effectiveness, a completed/tagged release, publication, ontology, or mandatory policy.
 
 ## [0.9.0] - 2026-08-17
 

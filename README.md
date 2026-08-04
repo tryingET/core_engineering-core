@@ -119,7 +119,10 @@ data-heavy system -> lane(s) + data-governance + domain-modeling + validation + 
 native/GPU tool   -> cpp/rust + validation + testing + observability + security-privacy + performance (+ ai-ml or the C++ CUDA addendum when relevant)
 released package  -> lane(s) + release-package + validation + testing + dependency-governance + security-privacy
 docs/generated UI -> lane(s) + documentation + accessibility + design-system + specification-and-dsls
+agent interaction -> no preset lane + validation + testing + security-privacy + observability + local-first-data + specification-and-dsls + documentation
 ```
+
+The `agent-interaction` profile is a reversible advisory catalog selection admitted through the Agent Kernel task 4667 membrane after bounded cross-owner G3 read-only canary evidence received an independent PASS. That evidence gates only this catalog recommendation; it does not establish consumer adoption, runtime effectiveness, publication, ontology, or mandatory policy.
 
 ## Conditional addenda
 
@@ -252,6 +255,7 @@ engineering-core scan-adoption \
 - Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
 - Print the loop validation contract template: `uv tool run --from . engineering-core show-template repo-loop-validation --prefer-repo`
 - Recommend a profile: `uv tool run --from . engineering-core recommend browser-app --prefer-repo`
+- Recommend the lane-neutral agent-interaction profile: `uv tool run --from . engineering-core recommend agent-interaction --prefer-repo`
 - Recommend from repo metadata: `uv tool run --from . engineering-core recommend --repo /path/to/repo --prefer-repo`
 - Compile an advisory plan: `uv tool run --from . engineering-core plan --repo /path/to/repo --repo-root . --prefer-repo --pretty`
 - Explain a selection: `uv tool run --from . engineering-core explain validation --repo /path/to/repo --repo-root . --prefer-repo --pretty`

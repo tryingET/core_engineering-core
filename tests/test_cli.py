@@ -141,6 +141,7 @@ class CliTests(unittest.TestCase):
     def test_list_profiles(self) -> None:
         output = self.run_cli("list-profiles", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertIn("browser-app", output.splitlines())
+        self.assertIn("agent-interaction", output.splitlines())
 
     def test_list_templates(self) -> None:
         output = self.run_cli("list-templates")
@@ -168,6 +169,26 @@ class CliTests(unittest.TestCase):
         self.assertIn("# engineering-core recommendation: browser-app", output)
         self.assertIn("ts-frontend", output)
         self.assertIn("accessibility", output)
+
+    def test_recommend_agent_interaction_has_no_lane_and_exact_disciplines(self) -> None:
+        output = self.run_cli("recommend", "agent-interaction", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertEqual(
+            output,
+            "# engineering-core recommendation: agent-interaction\n"
+            "\nLanes/addenda:\n"
+            "- <select language lane(s) from repo implementation language>\n"
+            "\nDisciplines:\n"
+            "- validation\n"
+            "- testing\n"
+            "- security-privacy\n"
+            "- observability\n"
+            "- local-first-data\n"
+            "- specification-and-dsls\n"
+            "- documentation\n",
+        )
+        catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        profile = next(item for item in catalog["profiles"] if item["id"] == "agent-interaction")
+        self.assertEqual(profile["lanes"], [])
 
     def test_recommend_repo_prefers_policy(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
