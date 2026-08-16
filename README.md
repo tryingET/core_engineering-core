@@ -52,6 +52,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/engineering-rust.md` — Rust lane
 - `lanes/engineering-rust.build-graph.md` — conditional Buck2/Bazel/build-graph acceleration addendum for Rust
 - `lanes/engineering-elixir.md` — Elixir / OTP / Phoenix lane
+- `lanes/engineering-common-lisp.md` — Common Lisp / ASDF lane
 - `lanes/engineering-<lane>.justfile.md` — standardized Justfile addenda
 - `lanes/engineering-ts.ts-quality.md` / `engineering-pi-ts.ts-quality.md` — TypeScript quality addenda
 - `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
@@ -81,6 +82,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `rust`: Rust lane
 - `rust + rust-build-graph`: Rust lane plus evidence-gated Buck2/Bazel/build-graph acceleration addendum; do not use `rust-build-graph` alone
 - `elixir`: Elixir / OTP / Phoenix lane
+- `common-lisp`: Common Lisp lane for ASDF systems, libraries, CLIs, services, and delivered images
 
 ## Cross-language disciplines
 
@@ -155,7 +157,7 @@ Each lane should choose ecosystem-native quality tools, but the desirable charac
 - pinned or toolchain-governed versions when dependencies are introduced
 - minimal baseline tooling; optional tools stay conditional until a repo proves the need
 
-Examples: `prek` is the preferred cross-lane Git hook runner when a repo needs one; hook definitions and normalization/check commands remain repo/lane-owned. TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
+Examples: `prek` is the preferred cross-lane Git hook runner when a repo needs one; hook definitions and normalization/check commands remain repo/lane-owned. TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured. Common Lisp uses repo-owned non-interactive ASDF load/test operations as its portable baseline and pins any repo-selected formatter or analyzer because the ecosystem has no universal equivalent to `gofmt`.
 
 ## Per-repo overrides
 

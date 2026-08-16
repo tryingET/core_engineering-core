@@ -13,10 +13,13 @@ type: "release-history"
 
 - Added the reversible advisory `agent-interaction` recommendation profile with no preset lanes and the existing disciplines `validation`, `testing`, `security-privacy`, `observability`, `local-first-data`, `specification-and-dsls`, and `documentation`, in that order.
 - Added exact CLI list/recommendation coverage for the lane-neutral profile.
+- Added the `common-lisp` language lane with first-class language-extension guidance for macros/CLOS/MOP, REPL and hot-redefinition safety, SBCL/ASDF baselines, reproducible Quicklisp/Qlot dependencies, `asdf:test-system` validation, portability boundaries, and a conditional standardized Justfile addendum.
+- Added catalog-backed CLI retrieval, documentation, and exact list/show/path/catalog parity coverage for the Common Lisp lane.
 
 ### Evidence boundary
 
-- Agent Kernel task 4667 remains the execution membrane. Bounded cross-owner G3 read-only canary evidence has an independent PASS before candidate catalog inclusion. This supports only the advisory candidate catalog change and does not claim consumer adoption, runtime effectiveness, a completed/tagged release, publication, ontology, or mandatory policy.
+- Agent Kernel task 4667 remains the execution membrane for the `agent-interaction` profile only. Bounded cross-owner G3 read-only canary evidence has an independent PASS before that candidate catalog inclusion; it does not authorize or prove the separately operator-directed Common Lisp lane.
+- The Common Lisp lane is shared advisory guidance. Its inclusion does not claim consumer adoption, runtime effectiveness, a completed/tagged release, publication, ontology, or mandatory policy.
 
 ## [0.9.0] - 2026-08-17
 

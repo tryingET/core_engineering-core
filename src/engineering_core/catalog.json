@@ -139,6 +139,20 @@
       "description": "Elixir/OTP/Phoenix ecosystem tooling and validation guidance."
     },
     {
+      "id": "common-lisp",
+      "kind": "lane",
+      "path": "src/engineering_core/lanes/engineering-common-lisp.md",
+      "load_when": [
+        "Common Lisp implementation",
+        "ASDF system",
+        "SBCL application or library",
+        "Common Lisp CLI or service"
+      ],
+      "category": "language-lane",
+      "file": "engineering-common-lisp.md",
+      "description": "Common Lisp implementations, ASDF systems, dependencies, testing, and validation guidance."
+    },
+    {
       "id": "rust-build-graph",
       "kind": "addendum",
       "path": "src/engineering_core/lanes/engineering-rust.build-graph.md",

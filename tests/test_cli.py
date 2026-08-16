@@ -36,6 +36,7 @@ class CliTests(unittest.TestCase):
         output = self.run_cli("list")
         self.assertEqual(output.splitlines(), list(LANES))
         self.assertIn("ts", output)
+        self.assertIn("common-lisp", output.splitlines())
 
     def test_list_disciplines(self) -> None:
         output = self.run_cli("list-disciplines")
@@ -64,6 +65,15 @@ class CliTests(unittest.TestCase):
         output = self.run_cli("show", "rust-build-graph", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertIn("Rust Lane — Build Graph Acceleration Addendum", output)
         self.assertIn("Cargo remains", output)
+
+    def test_show_common_lisp(self) -> None:
+        output = self.run_cli("show", "common-lisp", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertIn("Common Lisp lane", output)
+        self.assertIn("asdf:test-system", output)
+        self.assertIn("Language extension is a first-class design option", output)
+        self.assertIn("redefining a macro does not rewrite functions", output)
+        self.assertIn("prefer `defclass`", output)
+        self.assertIn("The Art of the Metaobject Protocol", output)
 
     def test_show_discipline_validation(self) -> None:
         output = self.run_cli("show-discipline", "validation", "--repo-root", str(REPO_ROOT), "--prefer-repo")
@@ -123,11 +133,19 @@ class CliTests(unittest.TestCase):
         for discipline in DISCIPLINES:
             self.assertTrue((REPO_ROOT / "src" / "engineering_core" / "disciplines" / f"{discipline}.md").exists())
 
+    def test_catalog_lanes_match_cli_and_files(self) -> None:
+        catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
+        catalog_ids = [entry["id"] for entry in catalog["lanes"]]
+        self.assertEqual(catalog_ids, list(LANES))
+        for entry in catalog["lanes"]:
+            self.assertTrue((REPO_ROOT / entry["path"]).exists())
+
     def test_packaged_catalog_disciplines_match_repo_catalog(self) -> None:
         repo_catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
         package_catalog = json.loads((REPO_ROOT / "src" / "engineering_core" / "catalog.json").read_text(encoding="utf-8"))
         self.assertEqual(repo_catalog["disciplines"], package_catalog["disciplines"])
         self.assertEqual(repo_catalog["profiles"], package_catalog["profiles"])
+        self.assertEqual(repo_catalog["lanes"], package_catalog["lanes"])
 
     def test_overview(self) -> None:
         output = self.run_cli("overview", "--repo-root", str(REPO_ROOT), "--prefer-repo")
@@ -300,6 +318,10 @@ class CliTests(unittest.TestCase):
     def test_path(self) -> None:
         output = self.run_cli("path", "ts", "--repo-root", str(REPO_ROOT), "--prefer-repo")
         self.assertEqual(output.strip(), str(REPO_ROOT / "lanes" / "engineering-ts.md"))
+
+    def test_common_lisp_path(self) -> None:
+        output = self.run_cli("path", "common-lisp", "--repo-root", str(REPO_ROOT), "--prefer-repo")
+        self.assertEqual(output.strip(), str(REPO_ROOT / "lanes" / "engineering-common-lisp.md"))
 
     def test_discipline_path(self) -> None:
         output = self.run_cli("discipline-path", "validation", "--repo-root", str(REPO_ROOT), "--prefer-repo")
