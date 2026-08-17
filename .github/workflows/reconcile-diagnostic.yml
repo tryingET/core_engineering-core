@@ -31,8 +31,6 @@ jobs:
           cat .recovery/patch.xz.b64.part.* | base64 --decode > /tmp/reconcile.patch.xz
           xz --decompress --stdout /tmp/reconcile.patch.xz > /tmp/reconcile.patch
           echo "4ae45bfab09ae7f618d06a5ef4c32728b82a885707a535dc153e9977ddb61480  /tmp/reconcile.patch" | sha256sum --check -
-          mkdir -p /tmp/final-workflows
-          cp .recovery/workflows/*.yml /tmp/final-workflows/
           mkdir -p /tmp/final-files
           cp .recovery/files/* /tmp/final-files/
       - name: Merge main and apply reviewed resolutions
@@ -72,9 +70,9 @@ jobs:
           cp /tmp/final-files/pyproject.toml pyproject.toml
           cp /tmp/final-files/uv.lock uv.lock
           cp /tmp/final-files/release-local.py scripts/release-local.py
-          rm -rf .github
-          mkdir -p .github/workflows
-          cp /tmp/final-workflows/*.yml .github/workflows/
+          # Keep this temporary workflow byte-for-byte unchanged so the Actions
+          # token does not need workflow-management permission for the code merge.
+          git checkout HEAD -- .github
           rm -rf .recovery
           git add -A
       - name: Validate reconciled checkout
