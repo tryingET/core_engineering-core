@@ -30,6 +30,8 @@ jobs:
         run: uv run python -m engineering_core.self_check --repo-root .
       - name: Check lane addenda
         run: uv run python scripts/check-justfile-addenda.py
+      - name: Check agent skill projection
+        run: uv run python scripts/sync-skill-assets.py --check
 
   package-smoke:
     runs-on: ubuntu-latest

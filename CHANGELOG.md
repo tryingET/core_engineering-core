@@ -9,6 +9,13 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-08-17
+
+### Added
+
+- Added stable fleet-scan diagnostics, versioned baselines, configurable ratchet gates, and a synthetic scan benchmark.
+- Added a canonical packaged engineering-core agent skill with a checked repository projection.
+
 ## [0.3.6] - 2026-08-17
 
 ### Added
