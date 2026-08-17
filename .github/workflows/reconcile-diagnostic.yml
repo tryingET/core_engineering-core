@@ -1,4 +1,4 @@
-name: Reconcile history diagnostic
+name: Apply history reconciliation
 
 on:
   push:
@@ -6,36 +6,87 @@ on:
       - recovery/reconcile-v0.8.0
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: engineering-core-history-reconciliation
+  cancel-in-progress: false
 
 jobs:
-  diagnose:
+  reconcile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Merge current main without committing
+          fetch-tags: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install uv
+        run: python -m pip install --disable-pip-version-check uv
+      - name: Reconstruct reviewed reconciliation patch
         shell: bash
         run: |
-          set +e
+          cat .recovery/patch.xz.b64.part.* | base64 --decode > /tmp/reconcile.patch.xz
+          xz --decompress --stdout /tmp/reconcile.patch.xz > /tmp/reconcile.patch
+          echo "4ae45bfab09ae7f618d06a5ef4c32728b82a885707a535dc153e9977ddb61480  /tmp/reconcile.patch" | sha256sum --check -
+          mkdir -p /tmp/final-workflows
+          cp .recovery/workflows/*.yml /tmp/final-workflows/
+      - name: Merge main and apply reviewed resolutions
+        shell: bash
+        run: |
+          set -euo pipefail
           git config user.name "engineering-core recovery"
           git config user.email "260287438+tryingET@users.noreply.github.com"
           git fetch origin main --tags
-          git merge --no-commit --no-ff origin/main > merge-output.txt 2>&1
-          status=$?
-          printf '%s\n' "$status" > merge-exit-code.txt
-          git status --short > merge-status.txt
-          git diff --name-only --diff-filter=U > merge-conflicts.txt
-          git diff --cc > merge-conflict-diff.txt
+          set +e
+          git merge --no-commit --no-ff origin/main
+          merge_status=$?
           set -e
-      - name: Copy conflicted working tree
+          if [ "$merge_status" -ne 0 ]; then
+            conflicts=(
+              CHANGELOG.md
+              catalog.json
+              pyproject.toml
+              src/engineering_core/__init__.py
+              src/engineering_core/catalog.json
+              src/engineering_core/cli.py
+              src/engineering_core/doctor.py
+              tests/test_cli.py
+              tests/test_doctor.py
+              uv.lock
+            )
+            git checkout --ours -- "${conflicts[@]}"
+            git add -- "${conflicts[@]}"
+          fi
+          if git diff --name-only --diff-filter=U | grep -q .; then
+            echo "unresolved merge conflicts remain" >&2
+            git diff --name-only --diff-filter=U >&2
+            exit 1
+          fi
+          git apply --index /tmp/reconcile.patch
+          rm -rf .github
+          mkdir -p .github/workflows
+          cp /tmp/final-workflows/*.yml .github/workflows/
+          rm -rf .recovery
+          git add -A
+      - name: Validate reconciled checkout
         shell: bash
         run: |
-          mkdir -p reconciliation-working-tree
-          rsync -a --exclude=.git --exclude=reconciliation-working-tree ./ reconciliation-working-tree/
-      - uses: actions/upload-artifact@v4
-        with:
-          name: reconciliation-diagnostic
-          path: reconciliation-working-tree
-          retention-days: 1
+          uv sync --locked
+          uv run python -m unittest discover -s tests -v
+          uv run python -m engineering_core.self_check --repo-root .
+          uv run python scripts/check-release-lineage.py --mode ci
+          uv run python scripts/check-justfile-addenda.py
+          uv run python scripts/sync-skill-assets.py --check
+          uv run python scripts/dogfood-closed-loop.py
+          uv run python scripts/dogfood-capabilities.py
+          uv run python scripts/dogfood-evidence-reconcile.py
+          uv run python scripts/dogfood-owner-use.py
+          uv run python scripts/release-local.py verify --version 0.9.0
+      - name: Commit reconciled histories
+        shell: bash
+        run: |
+          git commit -m "reconcile v0.8.0 history and prepare v0.9.0"
+          git push origin HEAD:recovery/reconcile-v0.8.0
