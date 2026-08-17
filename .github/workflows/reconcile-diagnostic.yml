@@ -1,0 +1,40 @@
+name: Reconcile history diagnostic
+
+on:
+  push:
+    branches:
+      - recovery/reconcile-v0.8.0
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Merge current main without committing
+        shell: bash
+        run: |
+          set +e
+          git config user.name "engineering-core recovery"
+          git config user.email "260287438+tryingET@users.noreply.github.com"
+          git fetch origin main --tags
+          git merge --no-commit --no-ff origin/main > merge-output.txt 2>&1
+          status=$?
+          printf '%s\n' "$status" > merge-exit-code.txt
+          git status --short > merge-status.txt
+          git diff --name-only --diff-filter=U > merge-conflicts.txt
+          git diff --cc > merge-conflict-diff.txt
+          set -e
+      - name: Package conflicted working tree
+        shell: bash
+        run: |
+          tar --exclude=.git --exclude=reconciliation-working-tree.tar.gz -czf reconciliation-working-tree.tar.gz .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reconciliation-diagnostic
+          path: reconciliation-working-tree.tar.gz
+          retention-days: 1
