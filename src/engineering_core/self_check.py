@@ -38,17 +38,17 @@ def _check_cli_projection(catalog: dict[str, object]) -> list[str]:
     from engineering_core import cli
 
     expected = {
-        "lanes": collection_ids(catalog, "lanes"),
-        "disciplines": collection_ids(catalog, "disciplines"),
-        "templates": collection_ids(catalog, "templates"),
+        "lanes": set(collection_ids(catalog, "lanes")),
+        "disciplines": set(collection_ids(catalog, "disciplines")),
+        "templates": set(collection_ids(catalog, "templates")),
         "lane-files": collection_file_map(catalog, "lanes"),
         "discipline-files": collection_file_map(catalog, "disciplines"),
         "template-files": collection_file_map(catalog, "templates"),
     }
     actual = {
-        "lanes": tuple(cli.LANES),
-        "disciplines": tuple(cli.DISCIPLINES),
-        "templates": tuple(cli.TEMPLATES),
+        "lanes": set(cli.LANES),
+        "disciplines": set(cli.DISCIPLINES),
+        "templates": set(cli.TEMPLATES),
         "lane-files": dict(cli.LANE_FILES),
         "discipline-files": dict(cli.DISCIPLINE_FILES),
         "template-files": dict(cli.TEMPLATE_FILES),

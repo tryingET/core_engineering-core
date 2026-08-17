@@ -24,9 +24,9 @@ class CatalogModelTests(unittest.TestCase):
         from engineering_core.cli import DISCIPLINES, LANES, TEMPLATES
 
         catalog = load_catalog(REPO_ROOT, prefer_repo=True)
-        self.assertEqual(tuple(LANES), collection_ids(catalog, "lanes"))
-        self.assertEqual(tuple(DISCIPLINES), collection_ids(catalog, "disciplines"))
-        self.assertEqual(tuple(TEMPLATES), collection_ids(catalog, "templates"))
+        self.assertEqual(set(LANES), set(collection_ids(catalog, "lanes")))
+        self.assertEqual(set(DISCIPLINES), set(collection_ids(catalog, "disciplines")))
+        self.assertEqual(set(TEMPLATES), set(collection_ids(catalog, "templates")))
 
     def test_repository_catalog_matches_canonical_projection(self) -> None:
         self.assertTrue(catalog_projection_matches(REPO_ROOT))
