@@ -32,10 +32,10 @@ jobs:
       - name: Copy conflicted working tree
         shell: bash
         run: |
-          mkdir -p ../reconciliation-working-tree
-          rsync -a --exclude=.git ./ ../reconciliation-working-tree/
+          mkdir -p reconciliation-working-tree
+          rsync -a --exclude=.git --exclude=reconciliation-working-tree ./ reconciliation-working-tree/
       - uses: actions/upload-artifact@v4
         with:
           name: reconciliation-diagnostic
-          path: ../reconciliation-working-tree
+          path: reconciliation-working-tree
           retention-days: 1
