@@ -33,6 +33,8 @@ jobs:
           echo "4ae45bfab09ae7f618d06a5ef4c32728b82a885707a535dc153e9977ddb61480  /tmp/reconcile.patch" | sha256sum --check -
           mkdir -p /tmp/final-workflows
           cp .recovery/workflows/*.yml /tmp/final-workflows/
+          mkdir -p /tmp/final-files
+          cp .recovery/files/* /tmp/final-files/
       - name: Merge main and apply reviewed resolutions
         shell: bash
         run: |
@@ -65,7 +67,10 @@ jobs:
             git diff --name-only --diff-filter=U >&2
             exit 1
           fi
-          git apply --index /tmp/reconcile.patch
+          git apply --index --exclude=.gitignore --exclude=pyproject.toml --exclude=uv.lock /tmp/reconcile.patch
+          cp /tmp/final-files/gitignore .gitignore
+          cp /tmp/final-files/pyproject.toml pyproject.toml
+          cp /tmp/final-files/uv.lock uv.lock
           rm -rf .github
           mkdir -p .github/workflows
           cp /tmp/final-workflows/*.yml .github/workflows/
