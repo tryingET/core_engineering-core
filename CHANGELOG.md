@@ -9,6 +9,16 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.5] - 2026-08-17
+
+### Added
+
+- Added `engineering-core doctor` with stable human and JSON diagnostics for one repository.
+
+### Changed
+
+- Derived CLI lane, discipline, template, and file mappings from the catalog.
+
 ## [0.3.4] - 2026-08-17
 
 ### Added

@@ -7,64 +7,19 @@ from pathlib import Path
 from typing import Any
 
 from engineering_core.adoption_render import render_markdown
-from engineering_core.adoption_scan import build_scan, load_catalog
-
-
-LANES = ("py", "ts", "ts-frontend", "pi-ts", "go", "cpp", "cpp-cuda", "rust", "rust-build-graph", "elixir")
-LANE_FILES = {
-    "py": "engineering-py.md",
-    "ts": "engineering-ts.md",
-    "ts-frontend": "engineering-ts.frontend.md",
-    "pi-ts": "engineering-pi-ts.md",
-    "go": "engineering-go.md",
-    "cpp": "engineering-cpp.md",
-    "cpp-cuda": "engineering-cpp.cuda.md",
-    "rust": "engineering-rust.md",
-    "rust-build-graph": "engineering-rust.build-graph.md",
-    "elixir": "engineering-elixir.md",
-}
-
-DISCIPLINES = (
-    "design-system",
-    "accessibility",
-    "validation",
-    "testing",
-    "local-first-data",
-    "observability",
-    "security-privacy",
-    "documentation",
-    "specification-and-dsls",
-    "engineering-reasoning",
-    "build-graph-acceleration",
-    "dependency-governance",
-    "service-api",
-    "ai-ml",
-    "performance",
-    "release-package",
-    "data-governance",
-    "domain-modeling",
-    "design-patterns",
+from engineering_core.adoption_scan import build_scan
+from engineering_core.catalog_model import (
+    DISCIPLINES,
+    DISCIPLINE_FILES,
+    LANES,
+    LANE_FILES,
+    TEMPLATES,
+    TEMPLATE_FILES,
+    load_catalog,
+    sync_catalog_projection,
 )
-DISCIPLINE_FILES = {name: f"{name}.md" for name in DISCIPLINES}
-
-TEMPLATES = (
-    "engineering-local",
-    "discipline-adoption-checklist",
-    "validation-tier-map",
-    "data-classification",
-    "observability-plan",
-    "security-privacy-review",
-    "docs-authority-map",
-)
-TEMPLATE_FILES = {
-    "engineering-local": "engineering.local.template.md",
-    "discipline-adoption-checklist": "discipline-adoption-checklist.md",
-    "validation-tier-map": "validation-tier-map.template.md",
-    "data-classification": "data-classification.template.md",
-    "observability-plan": "observability-plan.template.md",
-    "security-privacy-review": "security-privacy-review.template.md",
-    "docs-authority-map": "docs-authority-map.template.md",
-}
+from engineering_core.doctor import doctor_repo, exit_code as doctor_exit_code, render_human as render_doctor_human
+from engineering_core.self_check import run_self_check
 
 
 def _repo_lane_path(repo_root: Path, lane: str) -> Path:
@@ -72,7 +27,7 @@ def _repo_lane_path(repo_root: Path, lane: str) -> Path:
 
 
 def _package_lane_path(lane: str) -> Path:
-    return resources.files("engineering_core").joinpath("lanes", LANE_FILES[lane])  # type: ignore[no-any-return]
+    return Path(resources.files("engineering_core").joinpath("lanes", LANE_FILES[lane]))
 
 
 def _repo_discipline_path(repo_root: Path, discipline: str) -> Path:
@@ -80,7 +35,7 @@ def _repo_discipline_path(repo_root: Path, discipline: str) -> Path:
 
 
 def _package_discipline_path(discipline: str) -> Path:
-    return resources.files("engineering_core").joinpath("disciplines", DISCIPLINE_FILES[discipline])  # type: ignore[no-any-return]
+    return Path(resources.files("engineering_core").joinpath("disciplines", DISCIPLINE_FILES[discipline]))
 
 
 def _repo_template_path(repo_root: Path, template: str) -> Path:
@@ -112,9 +67,7 @@ def _print_doc(path: Path) -> None:
 
 
 def _load_catalog(repo_root: Path, prefer_repo: bool) -> dict[str, Any]:
-    repo_path = _repo_catalog_path(repo_root)
-    path = repo_path if prefer_repo and repo_path.exists() else _package_catalog_path()
-    return json.loads(path.read_text(encoding="utf-8"))
+    return load_catalog(repo_root, prefer_repo=prefer_repo)
 
 
 def _print_catalog(catalog: dict[str, Any], *, pretty: bool) -> None:
@@ -210,8 +163,26 @@ def _infer_repo_recommendation(repo_root: Path) -> tuple[list[str], list[str]]:
     return _dedupe(lanes), _dedupe(disciplines)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(prog="engineering-core", description="View engineering-core lane and discipline docs.")
+def _add_repo_catalog_options(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument("--repo-root", default=".", help="Repository root (default: .)")
+    parser.add_argument("--prefer-repo", action="store_true", help="Prefer repository files over packaged files")
+
+
+def _write_scan(scan: dict[str, Any], *, json_out: str | None, markdown_out: str | None) -> None:
+    if json_out:
+        json_path = Path(json_out)
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(scan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        print(f"wrote: {json_path}")
+    if markdown_out:
+        markdown_path = Path(markdown_out)
+        markdown_path.parent.mkdir(parents=True, exist_ok=True)
+        markdown_path.write_text(render_markdown(scan), encoding="utf-8")
+        print(f"wrote: {markdown_path}")
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="engineering-core", description="View and validate engineering-core guidance.")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("list", help="List available lanes")
@@ -219,87 +190,122 @@ def main() -> None:
     sub.add_parser("list-templates", help="List available adoption/review templates")
 
     list_profiles = sub.add_parser("list-profiles", help="List catalog recommendation profiles")
-    list_profiles.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
-    list_profiles.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    _add_repo_catalog_options(list_profiles)
 
     catalog_cmd = sub.add_parser("catalog", help="Print the machine-readable engineering-core catalog")
-    catalog_cmd.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
-    catalog_cmd.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    _add_repo_catalog_options(catalog_cmd)
     catalog_cmd.add_argument("--pretty", action="store_true", help="Pretty-print JSON")
 
     recommend = sub.add_parser("recommend", help="Print lane/discipline recommendation for a catalog profile or repo")
     recommend.add_argument("profile", nargs="?", help="Catalog profile id, for example browser-app or service-api")
-    recommend.add_argument("--repo", help="Infer recommendation from a repository path, preferring policy/engineering-lane.json when present")
-    recommend.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
-    recommend.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    recommend.add_argument("--repo", help="Infer recommendation from a repository path")
+    _add_repo_catalog_options(recommend)
 
     scan_adoption = sub.add_parser("scan-adoption", help="Scan one or more scopes for engineering-core adoption coverage")
-    scan_adoption.add_argument("--scope", action="append", default=[], help="Scope root to scan; repeat for multiple scopes (default: .)")
+    scan_adoption.add_argument("--scope", action="append", default=[], help="Scope root to scan; repeat for multiple scopes")
     scan_adoption.add_argument("--include-packages", action="store_true", help="Also scan nested package/app/member adoption surfaces")
     scan_adoption.add_argument("--include-scope-root", action="store_true", help="Include the scope root itself when it is a git repo")
-    scan_adoption.add_argument("--repo-discovery", choices=("immediate", "recursive"), default="immediate", help="Repo discovery mode within each scope")
-    scan_adoption.add_argument("--format", choices=("markdown", "json"), default="markdown", help="Stdout format when --write is not used")
-    scan_adoption.add_argument("--write", action="store_true", help="Write JSON and/or markdown outputs instead of printing to stdout")
-    scan_adoption.add_argument("--json-out", help="JSON output path for --write")
-    scan_adoption.add_argument("--markdown-out", help="Markdown output path for --write")
-    scan_adoption.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
-    scan_adoption.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
+    scan_adoption.add_argument("--repo-discovery", choices=("immediate", "recursive"), default="immediate")
+    scan_adoption.add_argument("--format", choices=("markdown", "json"), default="markdown")
+    scan_adoption.add_argument("--write", action="store_true", help="Write outputs instead of printing")
+    scan_adoption.add_argument("--json-out")
+    scan_adoption.add_argument("--markdown-out")
+    _add_repo_catalog_options(scan_adoption)
 
     overview = sub.add_parser("overview", help="Print the disciplines overview doc")
-    overview.add_argument("--repo-root", default=".", help="Repo root that contains ./disciplines (default: .)")
-    overview.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./disciplines over packaged files")
+    _add_repo_catalog_options(overview)
 
-    show_template = sub.add_parser("show-template", help="Print an adoption/review template to stdout")
+    show_template = sub.add_parser("show-template", help="Print an adoption/review template")
     show_template.add_argument("template", choices=TEMPLATES)
-    show_template.add_argument("--repo-root", default=".", help="Repo root that contains ./templates (default: .)")
-    show_template.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./templates over packaged files")
+    _add_repo_catalog_options(show_template)
 
-    template_path = sub.add_parser("template-path", help="Print filesystem path to an adoption/review template")
+    template_path = sub.add_parser("template-path", help="Print path to an adoption/review template")
     template_path.add_argument("template", choices=TEMPLATES)
-    template_path.add_argument("--repo-root", default=".", help="Repo root that contains ./templates (default: .)")
-    template_path.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./templates over packaged files")
+    _add_repo_catalog_options(template_path)
 
-    show = sub.add_parser("show", help="Print a lane doc to stdout")
+    show = sub.add_parser("show", help="Print a lane doc")
     show.add_argument("lane", choices=LANES)
-    show.add_argument("--repo-root", default=".", help="Repo root that contains ./lanes (default: .)")
-    show.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./lanes over packaged files")
+    _add_repo_catalog_options(show)
 
-    path_cmd = sub.add_parser("path", help="Print filesystem path to lane doc")
+    path_cmd = sub.add_parser("path", help="Print path to a lane doc")
     path_cmd.add_argument("lane", choices=LANES)
-    path_cmd.add_argument("--repo-root", default=".", help="Repo root that contains ./lanes (default: .)")
-    path_cmd.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./lanes over packaged files")
+    _add_repo_catalog_options(path_cmd)
 
-    show_discipline = sub.add_parser("show-discipline", help="Print a cross-language discipline doc to stdout; use README for the overview")
+    show_discipline = sub.add_parser("show-discipline", help="Print a cross-language discipline doc")
     show_discipline.add_argument("discipline", choices=(*DISCIPLINES, "README", "readme"))
-    show_discipline.add_argument("--repo-root", default=".", help="Repo root that contains ./disciplines (default: .)")
-    show_discipline.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./disciplines over packaged files")
+    _add_repo_catalog_options(show_discipline)
 
-    show_all_for = sub.add_parser("show-all-for", help="Print one lane/addendum followed by selected discipline docs")
+    show_all_for = sub.add_parser("show-all-for", help="Print one lane/addendum followed by selected disciplines")
     show_all_for.add_argument("lane", choices=LANES)
-    show_all_for.add_argument("--with", dest="disciplines", nargs="+", choices=DISCIPLINES, default=[], help="Discipline id(s) to print after the lane")
-    show_all_for.add_argument("--repo-root", default=".", help="Repo root that contains ./lanes and ./disciplines (default: .)")
-    show_all_for.add_argument("--prefer-repo", action="store_true", help="Prefer repo files over packaged files")
+    show_all_for.add_argument("--with", dest="disciplines", nargs="+", choices=DISCIPLINES, default=[])
+    _add_repo_catalog_options(show_all_for)
 
-    discipline_path = sub.add_parser("discipline-path", help="Print filesystem path to a discipline doc")
+    discipline_path = sub.add_parser("discipline-path", help="Print path to a discipline doc")
     discipline_path.add_argument("discipline", choices=DISCIPLINES)
-    discipline_path.add_argument("--repo-root", default=".", help="Repo root that contains ./disciplines (default: .)")
-    discipline_path.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./disciplines over packaged files")
+    _add_repo_catalog_options(discipline_path)
 
-    args = parser.parse_args()
+    sync = sub.add_parser("sync", help="Check or update generated catalog projections")
+    sync.add_argument("--repo-root", default=".")
+    mode = sync.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="Fail when generated projections drift")
+    mode.add_argument("--apply", action="store_true", help="Update generated projections")
+
+    check_self = sub.add_parser("check-self", help="Validate this engineering-core checkout")
+    check_self.add_argument("--repo-root", default=".")
+
+    doctor = sub.add_parser("doctor", help="Diagnose one repository adoption surface")
+    doctor.add_argument("--repo", default=".", help="Repository to diagnose (default: .)")
+    doctor.add_argument("--format", choices=("human", "json"), default="human")
+    doctor.add_argument("--repo-root", default=".", help="engineering-core checkout containing catalog.json")
+    doctor.add_argument("--prefer-repo", action="store_true", help="Prefer checkout catalog.json")
+
+    return parser
+
+
+def _preferred_path(repo_path: Path, package_path: Path, prefer_repo: bool) -> Path:
+    return repo_path if prefer_repo and repo_path.exists() else package_path
+
+
+def main() -> None:
+    args = build_parser().parse_args()
 
     if args.cmd == "list":
-        for lane in LANES:
-            print(lane)
+        print("\n".join(LANES))
         return
-
     if args.cmd == "list-disciplines":
-        for discipline in DISCIPLINES:
-            print(discipline)
+        print("\n".join(DISCIPLINES))
+        return
+    if args.cmd == "list-templates":
+        print("\n".join(TEMPLATES))
         return
 
-    if args.cmd == "list-templates":
-        for template in TEMPLATES:
-            print(template)
+    if args.cmd == "sync":
+        repo_root = Path(args.repo_root).resolve()
+        drifted = sync_catalog_projection(repo_root, apply=args.apply)
+        if drifted and not args.apply:
+            raise SystemExit("catalog projection differs from src/engineering_core/catalog.json; run engineering-core sync --apply")
+        print("catalog projection updated" if drifted else "catalog projection is current")
+        return
+
+    if args.cmd == "check-self":
+        errors = run_self_check(Path(args.repo_root))
+        if errors:
+            for error in errors:
+                print(error)
+            raise SystemExit(1)
+        print("engineering-core self-check passed")
+        return
+
+    if args.cmd == "doctor":
+        catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
+        report = doctor_repo(Path(args.repo), catalog)
+        if args.format == "json":
+            print(json.dumps(report, indent=2, sort_keys=True))
+        else:
+            print(render_doctor_human(report))
+        code = doctor_exit_code(report)
+        if code:
+            raise SystemExit(code)
         return
 
     if args.cmd == "list-profiles":
@@ -309,8 +315,7 @@ def main() -> None:
         return
 
     if args.cmd == "catalog":
-        catalog = _load_catalog(Path(args.repo_root).resolve(), args.prefer_repo)
-        _print_catalog(catalog, pretty=args.pretty)
+        _print_catalog(_load_catalog(Path(args.repo_root).resolve(), args.prefer_repo), pretty=args.pretty)
         return
 
     if args.cmd == "recommend":
@@ -338,105 +343,45 @@ def main() -> None:
             catalog=catalog,
         )
         if args.write:
-            if args.json_out:
-                json_path = Path(args.json_out)
-                json_path.parent.mkdir(parents=True, exist_ok=True)
-                json_path.write_text(json.dumps(scan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-                print(f"wrote: {json_path}")
-            if args.markdown_out:
-                markdown_path = Path(args.markdown_out)
-                markdown_path.parent.mkdir(parents=True, exist_ok=True)
-                markdown_path.write_text(render_markdown(scan), encoding="utf-8")
-                print(f"wrote: {markdown_path}")
-            return
-        if args.format == "json":
+            _write_scan(scan, json_out=args.json_out, markdown_out=args.markdown_out)
+        elif args.format == "json":
             print(json.dumps(scan, indent=2, sort_keys=True))
         else:
             print(render_markdown(scan))
         return
 
+    repo_root = Path(args.repo_root).resolve()
     if args.cmd == "overview":
-        repo_root = Path(args.repo_root).resolve()
-        repo_path = _repo_discipline_overview_path(repo_root)
-        if args.prefer_repo and repo_path.exists():
-            _print_doc(repo_path)
-            return
-        _print_doc(_package_discipline_overview_path())
+        _print_doc(_preferred_path(_repo_discipline_overview_path(repo_root), _package_discipline_overview_path(), args.prefer_repo))
         return
-
     if args.cmd == "show-template":
-        repo_root = Path(args.repo_root).resolve()
-        repo_path = _repo_template_path(repo_root, args.template)
-        if args.prefer_repo and repo_path.exists():
-            _print_doc(repo_path)
-            return
-        _print_doc(_package_template_path(args.template))
+        _print_doc(_preferred_path(_repo_template_path(repo_root, args.template), _package_template_path(args.template), args.prefer_repo))
         return
-
     if args.cmd == "template-path":
-        repo_root = Path(args.repo_root).resolve()
-        repo_path = _repo_template_path(repo_root, args.template)
-        if args.prefer_repo and repo_path.exists():
-            print(str(repo_path))
-            return
-        print(str(_package_template_path(args.template)))
+        print(_preferred_path(_repo_template_path(repo_root, args.template), _package_template_path(args.template), args.prefer_repo))
         return
-
     if args.cmd == "show":
-        repo_root = Path(args.repo_root).resolve()
-        repo_path = _repo_lane_path(repo_root, args.lane)
-        if args.prefer_repo and repo_path.exists():
-            _print_doc(repo_path)
-            return
-        _print_doc(Path(_package_lane_path(args.lane)))
+        _print_doc(_preferred_path(_repo_lane_path(repo_root, args.lane), _package_lane_path(args.lane), args.prefer_repo))
         return
-
     if args.cmd == "path":
-        repo_root = Path(args.repo_root).resolve()
-        repo_path = _repo_lane_path(repo_root, args.lane)
-        if args.prefer_repo and repo_path.exists():
-            print(str(repo_path))
-            return
-        print(str(_package_lane_path(args.lane)))
+        print(_preferred_path(_repo_lane_path(repo_root, args.lane), _package_lane_path(args.lane), args.prefer_repo))
         return
-
     if args.cmd == "show-discipline":
-        repo_root = Path(args.repo_root).resolve()
         if args.discipline.lower() == "readme":
-            repo_path = _repo_discipline_overview_path(repo_root)
-            if args.prefer_repo and repo_path.exists():
-                _print_doc(repo_path)
-                return
-            _print_doc(_package_discipline_overview_path())
-            return
-        repo_path = _repo_discipline_path(repo_root, args.discipline)
-        if args.prefer_repo and repo_path.exists():
-            _print_doc(repo_path)
-            return
-        _print_doc(Path(_package_discipline_path(args.discipline)))
-        return
-
-    if args.cmd == "show-all-for":
-        repo_root = Path(args.repo_root).resolve()
-        lane_path = _repo_lane_path(repo_root, args.lane)
-        if args.prefer_repo and lane_path.exists():
-            _print_doc(lane_path)
+            _print_doc(_preferred_path(_repo_discipline_overview_path(repo_root), _package_discipline_overview_path(), args.prefer_repo))
         else:
-            _print_doc(Path(_package_lane_path(args.lane)))
+            _print_doc(_preferred_path(_repo_discipline_path(repo_root, args.discipline), _package_discipline_path(args.discipline), args.prefer_repo))
+        return
+    if args.cmd == "show-all-for":
+        _print_doc(_preferred_path(_repo_lane_path(repo_root, args.lane), _package_lane_path(args.lane), args.prefer_repo))
         for discipline in args.disciplines:
             print("\n---\n")
-            discipline_path = _repo_discipline_path(repo_root, discipline)
-            if args.prefer_repo and discipline_path.exists():
-                _print_doc(discipline_path)
-            else:
-                _print_doc(Path(_package_discipline_path(discipline)))
+            _print_doc(_preferred_path(_repo_discipline_path(repo_root, discipline), _package_discipline_path(discipline), args.prefer_repo))
+        return
+    if args.cmd == "discipline-path":
+        print(_preferred_path(_repo_discipline_path(repo_root, args.discipline), _package_discipline_path(args.discipline), args.prefer_repo))
         return
 
-    if args.cmd == "discipline-path":
-        repo_root = Path(args.repo_root).resolve()
-        repo_path = _repo_discipline_path(repo_root, args.discipline)
-        if args.prefer_repo and repo_path.exists():
-            print(str(repo_path))
-            return
-        print(str(_package_discipline_path(args.discipline)))
-        return
+
+if __name__ == "__main__":
+    main()
