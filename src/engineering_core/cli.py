@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sys
 import tempfile
 from importlib import resources
 from pathlib import Path
@@ -164,12 +165,28 @@ def _infer_repo_recommendation(repo_root: Path) -> tuple[list[str], list[str]]:
 
 
 def main() -> None:
+    command = sys.argv[1] if len(sys.argv) > 1 else None
+    if command in ("init", "migrate"):
+        from engineering_core.adoption_cli import main as adoption_main
+
+        adoption_main(sys.argv[1:])
+        return
+
     parser = argparse.ArgumentParser(prog="engineering-core", description="View engineering-core lane and discipline docs.")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("list", help="List available lanes")
     sub.add_parser("list-disciplines", help="List available cross-language disciplines")
     sub.add_parser("list-templates", help="List available adoption/review templates")
+
+    sync_cmd = sub.add_parser("sync", help="Check or refresh generated catalog projections")
+    sync_cmd.add_argument("--repo-root", default=".")
+    sync_mode = sync_cmd.add_mutually_exclusive_group()
+    sync_mode.add_argument("--check", action="store_true")
+    sync_mode.add_argument("--apply", action="store_true")
+
+    self_check_cmd = sub.add_parser("check-self", help="Validate this engineering-core checkout")
+    self_check_cmd.add_argument("--repo-root", default=".")
 
     list_profiles = sub.add_parser("list-profiles", help="List catalog recommendation profiles")
     list_profiles.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
@@ -224,6 +241,10 @@ def main() -> None:
     scan_adoption.add_argument("--write", action="store_true", help="Write JSON and/or markdown outputs instead of printing to stdout")
     scan_adoption.add_argument("--json-out", help="JSON output path for --write")
     scan_adoption.add_argument("--markdown-out", help="Markdown output path for --write")
+    scan_adoption.add_argument("--diagnostics-out", help="Write versioned diagnostic evaluation JSON")
+    scan_adoption.add_argument("--baseline", help="Compare against a versioned diagnostic baseline")
+    scan_adoption.add_argument("--write-baseline", help="Write the current diagnostic baseline")
+    scan_adoption.add_argument("--fail-on", action="append", default=[], help="Severity, exact rule ID, or prefix ending in *; repeat or comma-separate")
     scan_adoption.add_argument("--repo-root", default=".", help="Repo root that contains ./catalog.json (default: .)")
     scan_adoption.add_argument("--prefer-repo", action="store_true", help="Prefer repo ./catalog.json over packaged catalog")
     scan_adoption.add_argument("--max-repositories", type=int, default=1000, help="Maximum repositories to inspect (default: 1000)")
@@ -289,6 +310,27 @@ def main() -> None:
     if args.cmd == "list-templates":
         for template in TEMPLATES:
             print(template)
+        return
+
+    if args.cmd == "sync":
+        from engineering_core.catalog_model import sync_catalog_projection
+
+        repo_root = Path(args.repo_root).resolve()
+        drifted = sync_catalog_projection(repo_root, apply=args.apply)
+        if drifted and not args.apply:
+            raise SystemExit("catalog projection differs from canonical source; rerun with --apply")
+        print("catalog projection updated" if drifted else "catalog projection is current")
+        return
+
+    if args.cmd == "check-self":
+        from engineering_core.self_check import run_self_check
+
+        errors = run_self_check(Path(args.repo_root))
+        if errors:
+            for error in errors:
+                print(error)
+            raise SystemExit(1)
+        print("engineering-core self-check passed")
         return
 
     if args.cmd == "list-profiles":
@@ -363,6 +405,16 @@ def main() -> None:
         return
 
     if args.cmd == "scan-adoption":
+        from engineering_core.scan_diagnostics import (
+            build_diagnostics,
+            evaluate,
+            failing_diagnostics,
+            load_baseline,
+            make_baseline,
+            normalize_selectors,
+            render_markdown as render_diagnostics_markdown,
+        )
+
         if args.write and not args.json_out and not args.markdown_out:
             raise SystemExit("scan-adoption --write requires --json-out and/or --markdown-out")
         scopes = [Path(scope).resolve() for scope in (args.scope or ["."])]
@@ -378,22 +430,47 @@ def main() -> None:
             max_files=args.max_files,
             max_read_bytes=args.max_read_bytes,
         )
+        baseline = load_baseline(Path(args.baseline)) if args.baseline else None
+        diagnostics = build_diagnostics(scan, catalog)
+        evaluation = evaluate(diagnostics, baseline=baseline)
+        scan["diagnostics"] = diagnostics
+        scan["diagnostic_summary"] = evaluation["summary"]
+        scan["baseline_supplied"] = evaluation["baseline_supplied"]
+
+        if args.write_baseline:
+            baseline_path = Path(args.write_baseline)
+            baseline_path.parent.mkdir(parents=True, exist_ok=True)
+            baseline_path.write_text(json.dumps(make_baseline(diagnostics, generated_at=scan.get("generated_at")), indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(f"wrote: {baseline_path}", file=sys.stderr)
+        if args.diagnostics_out:
+            diagnostics_path = Path(args.diagnostics_out)
+            diagnostics_path.parent.mkdir(parents=True, exist_ok=True)
+            diagnostics_path.write_text(json.dumps(evaluation, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            print(f"wrote: {diagnostics_path}", file=sys.stderr)
+
+        json_output = json.dumps(scan, indent=2, sort_keys=True) + "\n"
+        markdown_output = render_markdown(scan) + "\n" + render_diagnostics_markdown(evaluation)
         if args.write:
             if args.json_out:
                 json_path = Path(args.json_out)
                 json_path.parent.mkdir(parents=True, exist_ok=True)
-                json_path.write_text(json.dumps(scan, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+                json_path.write_text(json_output, encoding="utf-8")
                 print(f"wrote: {json_path}")
             if args.markdown_out:
                 markdown_path = Path(args.markdown_out)
                 markdown_path.parent.mkdir(parents=True, exist_ok=True)
-                markdown_path.write_text(render_markdown(scan), encoding="utf-8")
+                markdown_path.write_text(markdown_output, encoding="utf-8")
                 print(f"wrote: {markdown_path}")
-            return
-        if args.format == "json":
-            print(json.dumps(scan, indent=2, sort_keys=True))
+        elif args.format == "json":
+            print(json_output, end="")
         else:
-            print(render_markdown(scan))
+            print(markdown_output, end="")
+
+        failures = failing_diagnostics(evaluation, normalize_selectors(args.fail_on))
+        if failures:
+            rules = ", ".join(sorted({item["rule_id"] for item in failures}))
+            print(f"engineering-core scan-adoption failed on {len(failures)} matching diagnostic(s): {rules}", file=sys.stderr)
+            raise SystemExit(1)
         return
 
     if args.cmd == "overview":

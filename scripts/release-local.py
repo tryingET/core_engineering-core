@@ -102,14 +102,28 @@ def verify(version: str) -> None:
     assert_semver(version)
     assert_versions_match(version)
     assert_release_docs(version)
-    for historical_version in ("0.6.0", "0.7.0"):
+    sys.path.insert(0, str(ROOT / "src"))
+    from engineering_core.release_lineage import inspect_release_lineage
+
+    inspect_release_lineage(ROOT, mode="ci")
+    for historical_version in ("0.6.0", "0.7.0", "0.8.0"):
         history_root = ROOT / f"catalog-history/{historical_version}.json"
         history_package = ROOT / f"src/engineering_core/catalog-history/{historical_version}.json"
-        tagged_catalog = run_git_read(["show", f"v{historical_version}:catalog.json"], check=False)
-        if tagged_catalog.returncode != 0 or not history_root.exists() or not history_package.exists():
+        if not history_root.exists() or not history_package.exists():
             raise SystemExit(f"v{historical_version} catalog history proof is unavailable")
-        if history_root.read_text(encoding="utf-8") != history_package.read_text(encoding="utf-8") or history_root.read_text(encoding="utf-8") != tagged_catalog.stdout:
-            raise SystemExit(f"catalog-history/{historical_version}.json does not match the tagged catalog")
+        root_text = history_root.read_text(encoding="utf-8")
+        package_text = history_package.read_text(encoding="utf-8")
+        if root_text != package_text:
+            raise SystemExit(f"catalog-history/{historical_version}.json package projection differs")
+
+        tag_ref = f"refs/tags/v{historical_version}"
+        tag = run_git_read(["rev-parse", "-q", "--verify", tag_ref], check=False)
+        if tag.returncode == 0:
+            tagged_catalog = run_git_read(["show", f"v{historical_version}:catalog.json"], check=False)
+            if tagged_catalog.returncode != 0 or root_text != tagged_catalog.stdout:
+                raise SystemExit(f"catalog-history/{historical_version}.json does not match the tagged catalog")
+        else:
+            print(f"note: v{historical_version} tag is absent; using the checked-in catalog snapshot pair")
     commands = [
         [sys.executable, "-m", "compileall", "-q", "src/engineering_core"],
         [sys.executable, "scripts/check-justfile-addenda.py"],
@@ -151,7 +165,34 @@ def verify(version: str) -> None:
         wheel_names = archive.namelist()
     with tarfile.open(sdist) as archive:
         sdist_names = archive.getnames()
-    required = ("engineering_core/catalog.json", "engineering_core/catalog-history/0.6.0.json", "engineering_core/catalog-history/0.7.0.json", "engineering_core/cli.py", "engineering_core/policy.py", "engineering_core/capabilities.py", "engineering_core/doctor.py", "engineering_core/capability_scan.py", "engineering_core/evidence_reconcile.py", "engineering_core/evidence_reconcile_cli.py", "engineering_core/safe_io.py", "engineering_core/safe_git.py", "engineering_core/work_packet.py", "engineering_core/work_bundle.py", "engineering_core/work_verify.py", "engineering_core/work_render.py", "engineering_core/work_cli.py")
+    required = (
+        "engineering_core/catalog.json",
+        "engineering_core/catalog.pilots.json",
+        "engineering_core/catalog-history/0.6.0.json",
+        "engineering_core/catalog-history/0.7.0.json",
+        "engineering_core/catalog-history/0.8.0.json",
+        "engineering_core/cli.py",
+        "engineering_core/catalog.py",
+        "engineering_core/catalog_model.py",
+        "engineering_core/adoption.py",
+        "engineering_core/adoption_cli.py",
+        "engineering_core/scan_diagnostics.py",
+        "engineering_core/self_check.py",
+        "engineering_core/release_lineage.py",
+        "engineering_core/policy.py",
+        "engineering_core/capabilities.py",
+        "engineering_core/doctor.py",
+        "engineering_core/capability_scan.py",
+        "engineering_core/evidence_reconcile.py",
+        "engineering_core/evidence_reconcile_cli.py",
+        "engineering_core/safe_io.py",
+        "engineering_core/safe_git.py",
+        "engineering_core/work_packet.py",
+        "engineering_core/work_bundle.py",
+        "engineering_core/work_verify.py",
+        "engineering_core/work_render.py",
+        "engineering_core/work_cli.py",
+    )
     if any(not any(name.endswith(item) for name in wheel_names) for item in required):
         raise SystemExit("wheel is missing required package files")
     if any(not any(name.endswith(item) for name in sdist_names) for item in required):
@@ -167,8 +208,8 @@ def plan(args: argparse.Namespace) -> None:
     assert_semver(version)
     status = run_git_read(["status", "--short"], check=False).stdout.strip().splitlines()
     payload = {
-        "releaseAuthority": "local-git-tag",
-        "publishing": "local uv build artifact; no registry publish",
+        "releaseAuthority": "validated tag on main",
+        "publishing": "GitHub Release with wheel and source distribution; no package registry publish",
         "packageName": PACKAGE_NAME,
         "version": version,
         "tag": f"v{version}",

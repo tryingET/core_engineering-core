@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        run: python -m pip install --disable-pip-version-check uv
+      - name: Install project
+        run: uv sync
+      - name: Run unit tests
+        run: uv run python -m unittest discover -s tests
+      - name: Check generated projections and catalog
+        run: uv run python -m engineering_core.self_check --repo-root .
+      - name: Check lane addenda
+        run: uv run python scripts/check-justfile-addenda.py
+      - name: Check agent skill projection
+        run: uv run python scripts/sync-skill-assets.py --check
+
+  package-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install uv
+        run: python -m pip install --disable-pip-version-check uv
+      - name: Build distributions
+        run: uv build
+      - name: Install built wheel
+        run: |
+          python -m venv .venv-smoke
+          .venv-smoke/bin/python -m pip install --disable-pip-version-check dist/*.whl
+          .venv-smoke/bin/engineering-core list >/dev/null
+          .venv-smoke/bin/engineering-core list-disciplines >/dev/null
+          .venv-smoke/bin/engineering-core list-templates >/dev/null

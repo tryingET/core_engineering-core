@@ -9,6 +9,7 @@ from importlib import resources
 from pathlib import Path
 from typing import Any
 
+from engineering_core.catalog_model import merge_catalog
 from engineering_core.safe_io import SafeInputError, read_bounded_json
 
 
@@ -130,19 +131,31 @@ def parse_catalog(raw: Any) -> Catalog:
     return catalog
 
 
-def _load_catalog_path(path: Path) -> Catalog:
+def _load_raw_catalog(path: Path) -> dict[str, Any]:
     try:
         value, _ = read_bounded_json(path, max_bytes=2_097_152)
     except SafeInputError as exc:
         raise ValueError(f"catalog input rejected: {exc}") from exc
-    return parse_catalog(value)
+    if not isinstance(value, dict):
+        raise ValueError("catalog must be an object")
+    return value
+
+
+def _load_catalog_path(path: Path, overlay_path: Path | None = None) -> Catalog:
+    raw = _load_raw_catalog(path)
+    if overlay_path is not None and os.path.lexists(overlay_path):
+        raw = merge_catalog(raw, _load_raw_catalog(overlay_path))
+    return parse_catalog(raw)
 
 
 def load_catalog(repo_root: Path | None = None, *, prefer_repo: bool = False) -> Catalog:
     path = Path(repo_root) / "catalog.json" if repo_root is not None and prefer_repo else None
-    if path is None or not os.path.lexists(path):
+    if path is not None and os.path.lexists(path):
+        overlay_path = Path(repo_root) / "catalog.pilots.json"
+    else:
         path = Path(resources.files("engineering_core").joinpath("catalog.json"))
-    return _load_catalog_path(path)
+        overlay_path = Path(resources.files("engineering_core").joinpath("catalog.pilots.json"))
+    return _load_catalog_path(path, overlay_path)
 
 
 def load_catalog_history(version: str, repo_root: Path | None = None, *, prefer_repo: bool = False) -> Catalog:

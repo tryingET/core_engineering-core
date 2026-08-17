@@ -9,6 +9,28 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-17
+
+### Added
+
+- Added canonical catalog and pilot-overlay validation, generated-projection checks, a repository self-check, and a Python 3.10–3.13 CI matrix with built-wheel smoke testing.
+- Added dry-run-first `engineering-core init` and `engineering-core migrate` workflows with idempotent application, requirement closure, structured deviation preservation, and conservative legacy cleanup.
+- Added stable fleet-scan diagnostics, versioned baselines, configurable ratchet gates, a synthetic scan benchmark, and a checked packaged agent skill.
+- Added opt-in Ultracite and evidence-safety TypeScript pilot addenda, pilot profiles, and an evidence template without changing the stable TypeScript default.
+- Added release-lineage validation, automatic tagged GitHub Releases from validated `main` versions, and merged-branch cleanup automation.
+
+### Changed
+
+- Reconciled the full `v0.8.0` release lineage with the catalog/adoption stack instead of replacing the newer release history with the stale `0.3.x` branch line.
+- Raised the declared Python floor to 3.10, matching the syntax and type features used by the package.
+- Kept the richer v0.8 doctor, capability, evidence-reconciliation, and owner-use contracts while integrating the new adoption and fleet-ratchet surfaces.
+
+### Fixed
+
+- Prevented package versions from moving below an existing stable tag or releasing from a history that does not contain the latest stable release.
+- Replaced per-PR pseudo-release bumps in a stacked change with one coherent `0.9.0` release.
+- Added deterministic cleanup for merged `agent/*` and `recovery/*` branches even when the repository auto-delete setting is disabled.
+
 ## [0.8.0] - 2026-07-12
 
 ### Added

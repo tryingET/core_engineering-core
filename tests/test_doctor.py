@@ -17,7 +17,7 @@ from engineering_core.doctor import build_doctor
 
 
 class DoctorTests(unittest.TestCase):
-    def repo(self, root: Path, contract=None, ref="v0.8.0") -> Path:
+    def repo(self, root: Path, contract=None, ref="v0.9.0") -> Path:
         (root / "policy").mkdir()
         ec = {"ref": ref, "lane": "py", "disciplines": []}
         if contract is not None: ec["capability_contract"] = contract
@@ -41,9 +41,9 @@ class DoctorTests(unittest.TestCase):
         self.assertEqual(report["status"], "healthy")
         self.assertEqual(report["capabilities"]["planning"]["observation_status"], "observable")
 
-    def test_v07_pin_is_explicit_released_mismatch_under_v08_package(self):
+    def test_v08_pin_is_explicit_released_mismatch_under_v09_package(self):
         with tempfile.TemporaryDirectory() as tmp:
-            report = build_doctor(self.repo(Path(tmp), ref="v0.7.0"))
+            report = build_doctor(self.repo(Path(tmp), ref="v0.8.0"))
         self.assertEqual("released-mismatch", report["pin_posture"])
         self.assertEqual("degraded", report["status"])
 

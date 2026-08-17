@@ -57,8 +57,11 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
 - `disciplines/` — cross-language discipline docs
 - `templates/` — adoption, validation, repo-loop validation, data, observability, security/privacy, and docs-authority templates
-- `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
-- `engineering-core scan-adoption` — generic consumer adoption scanner for repo/lane/company scopes; scope owners keep generated rollout dashboards and JSON snapshots
+- `catalog.json` — stable machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
+- `catalog.pilots.json` — explicitly opt-in experimental catalog overlay; pilot entries are never silently promoted to stable defaults
+- `engineering-core init|migrate` — dry-run-first, idempotent adoption and legacy-migration planners
+- `engineering-core scan-adoption` — generic consumer adoption scanner with versioned diagnostics, baselines, and warning-first ratchets; scope owners keep generated rollout dashboards and JSON snapshots
+- `engineering-core sync|check-self` — catalog projection and checkout consistency checks used by CI
 - `engineering-core plan --repo …` — deterministic advisory `engineering-plan-v1` compiler over declarative repository facts and catalog dependencies
 - `engineering-core explain [id] --repo …` — provenance and dependency explanation for the whole plan or one selection
 - `engineering-core receipt|disposition|calibration|patterns|doctrine-propose` — read-only, digest-bound closed-loop evidence and review projections; see `docs/closed-loop.md`
@@ -169,19 +172,21 @@ A good repo-local override states:
 - canonical local commands
 - validation evidence expected before handoff
 
-## Versioning and release
+## Versioning, CI, and release
 
-Use the local release workflow in `docs/releases/release-workflow.md`:
+The release line is monotonic from the newest stable tag. CI rejects a package version below an existing stable tag, a branch that does not contain the newest prior release, mismatched version surfaces, missing release documentation, or catalog-history drift.
+
+Use the local proof commands in `docs/releases/release-workflow.md` when preparing a version:
 
 ```bash
-python scripts/release-local.py plan --version <next-version>
-python scripts/release-local.py verify --version <next-version>
-python scripts/release-local.py tag --version <next-version> --apply
+uv run python scripts/check-release-lineage.py --mode ci
+uv run python scripts/release-local.py plan --version <next-version>
+uv run python scripts/release-local.py verify --version <next-version>
 ```
 
-`dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly. See `docs/releases/artifact-policy.md`.
+A validated version merged to `main` is tagged and published as a GitHub Release by `.github/workflows/auto-release.yml`; a manually pushed tag is independently checked by `.github/workflows/release.yml`. `dist/` remains generated proof output and is attached to the GitHub Release rather than committed. See `docs/releases/artifact-policy.md` and `docs/repository-automation.md`.
 
-Package-visible changes should bump the patch version. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
+Package-visible changes should choose one coherent semantic version for the integrated release, not one pseudo-release version per PR in a stack. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
 
 ## Capability observation
 
@@ -238,6 +243,10 @@ engineering-core scan-adoption \
 - List disciplines: `uv tool run --from . engineering-core list-disciplines`
 - List templates: `uv tool run --from . engineering-core list-templates`
 - List recommendation profiles: `uv tool run --from . engineering-core list-profiles --prefer-repo`
+- Check or refresh catalog projections: `uv tool run --from . engineering-core sync --check --repo-root .`
+- Validate this checkout: `uv tool run --from . engineering-core check-self --repo-root .`
+- Plan safe adoption: `uv tool run --from . engineering-core init --repo /path/to/repo --profile service-api --format json --prefer-repo`
+- Plan legacy migration: `uv tool run --from . engineering-core migrate --repo /path/to/repo --remove-legacy --format json --prefer-repo`
 - Print catalog JSON: `uv tool run --from . engineering-core catalog --pretty --prefer-repo`
 - Print discipline overview: `uv tool run --from . engineering-core overview --prefer-repo` or `uv tool run --from . engineering-core show-discipline README --prefer-repo`
 - Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
