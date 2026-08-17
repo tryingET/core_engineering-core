@@ -9,6 +9,47 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-08-17
+
+### Added
+
+- Added an opt-in pilot catalog overlay for TypeScript quality-tool and evidence-safety experiments.
+- Added Ultracite and evidence-safety pilot addenda, recommendation profiles, a measurement template, and promotion guidance.
+
+## [0.3.7] - 2026-08-17
+
+### Added
+
+- Added stable fleet-scan diagnostics, versioned baselines, configurable ratchet gates, and a synthetic scan benchmark.
+- Added a canonical packaged engineering-core agent skill with a checked repository projection.
+
+## [0.3.6] - 2026-08-17
+
+### Added
+
+- Added dry-run-first `engineering-core init` and `engineering-core migrate` workflows with idempotent application and requirement closure.
+- Added structured deviation preservation and conservative legacy-surface removal.
+
+## [0.3.5] - 2026-08-17
+
+### Added
+
+- Added `engineering-core doctor` with stable human and JSON diagnostics for one repository.
+
+### Changed
+
+- Derived CLI lane, discipline, template, and file mappings from the catalog.
+
+## [0.3.4] - 2026-08-17
+
+### Added
+
+- Added canonical catalog validation, generated-projection checks, repository self-check commands, CI, and built-wheel smoke tests.
+
+### Changed
+
+- Raised the declared Python floor to 3.10 to match syntax already used by the package.
+
 ## [0.3.3] - 2026-05-19
 
 ### Added

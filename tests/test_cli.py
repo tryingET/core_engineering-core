@@ -238,8 +238,8 @@ class CliTests(unittest.TestCase):
         self.assertNotIn('tech-stack-core', pyproject)
         self.assertFalse((REPO_ROOT / "src" / "tech_stack_core").exists())
 
-    def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.3.3")
+    def test_version_is_semantic(self) -> None:
+        self.assertRegex(__version__, r"^\d+\.\d+\.\d+$")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,93 @@
+{
+  "schema_version": "1",
+  "status": "pilot",
+  "description": "Opt-in, evidence-gated catalog entries that must not silently become universal defaults.",
+  "lanes": [
+    {
+      "id": "ts-ultracite-pilot",
+      "kind": "addendum",
+      "path": "src/engineering_core/lanes/engineering-ts.ultracite-pilot.md",
+      "requires": [
+        "ts",
+        "validation",
+        "testing",
+        "dependency-governance",
+        "performance"
+      ],
+      "load_when": [
+        "Evaluating Ultracite in a TypeScript repository",
+        "Comparing direct Biome with a maintained preset",
+        "Comparing Biome and Oxlint realizations",
+        "Recording greenfield or brownfield quality-tool evidence"
+      ],
+      "category": "lane-pilot-addendum",
+      "file": "engineering-ts.ultracite-pilot.md",
+      "description": "Evidence-gated TypeScript pilot for measuring Ultracite adoption without changing the lane default prematurely."
+    },
+    {
+      "id": "ts-evidence-safety",
+      "kind": "addendum",
+      "path": "src/engineering_core/lanes/engineering-ts.evidence-safety.md",
+      "requires": [
+        "ts",
+        "validation",
+        "testing",
+        "security-privacy",
+        "dependency-governance",
+        "specification-and-dsls"
+      ],
+      "load_when": [
+        "High-assurance TypeScript",
+        "Piloting anti-slop-inspired evidence rules",
+        "Reducing unsafe type evidence loss",
+        "Requiring documented assertion invariants"
+      ],
+      "category": "lane-pilot-addendum",
+      "file": "engineering-ts.evidence-safety.md",
+      "description": "Opt-in TypeScript evidence-safety contract and staged anti-slop-inspired rule pilot."
+    }
+  ],
+  "disciplines": [],
+  "templates": [
+    {
+      "id": "typescript-quality-pilot",
+      "path": "src/engineering_core/templates/typescript-quality-pilot.template.md",
+      "use_for": "Recording comparable TypeScript quality-tool pilot evidence and promotion decisions",
+      "kind": "template",
+      "category": "pilot-template",
+      "file": "typescript-quality-pilot.template.md",
+      "description": "Measurement record for TypeScript quality-tool baselines, diagnostics, runtime, migration effort, exceptions, and rollback."
+    }
+  ],
+  "profiles": [
+    {
+      "id": "typescript-quality-pilot",
+      "lanes": [
+        "ts",
+        "ts-ultracite-pilot"
+      ],
+      "disciplines": [
+        "validation",
+        "testing",
+        "dependency-governance",
+        "documentation",
+        "performance"
+      ]
+    },
+    {
+      "id": "typescript-high-assurance",
+      "lanes": [
+        "ts",
+        "ts-evidence-safety"
+      ],
+      "disciplines": [
+        "validation",
+        "testing",
+        "security-privacy",
+        "dependency-governance",
+        "documentation",
+        "specification-and-dsls"
+      ]
+    }
+  ]
+}

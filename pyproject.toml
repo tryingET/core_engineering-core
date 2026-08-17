@@ -1,9 +1,9 @@
 [project]
 name = "engineering-core"
-version = "0.3.3"
+version = "0.3.8"
 description = "Shared engineering lanes, cross-language disciplines, and CLI for consistent project workflows."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [{ name = "lightningralf" }]
 

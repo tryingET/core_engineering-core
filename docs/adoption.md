@@ -40,6 +40,39 @@ Choose the smallest truthful upstream set:
 
 Do not load every lane or every discipline by default.
 
+## Safe initialization
+
+`engineering-core init` plans repository adoption without writing by default. It combines an optional catalog profile, explicit `--lane` and `--discipline` values, or conservative repository inference, then closes catalog requirements such as `ts-frontend -> ts`.
+
+```bash
+engineering-core init --repo . --profile service-api
+engineering-core init --repo . --lane ts --discipline validation --format json
+engineering-core init --repo . --lane ts --discipline validation --apply
+```
+
+The command emits a unified diff, preserves existing machine-readable fields and structured deviations, and is idempotent after application. It refuses to replace an existing hand-written `docs/engineering.local.md` unless `--force` is supplied after reviewing the proposed diff.
+
+Generated policies reserve `engineering_core.deviations` for evidence-bearing local exceptions. A useful entry records at least an ID, reason, owner, evidence paths or links, and a review date:
+
+```json
+{
+  "id": "validation.no-browser-e2e",
+  "reason": "This package has no browser or external-process boundary.",
+  "owner": "platform-tooling",
+  "evidence": ["docs/architecture/package-boundaries.md"],
+  "review_after": "2027-02-17"
+}
+```
+
+## Legacy migration
+
+`engineering-core migrate` plans a transition from `docs/tech-stack.local.md` and `policy/stack-lane.json`. It does not delete legacy files unless both `--remove-legacy` and `--apply` are present, and it will not apply a plan that contains conflicts.
+
+```bash
+engineering-core migrate --repo .
+engineering-core migrate --repo . --remove-legacy --apply
+```
+
 ## Ownership rule
 
 Adoption should preserve the authority map:
