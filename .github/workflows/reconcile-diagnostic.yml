@@ -31,6 +31,8 @@ jobs:
           cat .recovery/patch.xz.b64.part.* | base64 --decode > /tmp/reconcile.patch.xz
           xz --decompress --stdout /tmp/reconcile.patch.xz > /tmp/reconcile.patch
           echo "4ae45bfab09ae7f618d06a5ef4c32728b82a885707a535dc153e9977ddb61480  /tmp/reconcile.patch" | sha256sum --check -
+          cp .recovery/release-history-fix.patch /tmp/release-history-fix.patch
+          echo "86ca2369f0c72e87a2b259da18c4d82d2a4c06f1311d933df157df996513ddac  /tmp/release-history-fix.patch" | sha256sum --check -
           mkdir -p /tmp/final-workflows
           cp .recovery/workflows/*.yml /tmp/final-workflows/
           mkdir -p /tmp/final-files
@@ -68,6 +70,7 @@ jobs:
             exit 1
           fi
           git apply --index --exclude=.gitignore --exclude=pyproject.toml --exclude=uv.lock /tmp/reconcile.patch
+          git apply --index /tmp/release-history-fix.patch
           cp /tmp/final-files/gitignore .gitignore
           cp /tmp/final-files/pyproject.toml pyproject.toml
           cp /tmp/final-files/uv.lock uv.lock
