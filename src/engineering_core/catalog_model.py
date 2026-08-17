@@ -7,26 +7,31 @@ from typing import Any, Iterable
 
 CATALOG_COLLECTIONS = ("lanes", "disciplines", "templates")
 REQUIRED_ENTRY_FIELDS = ("id", "kind", "category", "file", "path", "description")
+PILOT_CATALOG_FILE = "catalog.pilots.json"
 
 
 def package_catalog_path() -> Path:
     return Path(resources.files("engineering_core").joinpath("catalog.json"))
 
 
+def package_pilot_catalog_path() -> Path:
+    return Path(resources.files("engineering_core").joinpath(PILOT_CATALOG_FILE))
+
+
 def repository_catalog_path(repo_root: Path) -> Path:
     return repo_root / "catalog.json"
+
+
+def repository_pilot_catalog_path(repo_root: Path) -> Path:
+    return repo_root / PILOT_CATALOG_FILE
 
 
 def canonical_catalog_path(repo_root: Path) -> Path:
     return repo_root / "src" / "engineering_core" / "catalog.json"
 
 
-def load_catalog(repo_root: Path | None = None, *, prefer_repo: bool = False) -> dict[str, Any]:
-    if repo_root is not None and prefer_repo:
-        repo_path = repository_catalog_path(repo_root)
-        if repo_path.exists():
-            return _read_catalog(repo_path)
-    return _read_catalog(package_catalog_path())
+def canonical_pilot_catalog_path(repo_root: Path) -> Path:
+    return repo_root / "src" / "engineering_core" / PILOT_CATALOG_FILE
 
 
 def _read_catalog(path: Path) -> dict[str, Any]:
@@ -34,6 +39,51 @@ def _read_catalog(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"catalog must be a JSON object: {path}")
     return value
+
+
+def _entry_ids(entries: list[Any]) -> set[str]:
+    return {
+        entry["id"]
+        for entry in entries
+        if isinstance(entry, dict) and isinstance(entry.get("id"), str)
+    }
+
+
+def merge_catalog(base: dict[str, Any], overlay: dict[str, Any] | None) -> dict[str, Any]:
+    if overlay is None:
+        return base
+    merged = json.loads(json.dumps(base))
+    for collection in (*CATALOG_COLLECTIONS, "profiles"):
+        incoming = overlay.get(collection, [])
+        if not isinstance(incoming, list):
+            raise ValueError(f"pilot catalog collection must be a list: {collection}")
+        target = merged.setdefault(collection, [])
+        if not isinstance(target, list):
+            raise ValueError(f"base catalog collection must be a list: {collection}")
+        duplicates = sorted(_entry_ids(target) & _entry_ids(incoming))
+        if duplicates:
+            raise ValueError(
+                f"pilot catalog duplicates {collection} id(s): {', '.join(duplicates)}"
+            )
+        target.extend(incoming)
+    merged["pilot_catalog"] = {
+        "schema_version": overlay.get("schema_version", "1"),
+        "status": overlay.get("status", "pilot"),
+        "description": overlay.get("description", ""),
+    }
+    return merged
+
+
+def load_catalog(repo_root: Path | None = None, *, prefer_repo: bool = False) -> dict[str, Any]:
+    if repo_root is not None and prefer_repo:
+        repo_path = repository_catalog_path(repo_root)
+        if repo_path.exists():
+            overlay_path = repository_pilot_catalog_path(repo_root)
+            overlay = _read_catalog(overlay_path) if overlay_path.exists() else None
+            return merge_catalog(_read_catalog(repo_path), overlay)
+    overlay_path = package_pilot_catalog_path()
+    overlay = _read_catalog(overlay_path) if overlay_path.exists() else None
+    return merge_catalog(_read_catalog(package_catalog_path()), overlay)
 
 
 def collection_entries(catalog: dict[str, Any], collection: str) -> list[dict[str, Any]]:
@@ -148,25 +198,35 @@ def validate_catalog(
     return sorted(set(errors))
 
 
+def _projection_pairs(repo_root: Path) -> list[tuple[Path, Path]]:
+    pairs = [(canonical_catalog_path(repo_root), repository_catalog_path(repo_root))]
+    pilot = canonical_pilot_catalog_path(repo_root)
+    if pilot.exists():
+        pairs.append((pilot, repository_pilot_catalog_path(repo_root)))
+    return pairs
+
+
 def catalog_projection_matches(repo_root: Path) -> bool:
-    projection = repository_catalog_path(repo_root)
-    canonical = canonical_catalog_path(repo_root)
-    if not projection.exists() or not canonical.exists():
-        return False
-    return projection.read_bytes() == canonical.read_bytes()
+    return all(
+        canonical.exists()
+        and projection.exists()
+        and canonical.read_bytes() == projection.read_bytes()
+        for canonical, projection in _projection_pairs(repo_root)
+    )
 
 
 def sync_catalog_projection(repo_root: Path, *, apply: bool = False) -> bool:
-    canonical = canonical_catalog_path(repo_root)
-    projection = repository_catalog_path(repo_root)
-    if not canonical.exists():
-        raise FileNotFoundError(f"canonical catalog not found: {canonical}")
-    canonical_bytes = canonical.read_bytes()
-    if projection.exists() and projection.read_bytes() == canonical_bytes:
-        return False
-    if apply:
-        projection.write_bytes(canonical_bytes)
-    return True
+    drifted = False
+    for canonical, projection in _projection_pairs(repo_root):
+        if not canonical.exists():
+            raise FileNotFoundError(f"canonical catalog not found: {canonical}")
+        canonical_bytes = canonical.read_bytes()
+        pair_drifted = not projection.exists() or projection.read_bytes() != canonical_bytes
+        drifted = drifted or pair_drifted
+        if apply and pair_drifted:
+            projection.parent.mkdir(parents=True, exist_ok=True)
+            projection.write_bytes(canonical_bytes)
+    return drifted
 
 
 _PACKAGED_CATALOG = load_catalog()

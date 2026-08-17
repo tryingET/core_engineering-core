@@ -9,6 +9,13 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.8] - 2026-08-17
+
+### Added
+
+- Added an opt-in pilot catalog overlay for TypeScript quality-tool and evidence-safety experiments.
+- Added Ultracite and evidence-safety pilot addenda, recommendation profiles, a measurement template, and promotion guidance.
+
 ## [0.3.7] - 2026-08-17
 
 ### Added
