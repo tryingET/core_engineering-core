@@ -9,6 +9,13 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.6] - 2026-08-17
+
+### Added
+
+- Added dry-run-first `engineering-core init` and `engineering-core migrate` workflows with idempotent application and requirement closure.
+- Added structured deviation preservation and conservative legacy-surface removal.
+
 ## [0.3.5] - 2026-08-17
 
 ### Added

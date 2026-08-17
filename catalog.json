@@ -1,6 +1,6 @@
 {
   "name": "engineering-core",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "cli": "engineering-core",
   "model": {
     "lane": "ecosystem-specific tooling and commands",
