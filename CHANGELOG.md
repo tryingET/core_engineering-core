@@ -9,6 +9,16 @@ type: "release-history"
 
 ## [Unreleased]
 
+## [0.3.4] - 2026-08-17
+
+### Added
+
+- Added canonical catalog validation, generated-projection checks, repository self-check commands, CI, and built-wheel smoke tests.
+
+### Changed
+
+- Raised the declared Python floor to 3.10 to match syntax already used by the package.
+
 ## [0.3.3] - 2026-05-19
 
 ### Added
