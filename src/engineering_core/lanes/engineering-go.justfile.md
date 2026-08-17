@@ -45,6 +45,28 @@ Prefer existing repo-local scripts when they already own the validation or relea
   - prefer an existing repo-local environment/runtime sanity command when present
   - fallback: a lightweight Go toolchain check such as `go version`
 
+## Optional repo-loop-validation-v1 mappings
+
+Go repos that participate in agent/prompt orchestration loops may adopt `repo-loop-validation-v1` as thin `just loop-*` recipes that delegate to Go-native validation or repo-local wrappers.
+
+Recommended Go mappings:
+
+- `loop-doctor`
+  - prefer a non-failing diagnostic that reports Go/tool versions, module/workspace posture, dirty tree, task-scope binding, and known blockers
+  - fallback: capture `just doctor` output and documented scope diagnostics without making `loop-doctor` fail
+- `loop-verify-fast`
+  - prefer the fastest truthful focused gate, such as package-local `go test ./path/...`, `go test ./...` for small repos, `go vet` for touched packages, or existing `just check`
+- `loop-impact-plan`
+  - prefer a repo-local changed-file classifier that maps packages, tests, `go.mod`/`go.sum`, generated code, build tags, and docs to bounded/expanded/wide checks
+- `loop-impact-run`
+  - prefer the bounded/expanded checks named by the plan, usually package-local test/vet/build for touched packages
+- `loop-impact-wide`
+  - prefer `just ci` or the repo's full local validation wrapper when wide impact is accepted
+- `loop-landing-check`
+  - prefer the repo-declared pre-commit/pre-push readiness gate, including generated-code, module, task-scope, and evidence checks where applicable
+
+Shared loop semantics and authority boundaries live in `disciplines/validation.md`; this section only maps lane-specific implementation choices.
+
 ## Omission rule
 
 Do not invent fake `dev` behavior for repos that are libraries or otherwise have no meaningful long-running development loop.

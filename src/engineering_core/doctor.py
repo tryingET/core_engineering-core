@@ -1,289 +1,153 @@
+# summary: "Builds a static engineering-doctor report from catalog, policy, repository facts, plans, and capability contracts."
+# read_when:
+#   - "When changing doctor checks, health classification, pin posture, capability observations, or blocked-target handling."
+
 from __future__ import annotations
 
-import json
-import re
-from dataclasses import asdict, dataclass
+import hashlib
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
-from engineering_core.adoption_scan import (
-    ENGINEERING_DOC,
-    ENGINEERING_POLICY,
-    LEGACY_DOC,
-    LEGACY_POLICY,
-    extract_policy,
-    load_json,
-    record_for,
-)
-from engineering_core.catalog_model import collection_entries, collection_ids
+from engineering_core import __version__
+from engineering_core.advisor import build_request
+from engineering_core.capabilities import capability_results, parse_capability_contract
+from engineering_core.catalog import Catalog, load_catalog
+from engineering_core.engineering_plan import compile_plan
+from engineering_core.policy import parse_policy_text
+from engineering_core.repository_facts import extract_repository_facts
 
-DIAGNOSTIC_SCHEMA_VERSION = "1"
-STATUSES = ("pass", "advisory", "warn", "fail")
+AUTHORITY = "static diagnostic only; no command execution or authority promotion"
 
 
-@dataclass(frozen=True)
-class Diagnostic:
-    rule_id: str
-    status: str
-    message: str
-    evidence: list[str]
-    remediation: str | None = None
+def _safe_text(value: object) -> str:
+    text = str(value)
+    raw = text.encode("utf-8")
+    if len(raw) <= 4096:
+        return text
+    return f"[over-bound text omitted; sha256={hashlib.sha256(raw).hexdigest()}]"
 
 
-def _diagnostic(
-    rule_id: str,
-    status: str,
-    message: str,
-    *,
-    evidence: list[str] | None = None,
-    remediation: str | None = None,
-) -> Diagnostic:
-    if status not in STATUSES:
-        raise ValueError(f"unknown diagnostic status: {status}")
-    return Diagnostic(rule_id, status, message, evidence or [], remediation)
+def _check(identifier: str, status: str, summary: str, evidence: list[str] | None = None) -> dict[str, Any]:
+    return {"id": _safe_text(identifier), "status": status, "summary": _safe_text(summary), "evidence": sorted(_safe_text(item) for item in (evidence or []))}
 
 
-def _rule_suffix(value: str) -> str:
-    normalized = re.sub(r"[^a-z0-9]+", ".", value.lower()).strip(".")
-    return normalized or "unknown"
-
-
-def _overall_status(diagnostics: list[Diagnostic]) -> str:
-    present = {diagnostic.status for diagnostic in diagnostics}
-    for status in ("fail", "warn", "advisory", "pass"):
-        if status in present:
-            return status
-    return "pass"
-
-
-def _catalog_requirements(catalog: dict[str, Any]) -> dict[str, list[str]]:
-    requirements: dict[str, list[str]] = {}
-    for entry in collection_entries(catalog, "lanes"):
-        entry_id = entry.get("id")
-        raw_requires = entry.get("requires", [])
-        if isinstance(entry_id, str) and isinstance(raw_requires, list):
-            requirements[entry_id] = [item for item in raw_requires if isinstance(item, str)]
-    return requirements
-
-
-def doctor_repo(repo_root: Path, catalog: dict[str, Any]) -> dict[str, Any]:
-    repo_root = repo_root.resolve()
-    diagnostics: list[Diagnostic] = []
-    policy_path = repo_root / ENGINEERING_POLICY
-    doc_path = repo_root / ENGINEERING_DOC
-    policy, json_error = load_json(policy_path)
-
-    valid_lanes = set(collection_ids(catalog, "lanes"))
-    valid_disciplines = set(collection_ids(catalog, "disciplines"))
-    record = record_for(
-        repo_root,
-        scope=repo_root,
-        kind="repo",
-        valid_lanes=valid_lanes,
-        valid_disciplines=valid_disciplines,
-        name=repo_root.name,
+def _fallback_protocols() -> Any:
+    return SimpleNamespace(
+        engineering_plan="engineering-plan-v1",
+        advice_request="engineering-advice-request-v1",
+        advice_response="engineering-advice-response-v1",
+        evidence_receipt="engineering-evidence-receipt-v1",
+        recommendation_disposition="engineering-recommendation-disposition-v1",
     )
 
-    if not policy_path.exists():
-        diagnostics.append(
-            _diagnostic(
-                "policy.missing",
-                "warn",
-                "No policy/engineering-lane.json file was found.",
-                remediation="Create or adopt a repository policy before enforcing engineering-core selections.",
-            )
-        )
-    elif json_error:
-        diagnostics.append(
-            _diagnostic(
-                "policy.invalid-json",
-                "fail",
-                "The engineering policy is not a valid JSON object.",
-                evidence=[json_error],
-                remediation="Repair policy/engineering-lane.json before relying on adoption results.",
-            )
-        )
-    else:
-        diagnostics.append(_diagnostic("policy.parse", "pass", "The engineering policy is valid JSON."))
 
-    if doc_path.exists():
-        diagnostics.append(_diagnostic("docs.present", "pass", "docs/engineering.local.md is present."))
-    else:
-        diagnostics.append(
-            _diagnostic(
-                "docs.missing",
-                "warn",
-                "No docs/engineering.local.md file was found.",
-                remediation="Add the human-readable local selection, command surface, and deviations document.",
-            )
-        )
-
-    if policy_path.exists() == doc_path.exists():
-        diagnostics.append(_diagnostic("adoption.surface-pair", "pass", "Policy and human-readable adoption surfaces are paired."))
-    else:
-        diagnostics.append(
-            _diagnostic(
-                "adoption.surface-pair",
-                "warn",
-                "Policy and human-readable adoption surfaces are incomplete as a pair.",
-                evidence=[record.status],
-                remediation="Keep docs/engineering.local.md and policy/engineering-lane.json together.",
-            )
-        )
-
-    lanes, lane_status, _stack, disciplines, ref_value, commands = extract_policy(policy)
-    unknown_lanes = sorted(set(lanes) - valid_lanes)
-    unknown_disciplines = sorted(set(disciplines) - valid_disciplines)
-    for lane in unknown_lanes:
-        diagnostics.append(
-            _diagnostic(
-                "catalog.unknown-lane",
-                "fail",
-                f"The policy selects unknown lane {lane!r}.",
-                evidence=[lane],
-                remediation="Choose a lane ID from the active engineering-core catalog.",
-            )
-        )
-    for discipline in unknown_disciplines:
-        diagnostics.append(
-            _diagnostic(
-                "catalog.unknown-discipline",
-                "fail",
-                f"The policy selects unknown discipline {discipline!r}.",
-                evidence=[discipline],
-                remediation="Choose a discipline ID from the active engineering-core catalog.",
-            )
-        )
-    if not unknown_lanes and not unknown_disciplines and policy is not None:
-        diagnostics.append(_diagnostic("catalog.known-selections", "pass", "All selected catalog IDs are known."))
-
-    selected = set(lanes) | set(disciplines)
-    missing_requirements: list[str] = []
-    for lane, requirements in _catalog_requirements(catalog).items():
-        if lane not in selected:
-            continue
-        for requirement in requirements:
-            if requirement not in selected:
-                missing_requirements.append(f"{lane}->{requirement}")
-                diagnostics.append(
-                    _diagnostic(
-                        "catalog.unsatisfied-requirement",
-                        "fail",
-                        f"Selected lane/addendum {lane!r} requires {requirement!r}.",
-                        evidence=[lane, requirement],
-                        remediation=f"Select {requirement!r} or remove {lane!r}.",
-                    )
-                )
-    if policy is not None and not missing_requirements:
-        diagnostics.append(_diagnostic("catalog.requirements", "pass", "All selected lane/addendum requirements are satisfied."))
-
-    for command_name, present in commands.items():
-        if not present:
-            diagnostics.append(
-                _diagnostic(
-                    f"policy.missing-command.{_rule_suffix(command_name)}",
-                    "warn",
-                    f"The policy does not declare {command_name}.",
-                    remediation="Record the reproducible engineering-core command in policy/engineering-lane.json.",
-                )
-            )
-    if policy is not None and all(commands.values()):
-        diagnostics.append(_diagnostic("policy.command-surface", "pass", "Catalog/list command fields are declared."))
-
-    if policy is not None and not ref_value:
-        diagnostics.append(
-            _diagnostic(
-                "policy.missing-ref",
-                "warn",
-                "The policy does not record the engineering-core ref it follows.",
-                remediation="Record a tag, commit, workspace-local marker, or other explicit provenance reference.",
-            )
-        )
-    elif ref_value:
-        diagnostics.append(_diagnostic("policy.ref", "pass", "The engineering-core provenance ref is recorded.", evidence=[ref_value]))
-
-    legacy_paths = [
-        str(relative)
-        for relative in (LEGACY_DOC, LEGACY_POLICY)
-        if (repo_root / relative).exists()
-    ]
-    if legacy_paths:
-        diagnostics.append(
-            _diagnostic(
-                "legacy.surfaces",
-                "warn",
-                "Legacy tech-stack adoption surfaces remain.",
-                evidence=legacy_paths,
-                remediation="Migrate the legacy files and remove them after reviewing the generated diff.",
-            )
-        )
-    else:
-        diagnostics.append(_diagnostic("legacy.surfaces", "pass", "No legacy adoption surfaces were found."))
-
-    if doc_path.exists() and selected:
-        doc_text = doc_path.read_text(encoding="utf-8", errors="replace").lower()
-        absent_from_doc = sorted(item for item in selected if item.lower() not in doc_text)
-        if absent_from_doc:
-            diagnostics.append(
-                _diagnostic(
-                    "docs.selection-visibility",
-                    "advisory",
-                    "Some machine-selected IDs are not visible in the local engineering document.",
-                    evidence=absent_from_doc,
-                    remediation="Review whether the human-readable document should enumerate these selections explicitly.",
-                )
-            )
-        else:
-            diagnostics.append(_diagnostic("docs.selection-visibility", "pass", "Selected IDs are visible in the local engineering document."))
-
-    if lane_status and not lanes:
-        diagnostics.append(
-            _diagnostic(
-                "policy.lane-status-only",
-                "advisory",
-                "The policy declares a lane status without selecting a concrete lane.",
-                evidence=[lane_status],
-            )
-        )
-
-    for flag in record.semantic_flags:
-        diagnostics.append(
-            _diagnostic(
-                f"semantic.{_rule_suffix(flag)}",
-                "advisory",
-                "The adoption scanner raised a semantic review signal.",
-                evidence=[flag],
-                remediation="Review the signal with repository context; semantic diagnostics are not automatic policy failures.",
-            )
-        )
-
-    counts = {status: sum(item.status == status for item in diagnostics) for status in STATUSES}
+def _blocked_target(repo: Path, reason: object) -> dict[str, Any]:
+    protocols = _fallback_protocols()
+    contract = parse_capability_contract({"capability_contract": {"version": "invalid", "capabilities": {}}}, protocols)
     return {
-        "schema_version": DIAGNOSTIC_SCHEMA_VERSION,
-        "repo": str(repo_root),
-        "outcome": _overall_status(diagnostics),
-        "summary": counts,
-        "record_status": record.status,
-        "semantic_status": record.semantic_status,
-        "diagnostics": [asdict(item) for item in diagnostics],
+        "schema": "engineering-doctor-v1", "authority": AUTHORITY,
+        "repository": _safe_text(repo), "package_version": __version__,
+        "catalog": {"version": __version__, "source": "packaged"}, "pin_posture": "absent",
+        "status": "blocked",
+        "checks": sorted([
+            _check("advisor", "fail", "advisor request is blocked"),
+            _check("capability-schemas", "fail", "capability schemas unavailable"),
+            _check("catalog", "not-observed", "catalog was not inspected"),
+            _check("package-version", "not-observed", "package/catalog compatibility was not inspected"),
+            _check("pin", "warn", "pin posture: absent"),
+            _check("plan", "fail", "plan compilation is blocked"),
+            _check("policy", "not-observed", "policy was not inspected"),
+            _check("target", "fail", "target path is invalid or unavailable", [_safe_text(reason)]),
+        ], key=lambda item: item["id"]),
+        "capabilities": capability_results(contract, protocols),
+        "consumer_commands_executed": False, "external_models_invoked": False, "mutations_performed": [],
     }
 
 
-def render_human(report: dict[str, Any]) -> str:
-    lines = [
-        f"engineering-core doctor: {report['repo']}",
-        f"outcome: {report['outcome']}",
-        "",
-    ]
-    for diagnostic in report["diagnostics"]:
-        lines.append(f"[{diagnostic['status'].upper()}] {diagnostic['rule_id']}: {diagnostic['message']}")
-        for evidence in diagnostic.get("evidence", []):
-            lines.append(f"  evidence: {evidence}")
-        if diagnostic.get("remediation"):
-            lines.append(f"  remediation: {diagnostic['remediation']}")
-    lines.extend(["", f"summary: {json.dumps(report['summary'], sort_keys=True)}"])
-    return "\n".join(lines)
+def _pin(ref: str | None, version: str) -> str:
+    if ref is None: return "absent"
+    if ref == f"v{version}": return "released-match"
+    if ref == "workspace-local-unpinned": return "workspace-local-unpinned"
+    import re
+    if re.fullmatch(r"v\d+\.\d+\.\d+", ref): return "released-mismatch"
+    return "other"
 
 
-def exit_code(report: dict[str, Any]) -> int:
-    return 1 if report["summary"].get("fail", 0) else 0
+def build_doctor(repo: Path, *, repo_root: Path | None = None, prefer_repo: bool = False) -> dict[str, Any]:
+    try:
+        supplied = str(repo)
+        if len(supplied.encode("utf-8")) > 4096 or any(ord(char) < 32 for char in supplied):
+            raise ValueError("target path exceeds bounds or contains control characters")
+        root = repo.resolve()
+        target_is_dir = root.is_dir()
+    except (OSError, ValueError) as exc:
+        return _blocked_target(repo, exc)
+    checks: list[dict[str, Any]] = []
+    catalog: Catalog | None = None
+    policy = None
+    contract = None
+    plan_ok = request_ok = False
+    if not target_is_dir:
+        checks.append(_check("target", "fail", "target is not a readable directory", [str(root)]))
+    else:
+        checks.append(_check("target", "pass", "target is a readable directory", [str(root)]))
+    source = "packaged"
+    try:
+        if prefer_repo and repo_root is not None and (repo_root.resolve() / "catalog.json").exists():
+            source = "repo"
+        catalog = load_catalog(repo_root, prefer_repo=prefer_repo)
+        checks.append(_check("catalog", "pass", "catalog and typed protocols loaded"))
+    except (OSError, ValueError) as exc:
+        checks.append(_check("catalog", "fail", "catalog failed to load", [str(exc)]))
+    policy_present = False
+    errors: list[str] = []
+    if target_is_dir:
+        facts = extract_repository_facts(root)
+        policy_present = facts["policy"]["present"]
+        policy_text = facts["policy"]["text"]
+        if policy_text is not None:
+            policy, errors = parse_policy_text(policy_text)
+        elif policy_present:
+            errors = [item["message"] for item in facts["diagnostics"] if item.get("path") == "policy/engineering-lane.json"] or ["policy could not be read safely"]
+    if errors or (policy_present and policy is None):
+        checks.append(_check("policy", "fail", "policy is invalid", errors))
+    else:
+        checks.append(_check("policy", "pass" if policy else "warn", "policy loaded" if policy else "policy is absent"))
+    pin = _pin(policy.ref if policy else None, catalog.version if catalog else __version__)
+    checks.append(_check("pin", "pass" if pin == "released-match" else "warn", f"pin posture: {pin}"))
+    if catalog is None:
+        checks.append(_check("package-version", "fail", "package/catalog compatibility is blocked"))
+    elif catalog.version != __version__:
+        checks.append(_check("package-version", "fail", "package and catalog versions differ", [__version__, catalog.version]))
+    else:
+        checks.append(_check("package-version", "pass", "package and catalog versions match"))
+    if target_is_dir and catalog is not None:
+        try:
+            first, second = compile_plan(root, catalog), compile_plan(root, catalog)
+            plan_ok = first["status"] == second["status"] == "complete" and first["digests"]["plan_sha256"] == second["digests"]["plan_sha256"]
+            checks.append(_check("plan", "pass" if plan_ok else "fail", "plan compiled deterministically" if plan_ok else "plan is incomplete or nondeterministic"))
+            ids = set(catalog.ids("lanes")) | set(catalog.ids("disciplines"))
+            one, two = build_request(root, first, ids), build_request(root, second, ids)
+            request_ok = plan_ok and one["request_sha256"] == two["request_sha256"]
+            checks.append(_check("advisor", "pass" if request_ok else "fail", "advisor request built deterministically" if request_ok else "advisor request is blocked"))
+        except (OSError, ValueError, KeyError) as exc:
+            checks.extend([_check("plan", "fail", "plan compilation failed", [str(exc)]), _check("advisor", "fail", "advisor request is blocked")])
+    else:
+        checks.extend([_check("plan", "fail", "plan compilation is blocked"), _check("advisor", "fail", "advisor request is blocked")])
+    if catalog is not None:
+        contract = parse_capability_contract(policy.engineering_core if policy else {}, catalog.protocols)
+        capabilities = capability_results(contract, catalog.protocols, {"planning": plan_ok, "advisor": request_ok})
+        checks.append(_check("capability-schemas", "fail" if contract.status in ("invalid", "unsupported") else "pass", f"capability contract: {contract.status}"))
+    else:
+        fallback = _fallback_protocols()
+        invalid = parse_capability_contract({"capability_contract": {"version": "invalid", "capabilities": {}}}, fallback)
+        capabilities = capability_results(invalid, fallback)
+        checks.append(_check("capability-schemas", "fail", "capability schemas unavailable"))
+    checks.sort(key=lambda item: item["id"])
+    blocked = any(item["status"] == "fail" for item in checks) or any(item.get("observation_status") == "blocked" for item in capabilities.values())
+    warning = any(item["status"] in ("warn", "not-observed") for item in checks)
+    declared = bool(contract and contract.declarations)
+    not_observed = any(item.get("observation_status") == "not-observed" for item in capabilities.values())
+    status = "blocked" if blocked else ("degraded" if warning or not declared or not_observed else "healthy")
+    return {"schema": "engineering-doctor-v1", "authority": AUTHORITY, "repository": _safe_text(root), "package_version": __version__, "catalog": {"version": _safe_text(catalog.version if catalog else __version__), "source": source}, "pin_posture": pin, "status": status, "checks": checks, "capabilities": capabilities, "consumer_commands_executed": False, "external_models_invoked": False, "mutations_performed": []}

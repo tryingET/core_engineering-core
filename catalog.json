@@ -1,6 +1,6 @@
 {
   "name": "engineering-core",
-  "version": "0.3.8",
+  "version": "0.9.0",
   "cli": "engineering-core",
   "model": {
     "lane": "ecosystem-specific tooling and commands",
@@ -498,6 +498,15 @@
       "description": "Mapping repo commands to validation tiers"
     },
     {
+      "id": "repo-loop-validation",
+      "path": "templates/repo-loop-validation.template.md",
+      "use_for": "Mapping repo-local loop validation commands for agent and prompt loops",
+      "kind": "template",
+      "category": "adoption-template",
+      "file": "repo-loop-validation.template.md",
+      "description": "Mapping repo-local loop validation commands for agent and prompt loops"
+    },
+    {
       "id": "data-classification",
       "path": "templates/data-classification.template.md",
       "use_for": "Classifying repo data and storage authority",
@@ -657,5 +666,21 @@
         "design-patterns"
       ]
     }
-  ]
+  ],
+  "protocols": {
+    "engineering_plan": "engineering-plan-v1",
+    "advice_request": "engineering-advice-request-v1",
+    "advice_response": "engineering-advice-response-v1",
+    "advice_authority": "advisory-only; deterministic validation and owner review required",
+    "evidence_receipt": "engineering-evidence-receipt-v1",
+    "recommendation_disposition": "engineering-recommendation-disposition-v1",
+    "evidence_reconciliation": "engineering-evidence-reconciliation-v1",
+    "work_context": "engineering-work-context-v1",
+    "work_packet": "engineering-work-packet-v1",
+    "evidence_bundle": "engineering-evidence-bundle-v1",
+    "work_verification": "engineering-work-verification-v1",
+    "bounded_work_plan": "engineering-bounded-work-plan-v1",
+    "work_advice_request": "engineering-work-advice-request-v1",
+    "work_summary": "engineering-work-summary-v1"
+  }
 }

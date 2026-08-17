@@ -43,6 +43,28 @@ Prefer existing repo-local scripts when they already own validation or CI behavi
   - include only when the repo has a meaningful long-running dev/watch surface
   - common Rust examples: `cargo run`, `cargo watch -x run`, or a repo-local dev script
 
+## Optional repo-loop-validation-v1 mappings
+
+Rust repos that participate in agent/prompt orchestration loops may adopt `repo-loop-validation-v1` as thin `just loop-*` recipes that delegate to Cargo-native validation or repo-local wrappers.
+
+Recommended Rust mappings:
+
+- `loop-doctor`
+  - prefer a non-failing diagnostic that reports Rustup/Cargo/toolchain versions, feature/workspace posture, dirty tree, task-scope binding, and known blockers
+  - fallback: capture `just doctor` output and documented scope diagnostics without making `loop-doctor` fail
+- `loop-verify-fast`
+  - prefer the fastest truthful focused gate, such as package-local `cargo test -p <crate>`, `cargo check -p <crate>`, targeted clippy, or existing `just check`
+- `loop-impact-plan`
+  - prefer a repo-local changed-file classifier that maps crates, integration tests, build scripts, features, lockfiles, generated code, and docs to bounded/expanded/wide checks
+- `loop-impact-run`
+  - prefer the bounded/expanded checks named by the plan, usually crate-local check/clippy/test for touched crates
+- `loop-impact-wide`
+  - prefer `just ci` or the repo's full local validation wrapper when wide impact is accepted
+- `loop-landing-check`
+  - prefer the repo-declared pre-commit/pre-push readiness gate, including lockfile, generated-code, task-scope, and evidence checks where applicable
+
+Shared loop semantics and authority boundaries live in `disciplines/validation.md`; this section only maps lane-specific implementation choices.
+
 ## Omission rule
 
 Do not invent fake long-running behavior.

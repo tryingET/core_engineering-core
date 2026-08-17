@@ -13,12 +13,24 @@ from engineering_core.adoption_scan import (
     LEGACY_POLICY,
     dedupe,
     extract_policy,
-    load_json,
 )
 from engineering_core.catalog_model import collection_entries, collection_ids
+from engineering_core.safe_io import SafeInputError, read_bounded_json
 
 MANAGED_MARKER = "<!-- engineering-core-managed:v1 -->"
 ADOPTION_SCHEMA_VERSION = "1"
+
+
+def load_json(path: Path) -> tuple[dict[str, Any] | None, str | None]:
+    if not path.exists():
+        return None, None
+    try:
+        value, _ = read_bounded_json(path, max_bytes=1_048_576)
+    except SafeInputError as exc:
+        return None, f"invalid json: {exc}"
+    if not isinstance(value, dict):
+        return None, f"invalid json type: expected object, got {type(value).__name__}"
+    return value, None
 
 
 @dataclass(frozen=True)
@@ -190,7 +202,7 @@ def _policy_document(
 ) -> dict[str, Any]:
     policy = dict(existing or {})
     engineering_core = dict(policy.get("engineering_core", {})) if isinstance(policy.get("engineering_core"), dict) else {}
-    old_lanes, _lane_status, _stack, old_disciplines, _old_ref, _commands = extract_policy(policy)
+    _ec, old_lanes, _lane_status, _stack, old_disciplines, _old_ref, _commands = extract_policy(policy)
     merged_lanes = dedupe([*old_lanes, *lanes])
     merged_disciplines = dedupe([*old_disciplines, *disciplines])
     engineering_core.update(
@@ -349,7 +361,7 @@ def plan_migration(
     conflicts: list[str] = []
     if legacy_error:
         conflicts.append(f"invalid legacy policy: {legacy_error}")
-    lanes, _lane_status, _stack, disciplines, _legacy_ref, _commands = extract_policy(legacy_policy)
+    _ec, lanes, _lane_status, _stack, disciplines, _legacy_ref, _commands = extract_policy(legacy_policy)
     if not lanes and not disciplines:
         lanes, disciplines = infer_repo_selection(repo_root)
     base_plan = plan_init(

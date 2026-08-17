@@ -56,9 +56,19 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `lanes/engineering-ts.ts-quality.md` / `engineering-pi-ts.ts-quality.md` — TypeScript quality addenda
 - `lanes/engineering-cpp.cuda.md` — C++ CUDA/GPU addendum
 - `disciplines/` — cross-language discipline docs
-- `templates/` — adoption, validation, data, observability, security/privacy, and docs-authority templates
-- `catalog.json` — machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
-- `engineering-core scan-adoption` — generic consumer adoption scanner for repo/lane/company scopes; scope owners keep generated rollout dashboards and JSON snapshots
+- `templates/` — adoption, validation, repo-loop validation, data, observability, security/privacy, and docs-authority templates
+- `catalog.json` — stable machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
+- `catalog.pilots.json` — explicitly opt-in experimental catalog overlay; pilot entries are never silently promoted to stable defaults
+- `engineering-core init|migrate` — dry-run-first, idempotent adoption and legacy-migration planners
+- `engineering-core scan-adoption` — generic consumer adoption scanner with versioned diagnostics, baselines, and warning-first ratchets; scope owners keep generated rollout dashboards and JSON snapshots
+- `engineering-core sync|check-self` — catalog projection and checkout consistency checks used by CI
+- `engineering-core plan --repo …` — deterministic advisory `engineering-plan-v1` compiler over declarative repository facts and catalog dependencies
+- `engineering-core explain [id] --repo …` — provenance and dependency explanation for the whole plan or one selection
+- `engineering-core receipt|disposition|calibration|patterns|doctrine-propose` — read-only, digest-bound closed-loop evidence and review projections; see `docs/closed-loop.md`
+- `engineering-core doctor --repo …` — deterministic static readiness diagnostics; never executes consumer commands or invokes models
+- `engineering-core scan-capabilities --repo … [--repo-file …]` — bounded capability observations over an explicit owner-produced population
+- `engineering-core reconcile-evidence --repo <id> <path> --receipt …` — explicit, read-only owner-receipt reconciliation with matched/stale/mismatched results; never changes doctor health or authority
+- `engineering-core prepare-work|finalize-work|verify-work|summarize-work` — deterministic owner-use glue from explicit task context through optional external advice, owner disposition/receipts, repository drift verification, and concise owner handoff; see `docs/owner-use-workflow.md`
 
 ## Which lane?
 
@@ -142,7 +152,7 @@ Each lane should choose ecosystem-native quality tools, but the desirable charac
 - pinned or toolchain-governed versions when dependencies are introduced
 - minimal baseline tooling; optional tools stay conditional until a repo proves the need
 
-Examples: TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
+Examples: `prek` is the preferred cross-lane Git hook runner when a repo needs one; hook definitions and normalization/check commands remain repo/lane-owned. TypeScript uses Biome for the format/lint realization; frontend state/interaction guidance lives in `ts-frontend` and the design/accessibility disciplines. Python uses Ruff; Go uses `gofmt`, `go vet`, and `go test` with optional pinned lint tools; Rust uses rustfmt/clippy; C++ uses clang-format/clang-tidy when configured.
 
 ## Per-repo overrides
 
@@ -162,23 +172,50 @@ A good repo-local override states:
 - canonical local commands
 - validation evidence expected before handoff
 
-## Versioning and release
+## Versioning, CI, and release
 
-Use the local release workflow in `docs/releases/release-workflow.md`:
+The release line is monotonic from the newest stable tag. CI rejects a package version below an existing stable tag, a branch that does not contain the newest prior release, mismatched version surfaces, missing release documentation, or catalog-history drift.
+
+Use the local proof commands in `docs/releases/release-workflow.md` when preparing a version:
 
 ```bash
-python scripts/release-local.py plan --version <next-version>
-python scripts/release-local.py verify --version <next-version>
-python scripts/release-local.py tag --version <next-version> --apply
+uv run python scripts/check-release-lineage.py --mode ci
+uv run python scripts/release-local.py plan --version <next-version>
+uv run python scripts/release-local.py verify --version <next-version>
 ```
 
-`dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless the release policy changes explicitly. See `docs/releases/artifact-policy.md`.
+A validated version merged to `main` is tagged and published as a GitHub Release by `.github/workflows/auto-release.yml`; a manually pushed tag is independently checked by `.github/workflows/release.yml`. `dist/` remains generated proof output and is attached to the GitHub Release rather than committed. See `docs/releases/artifact-policy.md` and `docs/repository-automation.md`.
 
-Package-visible changes should bump the patch version. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
+Package-visible changes should choose one coherent semantic version for the integrated release, not one pseudo-release version per PR in a stack. New docs and automation should use the `engineering-core` CLI and `engineering_core` import package; do not recreate legacy `tech-stack-core`/`tech_stack_core` aliases unless explicitly requested.
+
+## Capability observation
+
+Repositories may optionally declare exact `engineering-core-capabilities-v1` metadata under `engineering_core.capability_contract` in `policy/engineering-lane.json`. `doctor` reports declaration, static observation, and evidence separately. `scan-capabilities` accepts only repeated explicit `--repo` paths and bounded newline-delimited `--repo-file` inputs; engineering-core does not invent a society-wide denominator. V1 never executes declared commands, invokes models, mutates consumer repositories, consumes receipts, or labels static results adopted/verified. See `docs/adoption.md` and the capability-observation RFC.
+
+```bash
+engineering-core doctor --repo . --prefer-repo --pretty
+engineering-core scan-capabilities --repo . --repo-file owner-population.txt --pretty
+```
+
+## Bounded advisory protocol
+
+`engineering-core advise --repo . --request-out /tmp/advice-request.json` exports a versioned, provider-neutral request downstream of `engineering-plan-v1`. The request contains only digest-verified evidence under fixed file/byte budgets, with secret/email redaction and an explicit advisory-only authority statement. Send that JSON through an owner-selected model adapter, then validate its JSON response:
+
+```bash
+engineering-core advise --repo . --response /tmp/advice-response.json --pretty
+```
+
+Validation fails closed on malformed fields, unknown catalog IDs, uncaptured paths or spans, budget excess, provenance mismatch, and unsafe patch paths. Responses must expose confidence, unknowns, counterevidence, falsification, competing recommendations, and critique. `abstain` and `unknown` are first-class outcomes. Patch proposals are returned for owner review and are **never applied**; the advisor never executes repository commands, decides compliance, or creates exceptions. No provider or credentials are built in.
+
+Protocol ceilings are 12 files, 64 KiB per file, and 256 KiB total. Lower them with `--max-files`, `--max-file-bytes`, and `--max-total-bytes`.
+
+## Closed-loop evidence
+
+Owner-produced evidence receipts and recommendation dispositions can be validated and summarized without promoting them to CI, release, AK, compliance, or doctrine authority. Calibration separates model confidence from owner acceptance and evidence verification. Pattern synthesis consumes only explicitly supplied records, and doctrine proposals always remain unapplied. Run `python scripts/dogfood-closed-loop.py` for the deterministic end-to-end fixture. See `docs/closed-loop.md` for schemas, states, controlled reason codes, bounds, and commands.
 
 ## Adoption scanner
 
-`engineering-core scan-adoption` is the reusable scanner for engineering-core adoption across single repos, lane roots, company roots, and workspace scopes. It reports current adoption, legacy surfaces, invalid policy JSON, doc-only/policy-only partials, catalog id issues, and advisory semantic review flags.
+`engineering-core scan-adoption` is the reusable scanner for engineering-core adoption across single repos, lane roots, company roots, and workspace scopes. It reports current adoption, legacy surfaces, invalid policy JSON, doc-only/policy-only partials, catalog id issues, advisory semantic review flags, and optional `repo-loop-validation-v1` status counts when a repo declares that contract.
 
 Engineering-core owns the scanner semantics. The scanned scope owns generated outputs and rollout interpretation.
 
@@ -206,11 +243,18 @@ engineering-core scan-adoption \
 - List disciplines: `uv tool run --from . engineering-core list-disciplines`
 - List templates: `uv tool run --from . engineering-core list-templates`
 - List recommendation profiles: `uv tool run --from . engineering-core list-profiles --prefer-repo`
+- Check or refresh catalog projections: `uv tool run --from . engineering-core sync --check --repo-root .`
+- Validate this checkout: `uv tool run --from . engineering-core check-self --repo-root .`
+- Plan safe adoption: `uv tool run --from . engineering-core init --repo /path/to/repo --profile service-api --format json --prefer-repo`
+- Plan legacy migration: `uv tool run --from . engineering-core migrate --repo /path/to/repo --remove-legacy --format json --prefer-repo`
 - Print catalog JSON: `uv tool run --from . engineering-core catalog --pretty --prefer-repo`
 - Print discipline overview: `uv tool run --from . engineering-core overview --prefer-repo` or `uv tool run --from . engineering-core show-discipline README --prefer-repo`
 - Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
+- Print the loop validation contract template: `uv tool run --from . engineering-core show-template repo-loop-validation --prefer-repo`
 - Recommend a profile: `uv tool run --from . engineering-core recommend browser-app --prefer-repo`
 - Recommend from repo metadata: `uv tool run --from . engineering-core recommend --repo /path/to/repo --prefer-repo`
+- Compile an advisory plan: `uv tool run --from . engineering-core plan --repo /path/to/repo --repo-root . --prefer-repo --pretty`
+- Explain a selection: `uv tool run --from . engineering-core explain validation --repo /path/to/repo --repo-root . --prefer-repo --pretty`
 - Scan adoption coverage: `uv tool run --from . engineering-core scan-adoption --scope /path/to/root --include-packages --format json --prefer-repo`
 - Scan multiple scopes recursively: `uv tool run --from . engineering-core scan-adoption --scope ~/ai-society/core --scope ~/ai-society/softwareco/infra --repo-discovery recursive --include-scope-root --include-packages --prefer-repo`
 - Print a lane: `uv tool run --from . engineering-core show ts --prefer-repo`

@@ -1,103 +1,74 @@
-from __future__ import annotations
+# ---
+# summary: "Tests non-executing doctor reports for absent, healthy, invalid, oversized, and symlinked consumer capability policies."
+# read_when:
+#   - "Changing doctor health classification, capability observations, policy safety checks, or blocked-report structure."
+# ---
 
-import io
 import json
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stdout
 from pathlib import Path
-from unittest.mock import patch
 
-REPO_ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO_ROOT / "src"))
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
 
-from engineering_core.catalog_model import load_catalog
-from engineering_core.cli import main
-from engineering_core.doctor import doctor_repo, exit_code, render_human
-
-
-def write_policy(repo: Path, *, lanes: list[str], disciplines: list[str]) -> None:
-    (repo / "docs").mkdir(parents=True, exist_ok=True)
-    (repo / "policy").mkdir(parents=True, exist_ok=True)
-    selections = "\n".join(f"- {item}" for item in [*lanes, *disciplines])
-    (repo / "docs" / "engineering.local.md").write_text(
-        f"# engineering.local\n\n## Selected guidance\n{selections}\n\nCanonical local commands: validate before handoff.\n",
-        encoding="utf-8",
-    )
-    (repo / "policy" / "engineering-lane.json").write_text(
-        json.dumps(
-            {
-                "engineering_core": {
-                    "lanes": lanes,
-                    "disciplines": disciplines,
-                    "ref": "workspace-local-unpinned",
-                    "catalog_command": "engineering-core catalog --pretty",
-                    "list_disciplines_command": "engineering-core list-disciplines",
-                    "list_templates_command": "engineering-core list-templates",
-                }
-            }
-        ),
-        encoding="utf-8",
-    )
+from engineering_core.doctor import build_doctor
 
 
 class DoctorTests(unittest.TestCase):
-    def setUp(self) -> None:
-        self.catalog = load_catalog(REPO_ROOT, prefer_repo=True)
+    def repo(self, root: Path, contract=None, ref="v0.9.0") -> Path:
+        (root / "policy").mkdir()
+        ec = {"ref": ref, "lane": "py", "disciplines": []}
+        if contract is not None: ec["capability_contract"] = contract
+        (root / "policy/engineering-lane.json").write_text(json.dumps({"engineering_core": ec}))
+        return root
 
-    def test_valid_adoption_has_no_failures(self) -> None:
+    def test_absent_contract_degraded_and_non_executing(self):
         with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp)
-            write_policy(repo, lanes=["ts"], disciplines=["validation", "testing"])
-            report = doctor_repo(repo, self.catalog)
-        self.assertEqual(exit_code(report), 0)
-        self.assertEqual(report["summary"]["fail"], 0)
-        self.assertIn("[PASS] policy.parse", render_human(report))
+            report = build_doctor(self.repo(Path(tmp)))
+        self.assertEqual(report["status"], "degraded")
+        self.assertFalse(report["consumer_commands_executed"])
+        self.assertFalse(report["external_models_invoked"])
+        self.assertEqual(report["mutations_performed"], [])
 
-    def test_invalid_policy_is_a_failure(self) -> None:
+    def test_planning_advisor_healthy(self):
+        contract = {"version": "engineering-core-capabilities-v1", "capabilities": {
+            "planning": {"status": "declared", "schema": "engineering-plan-v1"},
+            "advisor": {"status": "declared", "request_schema": "engineering-advice-request-v1", "response_schema": "engineering-advice-response-v1"}}}
         with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp)
-            (repo / "policy").mkdir()
-            (repo / "policy" / "engineering-lane.json").write_text("{", encoding="utf-8")
-            report = doctor_repo(repo, self.catalog)
-        self.assertEqual(exit_code(report), 1)
-        rule_ids = {item["rule_id"] for item in report["diagnostics"]}
-        self.assertIn("policy.invalid-json", rule_ids)
+            report = build_doctor(self.repo(Path(tmp), contract))
+        self.assertEqual(report["status"], "healthy")
+        self.assertEqual(report["capabilities"]["planning"]["observation_status"], "observable")
 
-    def test_addendum_requirements_are_enforced(self) -> None:
+    def test_v08_pin_is_explicit_released_mismatch_under_v09_package(self):
         with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp)
-            write_policy(repo, lanes=["ts-frontend"], disciplines=["validation"])
-            report = doctor_repo(repo, self.catalog)
-        failures = [item for item in report["diagnostics"] if item["status"] == "fail"]
-        self.assertTrue(any(item["rule_id"] == "catalog.unsatisfied-requirement" for item in failures))
+            report = build_doctor(self.repo(Path(tmp), ref="v0.8.0"))
+        self.assertEqual("released-mismatch", report["pin_posture"])
+        self.assertEqual("degraded", report["status"])
 
-    def test_cli_json_output(self) -> None:
+    def test_oversized_target_path_returns_structured_blocked_report(self):
+        report = build_doctor(Path("x" * 5000))
+        self.assertEqual(report["schema"], "engineering-doctor-v1")
+        self.assertEqual(report["status"], "blocked")
+        self.assertLessEqual(len(report["repository"].encode()), 4096)
+        self.assertEqual(set(report["capabilities"]), {"planning", "advisor", "closed_loop"})
+
+    def test_symlinked_policy_is_rejected_without_reading_target(self):
         with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp)
-            write_policy(repo, lanes=["py"], disciplines=["validation", "testing"])
-            stdout = io.StringIO()
-            with patch.object(
-                sys,
-                "argv",
-                [
-                    "engineering-core",
-                    "doctor",
-                    "--repo",
-                    str(repo),
-                    "--format",
-                    "json",
-                    "--repo-root",
-                    str(REPO_ROOT),
-                    "--prefer-repo",
-                ],
-            ), redirect_stdout(stdout):
-                main()
-        report = json.loads(stdout.getvalue())
-        self.assertEqual(report["schema_version"], "1")
-        self.assertEqual(report["summary"]["fail"], 0)
+            root = Path(tmp); (root / "policy").mkdir()
+            outside = root / "outside.json"; outside.write_text(json.dumps({"engineering_core": {"ref": "v0.6.0"}}))
+            (root / "policy/engineering-lane.json").symlink_to(outside)
+            report = build_doctor(root)
+        self.assertEqual(report["status"], "blocked")
+        policy_check = next(item for item in report["checks"] if item["id"] == "policy")
+        self.assertEqual(policy_check["status"], "fail")
+
+    def test_invalid_contract_blocks(self):
+        contract = {"version": "engineering-core-capabilities-v1", "capabilities": {"planning": {"status": "declared", "schema": "wrong"}}}
+        with tempfile.TemporaryDirectory() as tmp:
+            report = build_doctor(self.repo(Path(tmp), contract))
+        self.assertEqual(report["status"], "blocked")
 
 
-if __name__ == "__main__":
-    unittest.main()
+if __name__ == "__main__": unittest.main()

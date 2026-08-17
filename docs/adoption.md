@@ -91,7 +91,7 @@ The rename to `engineering-core` is intentionally breaking. Do not recreate old 
 
 ## Adoption scanning
 
-Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, and heuristic semantic discipline flags.
+Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, heuristic semantic discipline flags, and optional `repo-loop-validation-v1` coverage when declared in `policy/engineering-lane.json`.
 
 Examples:
 
@@ -102,6 +102,45 @@ engineering-core scan-adoption --scope ~/ai-society/core --scope ~/ai-society/so
 ```
 
 Keep generated rollout state in the scope owner, not in engineering-core. For example, a lane root may write `governance/engineering-core-adoption-scan.json` and `docs/project/engineering-core-adoption-dashboard.md`, but engineering-core owns the scanner semantics and generic report shape. Start with warning/ratchet use before hard CI gates so scope owners can distinguish true adoption debt from intentional local posture.
+
+Loop validation visibility is optional. `absent` does not make a repo structurally partial; `partial`, `invalid`, or `unknown-version` only means the repo declared a loop validation contract that needs review.
+
+Scanner traversal is explicitly bounded. Defaults are 1,000 repositories, depth 12, 100,000 visited files, and 10 MiB of policy/doc reads; override them with `--max-repositories`, `--max-depth`, `--max-files`, and `--max-read-bytes`. JSON and Markdown report `completeness`, budget `limits`/`usage`, `omissions`, and per-path `failures`. A `partial` result is truthful usable evidence, not complete coverage. Paths and policy-derived text are escaped before Markdown table rendering. Discovery and policy reads are advisory only: the scanner never executes commands found in consumer repositories.
+
+Both scanning and `recommend --repo` use the same typed policy parser. Malformed policy is reported as `invalid-policy` by scanning and rejected by recommendation rather than being interpreted differently.
+
+## Capability observation
+
+The older structural scanner and the v0.6 capability observer answer different questions:
+
+- `scan-adoption` observes local docs, policy, lane/discipline declarations, command mappings, and optional loop-validation structure.
+- `doctor` observes whether one repository can be inspected deterministically and whether declared planning/advisor schemas are statically compatible.
+- `scan-capabilities` aggregates doctor results over repeated explicit `--repo` paths and/or bounded owner-produced `--repo-file` lists.
+
+A repository may optionally add exact `engineering-core-capabilities-v1` metadata under `engineering_core.capability_contract`. The contract contains protocol identifiers and declaration status only—never shell commands, argv, URLs, credentials, or executable hooks. Missing declarations remain valid and report `absent/not-declared/not-supplied`.
+
+Static observation is not execution evidence. Doctor and capability scan v1 remain receipt-free and cannot emit `execution-observed` or `evidence-verified`. Keep canonical repository populations, rollout dashboards, exceptions, tasks, and runtime evidence with their owner surfaces.
+
+Use `reconcile-evidence` only when an owner explicitly supplies stable repository-id/path mappings and receipt paths. Its matched result means the supplied receipt, bounded artifact, plan bindings, and revision ancestry reconcile; it does not authenticate the owner or promote evidence into AK, CI, release, compliance, or rollout authority.
+
+```bash
+engineering-core doctor --repo /path/to/repo --pretty
+engineering-core scan-capabilities --repo /path/to/repo --repo-file owner-repositories.txt --pretty
+```
+
+Architecture and exact schemas: `docs/rfc/2026-07-11-capability-observation-and-doctor.md`.
+
+## Owner-use packets
+
+After static adoption, an owner may connect a real task to planning and externally supplied advice without changing capability-observation semantics:
+
+```bash
+engineering-core prepare-work --repo . --repo-id <stable-owner-id> --context context.json --pretty > packet.json
+engineering-core finalize-work --packet packet.json --advice advice.json --disposition disposition.json --pretty > bundle.json
+engineering-core verify-work --repo . --repo-id <stable-owner-id> --bundle bundle.json --pretty
+```
+
+These commands use only explicit owner inputs. They do not discover AK tasks, invoke models, execute declared commands, apply patches, or promote receipts. Keep canonical task/evidence state with AK or the declared owner; store generated packets and bundles only when the owner finds them useful. See `docs/owner-use-workflow.md`.
 
 ## Version pinning
 

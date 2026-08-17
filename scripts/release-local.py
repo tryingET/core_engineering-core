@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+# ---
+# summary: "Plans, verifies, and optionally creates local engineering-core release tags after checking versions, release documentation, catalog history, tests, CLI behavior, and built artifacts."
+# read_when:
+#   - "Preparing a local release or changing version consistency, release proof commands, packaged-file requirements, or tag creation safeguards."
+# ---
 from __future__ import annotations
 
 import argparse
@@ -13,6 +18,7 @@ PACKAGE_NAME = "engineering-core"
 PYPROJECT = ROOT / "pyproject.toml"
 INIT = ROOT / "src" / "engineering_core" / "__init__.py"
 CATALOG = ROOT / "catalog.json"
+PACKAGE_CATALOG = ROOT / "src" / "engineering_core" / "catalog.json"
 CHANGELOG = ROOT / "CHANGELOG.md"
 
 
@@ -23,6 +29,10 @@ def run(args: list[str], *, check: bool = True, env: dict[str, str] | None = Non
     if env:
         merged_env.update(env)
     return subprocess.run(args, cwd=ROOT, text=True, capture_output=True, check=check, env=merged_env)
+
+
+def run_git_read(args: list[str], *, check: bool = True) -> subprocess.CompletedProcess[str]:
+    return run(["git", "-c", "core.fsmonitor=false", "-c", "core.untrackedCache=false", *args], check=check, env={"GIT_OPTIONAL_LOCKS": "0", "GIT_LITERAL_PATHSPECS": "1"})
 
 
 def read_text(path: Path) -> str:
@@ -44,14 +54,18 @@ def assert_semver(version: str) -> None:
 def assert_versions_match(version: str) -> None:
     init_text = read_text(INIT)
     catalog = json.loads(read_text(CATALOG))
+    package_catalog = json.loads(read_text(PACKAGE_CATALOG))
     if f'__version__ = "{version}"' not in init_text:
         raise SystemExit(f"src/engineering_core/__init__.py does not match {version}")
     if catalog.get("version") != version:
         raise SystemExit(f"catalog.json version {catalog.get('version')!r} does not match {version}")
+    if package_catalog != catalog:
+        raise SystemExit("catalog.json and src/engineering_core/catalog.json differ")
+    run([sys.executable, "-c", "from engineering_core.catalog import load_catalog; load_catalog()"], env={"PYTHONPATH": "src"})
 
 
 def tag_exists(tag: str) -> bool:
-    result = run(["git", "tag", "--list", tag], check=False)
+    result = run_git_read(["tag", "--list", tag], check=False)
     return result.stdout.strip() == tag
 
 
@@ -88,12 +102,47 @@ def verify(version: str) -> None:
     assert_semver(version)
     assert_versions_match(version)
     assert_release_docs(version)
+    sys.path.insert(0, str(ROOT / "src"))
+    from engineering_core.release_lineage import inspect_release_lineage
+
+    inspect_release_lineage(ROOT, mode="ci")
+    for historical_version in ("0.6.0", "0.7.0", "0.8.0"):
+        history_root = ROOT / f"catalog-history/{historical_version}.json"
+        history_package = ROOT / f"src/engineering_core/catalog-history/{historical_version}.json"
+        if not history_root.exists() or not history_package.exists():
+            raise SystemExit(f"v{historical_version} catalog history proof is unavailable")
+        root_text = history_root.read_text(encoding="utf-8")
+        package_text = history_package.read_text(encoding="utf-8")
+        if root_text != package_text:
+            raise SystemExit(f"catalog-history/{historical_version}.json package projection differs")
+
+        tag_ref = f"refs/tags/v{historical_version}"
+        tag = run_git_read(["rev-parse", "-q", "--verify", tag_ref], check=False)
+        if tag.returncode == 0:
+            tagged_catalog = run_git_read(["show", f"v{historical_version}:catalog.json"], check=False)
+            if tagged_catalog.returncode != 0 or root_text != tagged_catalog.stdout:
+                raise SystemExit(f"catalog-history/{historical_version}.json does not match the tagged catalog")
+        else:
+            print(f"note: v{historical_version} tag is absent; using the checked-in catalog snapshot pair")
     commands = [
-        [sys.executable, "-m", "py_compile", "src/engineering_core/cli.py"],
+        [sys.executable, "-m", "compileall", "-q", "src/engineering_core"],
         [sys.executable, "scripts/check-justfile-addenda.py"],
+        [sys.executable, "scripts/dogfood-closed-loop.py"],
+        [sys.executable, "scripts/dogfood-capabilities.py"],
+        [sys.executable, "scripts/dogfood-evidence-reconcile.py"],
+        [sys.executable, "scripts/dogfood-owner-use.py"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
         ["uv", "run", "engineering-core", "list"],
         ["uv", "run", "engineering-core", "list-disciplines"],
+        ["uv", "run", "engineering-core", "catalog", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "doctor", "--repo", ".", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "scan-capabilities", "--repo", ".", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "reconcile-evidence", "--help"],
+        ["uv", "run", "engineering-core", "prepare-work", "--help"],
+        ["uv", "run", "engineering-core", "finalize-work", "--help"],
+        ["uv", "run", "engineering-core", "verify-work", "--help"],
+        ["uv", "run", "engineering-core", "summarize-work", "--help"],
+        ["uv", "run", "engineering-core", "scan-adoption", "--scope", ".", "--include-scope-root", "--format", "json", "--prefer-repo", "--max-repositories", "10"],
         ["uv", "run", "engineering-core", "show", "ts", "--prefer-repo"],
         ["uv", "run", "engineering-core", "show-discipline", "validation", "--prefer-repo"],
         ["uv", "build"],
@@ -106,16 +155,61 @@ def verify(version: str) -> None:
             print(result.stdout, end="")
             print(result.stderr, end="", file=sys.stderr)
             raise SystemExit(result.returncode)
-    print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok"}, indent=2))
+    wheel = ROOT / "dist" / f"engineering_core-{version}-py3-none-any.whl"
+    sdist = ROOT / "dist" / f"engineering_core-{version}.tar.gz"
+    import tarfile
+    import zipfile
+    if not wheel.exists() or not sdist.exists():
+        raise SystemExit("uv build did not produce expected wheel and sdist")
+    with zipfile.ZipFile(wheel) as archive:
+        wheel_names = archive.namelist()
+    with tarfile.open(sdist) as archive:
+        sdist_names = archive.getnames()
+    required = (
+        "engineering_core/catalog.json",
+        "engineering_core/catalog.pilots.json",
+        "engineering_core/catalog-history/0.6.0.json",
+        "engineering_core/catalog-history/0.7.0.json",
+        "engineering_core/catalog-history/0.8.0.json",
+        "engineering_core/cli.py",
+        "engineering_core/catalog.py",
+        "engineering_core/catalog_model.py",
+        "engineering_core/adoption.py",
+        "engineering_core/adoption_cli.py",
+        "engineering_core/scan_diagnostics.py",
+        "engineering_core/self_check.py",
+        "engineering_core/release_lineage.py",
+        "engineering_core/policy.py",
+        "engineering_core/capabilities.py",
+        "engineering_core/doctor.py",
+        "engineering_core/capability_scan.py",
+        "engineering_core/evidence_reconcile.py",
+        "engineering_core/evidence_reconcile_cli.py",
+        "engineering_core/safe_io.py",
+        "engineering_core/safe_git.py",
+        "engineering_core/work_packet.py",
+        "engineering_core/work_bundle.py",
+        "engineering_core/work_verify.py",
+        "engineering_core/work_render.py",
+        "engineering_core/work_cli.py",
+    )
+    if any(not any(name.endswith(item) for name in wheel_names) for item in required):
+        raise SystemExit("wheel is missing required package files")
+    if any(not any(name.endswith(item) for name in sdist_names) for item in required):
+        raise SystemExit("sdist is missing required package files")
+    for harness in ("scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py", "scripts/dogfood-owner-use.py"):
+        if not any(name.endswith(harness) for name in sdist_names):
+            raise SystemExit(f"sdist is missing reproducible harness: {harness}")
+    print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok", "artifacts_inspected": [wheel.name, sdist.name]}, indent=2))
 
 
 def plan(args: argparse.Namespace) -> None:
     version = args.version or version_from_pyproject()
     assert_semver(version)
-    status = run(["git", "status", "--short"], check=False).stdout.strip().splitlines()
+    status = run_git_read(["status", "--short"], check=False).stdout.strip().splitlines()
     payload = {
-        "releaseAuthority": "local-git-tag",
-        "publishing": "local uv build artifact; no registry publish",
+        "releaseAuthority": "validated tag on main",
+        "publishing": "GitHub Release with wheel and source distribution; no package registry publish",
         "packageName": PACKAGE_NAME,
         "version": version,
         "tag": f"v{version}",
@@ -137,7 +231,7 @@ def tag(args: argparse.Namespace) -> None:
     tag_name = f"v{version}"
     if tag_exists(tag_name):
         raise SystemExit(f"tag already exists: {tag_name}")
-    if run(["git", "status", "--short"], check=False).stdout.strip():
+    if run_git_read(["status", "--short"], check=False).stdout.strip():
         raise SystemExit("worktree must be clean before tagging")
     if args.apply:
         run(["git", "tag", "-a", tag_name, "-m", f"{PACKAGE_NAME} {tag_name}"])

@@ -46,6 +46,28 @@ Prefer existing repo-local scripts and `pyproject.toml` script surfaces when the
   - prefer an existing repo-local environment/runtime sanity command when present
   - fallback: a small uv/Python sanity check such as `uv --version && python --version`
 
+## Optional repo-loop-validation-v1 mappings
+
+Python repos that participate in agent/prompt orchestration loops may adopt `repo-loop-validation-v1` as thin `just loop-*` recipes that delegate to repo-owned uv/Python validation surfaces.
+
+Recommended Python mappings:
+
+- `loop-doctor`
+  - prefer a non-failing diagnostic that reports `uv`/Python versions, dependency sync posture, dirty tree, task-scope binding, and known blockers
+  - fallback: capture `just doctor` output and documented scope diagnostics without making `loop-doctor` fail
+- `loop-verify-fast`
+  - prefer the repo's fastest truthful focused gate, such as a changed-slice pytest wrapper, `uv run ruff check`, targeted typecheck, or existing `just check`
+- `loop-impact-plan`
+  - prefer a repo-local changed-file classifier that maps Python modules, tests, docs, packaging, and migrations to bounded/expanded/wide checks
+- `loop-impact-run`
+  - prefer the bounded/expanded checks named by the plan, usually targeted pytest plus lint/typecheck for the touched package
+- `loop-impact-wide`
+  - prefer `just ci`, `just verify-full`, or the repo's full local validation wrapper when wide impact is accepted
+- `loop-landing-check`
+  - prefer the repo-declared pre-commit/pre-push readiness gate, including task-scope/evidence checks where the repo uses AK or another task authority
+
+Shared loop semantics and authority boundaries live in `disciplines/validation.md`; this section only maps lane-specific implementation choices.
+
 ## Omission rule
 
 Do not invent fake package/build or dev-server targets.

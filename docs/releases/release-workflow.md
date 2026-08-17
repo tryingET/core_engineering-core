@@ -1,72 +1,87 @@
 ---
-summary: "Local release workflow for engineering-core version, proof, and git tag authority."
+summary: "Validated engineering-core version, tag, artifact, and GitHub Release workflow."
 read_when:
   - "Preparing or verifying an engineering-core release."
-  - "Deciding whether to tag or publish engineering-core artifacts."
+  - "Changing version consistency, tag ancestry, release artifacts, or GitHub release automation."
 type: "how-to"
 ---
 
 # Release workflow
 
-`engineering-core` uses a local-first release workflow. The public authority is the git commit plus annotated tag; package artifacts are built locally with `uv build` and are not committed.
+`engineering-core` treats the commit on `main`, its annotated semantic-version tag, and its GitHub Release artifacts as one release unit. The version may never move below an existing stable tag, and every release candidate must contain the newest prior stable release in its Git ancestry.
 
 ## Authority chain
 
 ```text
-local release prep
-  -> version/changelog/release notes
-  -> package proof
-  -> release commit
-  -> annotated git tag
+version + changelog + release notes
+  -> CI and release-lineage proof
+  -> reviewed merge to main
+  -> repeated release proof
+  -> annotated v<version> tag
+  -> GitHub Release with wheel and sdist
   -> optional downstream pin to tag
 ```
 
-There is no compatibility alias and no registry publish step in the normal local workflow.
+No package registry is currently authoritative. GitHub Release artifacts are generated proof outputs and are not committed.
 
-## Plan
+## Prepare and plan
+
+Choose one coherent version for the integrated release. A PR stack does not receive a separate release number for every layer.
 
 ```bash
-python scripts/release-local.py plan --version <next-version>
+uv run python scripts/check-release-lineage.py --mode ci
+uv run python scripts/release-local.py plan --version <next-version>
 ```
 
-The plan reports current version, tag presence, dirty-worktree state, and follow-up commands.
+The lineage check verifies that all package/catalog/lock surfaces agree, the version is not older than an existing stable tag, the newest prior stable tag is an ancestor, its catalog-history snapshot is exact, and the new changelog/release notes exist.
 
 ## Verify
 
 ```bash
-python scripts/release-local.py verify --version <next-version>
+uv run python scripts/release-local.py verify --version <next-version>
 ```
 
 The verifier checks:
 
-- `pyproject.toml`, `src/engineering_core/__init__.py`, and `catalog.json` versions match;
-- `CHANGELOG.md` has a section for the version;
-- release notes exist under `docs/releases/`;
-- CLI compile, Justfile addendum checks, CLI tests, key CLI smoke commands, and `uv build` pass.
+- package, lock, stable catalog, packaged catalog, and import versions;
+- stable-tag ancestry and semantic-version monotonicity;
+- changelog and versioned release notes;
+- historical catalog snapshots against their actual tags;
+- Python compilation, the full unittest suite, addendum and agent-skill projections;
+- closed-loop, capability, evidence-reconciliation, and owner-use dogfoods;
+- catalog, doctor, scan, reconciliation, owner-use, lane, and discipline CLI surfaces;
+- wheel and source-distribution contents.
 
-## Commit and tag
+## Automated tag and GitHub Release
 
-After verification passes, commit the release metadata and tag from a clean worktree:
+After a validated new version lands on `main`, `.github/workflows/auto-release.yml` repeats the release proof. When the corresponding tag is absent, it creates and pushes an annotated tag and then creates a GitHub Release containing the wheel and source distribution.
+
+A manually pushed `v*.*.*` tag is handled by `.github/workflows/release.yml`, which independently verifies that:
+
+- the tag matches the package version;
+- the tag points to the checked-out commit;
+- the tagged commit is contained in `origin/main`;
+- the full release proof and artifact inspection pass.
+
+## Local tag fallback
+
+The local tag command remains available for an owner-controlled fallback after a clean verification:
 
 ```bash
-git add CHANGELOG.md uv.lock docs/releases scripts/release-local.py README.md
-git commit -m "chore(release): v<next-version>"
-python scripts/release-local.py tag --version <next-version> --apply
+uv run python scripts/release-local.py tag --version <next-version> --apply
 ```
 
-The tag must be annotated and named `v<version>`.
+Push the annotated tag explicitly. The tag-triggered workflow will validate it before creating a GitHub Release.
 
 ## Artifact policy
 
-`dist/` is generated output. Build it for proof with `uv build`, but do not commit wheels or source distributions unless the release policy changes explicitly.
-
-Canonical policy: `docs/releases/artifact-policy.md`.
+`dist/` is generated output. Build it for proof with `uv build`, but do not commit wheels or source distributions. Canonical policy: `docs/releases/artifact-policy.md`.
 
 ## Downstream adoption
 
 Downstream consumers should either:
 
 - record `workspace-local-unpinned` while using the local checkout; or
-- pin to the release tag once the tag is available.
+- pin to the release tag once the GitHub Release is available.
 
 Breaking-change migration details live in versioned migration maps under `docs/releases/migrations/`.

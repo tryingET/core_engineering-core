@@ -9,46 +9,98 @@ type: "release-history"
 
 ## [Unreleased]
 
-## [0.3.8] - 2026-08-17
+## [0.9.0] - 2026-08-17
 
 ### Added
 
-- Added an opt-in pilot catalog overlay for TypeScript quality-tool and evidence-safety experiments.
-- Added Ultracite and evidence-safety pilot addenda, recommendation profiles, a measurement template, and promotion guidance.
-
-## [0.3.7] - 2026-08-17
-
-### Added
-
-- Added stable fleet-scan diagnostics, versioned baselines, configurable ratchet gates, and a synthetic scan benchmark.
-- Added a canonical packaged engineering-core agent skill with a checked repository projection.
-
-## [0.3.6] - 2026-08-17
-
-### Added
-
-- Added dry-run-first `engineering-core init` and `engineering-core migrate` workflows with idempotent application and requirement closure.
-- Added structured deviation preservation and conservative legacy-surface removal.
-
-## [0.3.5] - 2026-08-17
-
-### Added
-
-- Added `engineering-core doctor` with stable human and JSON diagnostics for one repository.
+- Added canonical catalog and pilot-overlay validation, generated-projection checks, a repository self-check, and a Python 3.10–3.13 CI matrix with built-wheel smoke testing.
+- Added dry-run-first `engineering-core init` and `engineering-core migrate` workflows with idempotent application, requirement closure, structured deviation preservation, and conservative legacy cleanup.
+- Added stable fleet-scan diagnostics, versioned baselines, configurable ratchet gates, a synthetic scan benchmark, and a checked packaged agent skill.
+- Added opt-in Ultracite and evidence-safety TypeScript pilot addenda, pilot profiles, and an evidence template without changing the stable TypeScript default.
+- Added release-lineage validation, automatic tagged GitHub Releases from validated `main` versions, and merged-branch cleanup automation.
 
 ### Changed
 
-- Derived CLI lane, discipline, template, and file mappings from the catalog.
+- Reconciled the full `v0.8.0` release lineage with the catalog/adoption stack instead of replacing the newer release history with the stale `0.3.x` branch line.
+- Raised the declared Python floor to 3.10, matching the syntax and type features used by the package.
+- Kept the richer v0.8 doctor, capability, evidence-reconciliation, and owner-use contracts while integrating the new adoption and fleet-ratchet surfaces.
 
-## [0.3.4] - 2026-08-17
+### Fixed
+
+- Prevented package versions from moving below an existing stable tag or releasing from a history that does not contain the latest stable release.
+- Replaced per-PR pseudo-release bumps in a stacked change with one coherent `0.9.0` release.
+- Added deterministic cleanup for merged `agent/*` and `recovery/*` branches even when the repository auto-delete setting is disabled.
+
+## [0.8.0] - 2026-07-12
 
 ### Added
 
-- Added canonical catalog validation, generated-projection checks, repository self-check commands, CI, and built-wheel smoke tests.
+- Added deterministic `prepare-work`, `finalize-work`, and `verify-work` commands for explicit owner task context, plans, optional external advice, owner dispositions/receipts, and matched/stale/mismatched repository verification.
+- Added owner-use context, bounded-work-plan, task-bound advice-request, work-packet, evidence-bundle, and work-verification contracts with full Git revisions, focused no-follow file snapshots, transitive digest bindings, and explicit non-authority effects.
+- Added deterministic owner-use dogfood and real canary evidence over current Agent Kernel, DSPx, and pi-extensions work.
 
 ### Changed
 
-- Raised the declared Python floor to 3.10 to match syntax already used by the package.
+- Reused the canonical advisor response validator in closed-loop processing instead of maintaining a weaker duplicate validator.
+- Hardened advisor and general safe JSON loading against symlinks, special files, duplicate members, and non-finite JSON values.
+- Added the v0.7 catalog snapshot to historical reconciliation support while preserving v0.6/v0.7 doctor, scan, and reconciliation boundaries.
+
+## [0.7.0] - 2026-07-11
+
+### Added
+
+- Added explicit `reconcile-evidence` joins over owner-supplied repository mappings, receipts, plans, bounded advice artifacts, and Git revision ancestry.
+- Added deterministic matched/stale/mismatched projections that preserve owner-reported states without promoting CI, release, AK, compliance, or rollout authority.
+- Added bounded no-follow regular-file JSON ingestion and reproducible evidence-reconciliation dogfood.
+
+### Changed
+
+- Hardened existing closed-loop record loading against symlinks, symlinked parents, FIFO/special files, oversized inputs, read races, and invalid UTF-8 JSON.
+- Kept `engineering-doctor-v1` and `engineering-capability-scan-v1` receipt-free and backward compatible.
+
+## [0.6.0] - 2026-07-11
+
+### Added
+
+- Added package-native `engineering-core-capabilities-v1` parsing and independent declaration, static-observation, and evidence dimensions.
+- Added deterministic, non-executing `doctor` and explicit-population `scan-capabilities` JSON commands.
+- Added typed catalog protocol access, bounded no-follow repository-file ingestion, dedicated tests, and deterministic capability dogfood.
+
+### Changed
+
+- Integrated capability dogfood and package-module inspection into local release verification.
+- Preserved existing planning, advice, closed-loop, and `scan-adoption` contracts without consumer execution or mutation.
+
+## [0.5.0] - 2026-07-11
+
+### Added
+
+- Added deterministic advisory planning/explanation, bounded provider-neutral advice validation, and strict catalog/policy/repository-fact parsing.
+- Added owner-bound dispositions and receipts, calibration, multi-input pattern synthesis, and unapplied doctrine proposals.
+- Added a reproducible end-to-end closed-loop dogfood harness with fail-closed negative probes.
+- Added bounded recursive scanner completeness, omission, failure, and usage reporting.
+
+### Changed
+
+- Strengthened local release verification, catalog consistency, and wheel/sdist inspection.
+- Preserved explicit consumer, CI/release/AK/compliance, and doctrine-owner authority boundaries.
+
+### Fixed
+
+- Rejected JSON-form secret-bearing records, unsafe or hallucinated paths, unknown IDs, malformed inputs, and provenance mismatches.
+
+## [0.3.4] - 2026-05-25
+
+### Added
+
+- Added `repo-loop-validation-v1` as a reusable repo-owned loop validation command contract for agent, slash-command, visible-loop, nexus-loop, and future prompt-loop scenarios.
+- Added the `repo-loop-validation` template to the CLI/catalog and package template resources.
+- Added optional `engineering_core.loop_validation` scanner visibility with loop validation status counts, missing command details, and markdown report rendering.
+- Added engineering-local and validation-tier-map template sections for optional loop validation mappings.
+
+### Changed
+
+- Clarified in validation/testing disciplines, adoption docs, authority map, README, and vision that loop commands produce evidence and do not replace AK, CI/release, repo landing, or governance authority.
 
 ## [0.3.3] - 2026-05-19
 

@@ -1,0 +1,879 @@
+{
+  "schema": "engineering-owner-use-real-canaries-v2",
+  "authority": "operator-attested dated product dogfood over AK task projections and retained bounded manifests; not task, owner-disposition, execution, AK, CI, release, compliance, approval, or rollout authority",
+  "engineering_core_version": "0.8.0",
+  "selection_receipt": {
+    "captured_at": "2026-07-12T06:01:51.500623+00:00",
+    "source_commands": [
+      "ak repo list -F json",
+      "git -C <registered-owned-root> rev-parse --show-toplevel",
+      "git -C <deduplicated-root> log -1 --format=<timestamp,commit,subject>",
+      "git -C <deduplicated-root> status --porcelain"
+    ],
+    "eligible_registered_physical_git_roots": 37,
+    "ranking": "descending latest commit timestamp after physical Git-root deduplication; dirty-path count is retained context and not a second sort key",
+    "top10": [
+      {
+        "repository_path": "softwareco/owned/dspx",
+        "committed_unix": 1783835217,
+        "committed_at": "2026-07-12T07:46:57+02:00",
+        "commit": "d81faf81321f74e0c7f4e2a60ec841cb2deb2a24",
+        "subject": "fix(oracle): preserve receipt execution time",
+        "dirty_paths": 0
+      },
+      {
+        "repository_path": "softwareco/owned/agent-kernel",
+        "committed_unix": 1783833259,
+        "committed_at": "2026-07-12T07:14:19+02:00",
+        "commit": "e5bae3473456807e4cc50a6235c03dfb592d9409",
+        "subject": "docs: route iw14b dspx owner gate",
+        "dirty_paths": 2
+      },
+      {
+        "repository_path": "softwareco/owned/pi-extensions",
+        "committed_unix": 1783798764,
+        "committed_at": "2026-07-11T21:39:24+02:00",
+        "commit": "6fa52f7306e46a5bcc6687fb17c20f0c0c920ebc",
+        "subject": "docs: add curated source metadata",
+        "dirty_paths": 305
+      },
+      {
+        "repository_path": "softwareco/owned/workspace-platform",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "39fb381478286834b4e9d693476a369e21163688",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 14
+      },
+      {
+        "repository_path": "softwareco/owned/semantic-code-intelligence",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "6bebdc2f709e394f9f944003d5bf7956c6d573f9",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 4
+      },
+      {
+        "repository_path": "softwareco/owned/leseOS",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "20a107b4ac074004f22055230b205958b2015983",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 3
+      },
+      {
+        "repository_path": "softwareco/owned/kinetic-caption-studio",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "0acc5a42ca4dd5b8913ed9a0a4969b216bf9828b",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 2
+      },
+      {
+        "repository_path": "softwareco/owned/glimpseui-linux",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "0721cf2e6da61dd7865a42d0e526d9180519089a",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 0
+      },
+      {
+        "repository_path": "softwareco/owned/email-copilot",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "c6c24076d0b1adf28c860dcc244c9eb7c9ec73b4",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 0
+      },
+      {
+        "repository_path": "softwareco/owned/designmd-foundry",
+        "committed_unix": 1783798412,
+        "committed_at": "2026-07-11T21:33:32+02:00",
+        "commit": "2cc0849b6ea73a91cb3967dad2f66f7e2dfb3f60",
+        "subject": "fix: pin all engineering-core commands to v0.7 commit",
+        "dirty_paths": 0
+      }
+    ]
+  },
+  "generation": {
+    "artifact_location": "ephemeral local /tmp/ec-owner-use-canaries; repository retains bounded manifests and digests rather than owner source excerpts",
+    "commands": [
+      "engineering-core prepare-work --repo <path> --repo-id <id> --context <context> --prefer-repo",
+      "engineering-core finalize-work --packet <packet> [--advice <external-advice>]",
+      "engineering-core verify-work --repo <path> --repo-id <id> --bundle <bundle> --prefer-repo",
+      "engineering-core summarize-work --bundle <bundle> --verification <verification> --format markdown"
+    ]
+  },
+  "summary": {
+    "repositories": 3,
+    "advisor_ready": 2,
+    "plan_only": 1,
+    "external_operator_session_recommendations": 4,
+    "pending_owner_review": 4,
+    "owner_dispositions": 0,
+    "owner_receipts": 0,
+    "matched_at_final_capture": 3,
+    "models_invoked_by_engineering_core": 0,
+    "consumer_commands_executed": 0,
+    "patches_applied": 0,
+    "authority_promotions": 0,
+    "owner_handoff": {
+      "pi_extensions_peer_acknowledged_plan_only_boundary": true,
+      "agent_kernel_disposition_reply_received": false,
+      "dspx_disposition_reply_received": false
+    },
+    "live_drift_observed_during_development": {
+      "repository_id": "softwareco/owned/dspx",
+      "initial_verification": {
+        "authority": "read-only owner-use bundle verification; not execution, CI, release, AK, compliance, rollout, approval, or doctrine authority",
+        "binding_match": false,
+        "bundle_sha256": "c34e19604c44b1f6bc75bcfe09f1fa0ba9b807c3eea32317b9aa9736c80cd0f9",
+        "effects": {
+          "authority_promotions": [],
+          "consumer_commands_executed": false,
+          "external_models_invoked": false,
+          "mutations_performed": [],
+          "patches_applied": false
+        },
+        "findings": [
+          {
+            "code": "bindings-drifted",
+            "message": "current plan or request bindings differ from the packet",
+            "severity": "warning"
+          },
+          {
+            "code": "scope-drifted",
+            "message": "focused owner scope differs from the packet",
+            "severity": "warning"
+          }
+        ],
+        "repository": {
+          "current_revision": "fa3b1ceefa99c28f975d67109bde0b5ea4438fff",
+          "id": "softwareco/owned/dspx",
+          "packet_revision": "fa3b1ceefa99c28f975d67109bde0b5ea4438fff",
+          "path": "/home/tryinget/ai-society/softwareco/owned/dspx"
+        },
+        "result": "stale",
+        "revision_relation": "current",
+        "schema": "engineering-work-verification-v1",
+        "scope_match": false
+      },
+      "note": "This earlier v0.8-development packet predates the final catalog digest and is retained only as behavioral observation.",
+      "resolution": "final artifacts were re-prepared after the catalog froze and all three verified matched."
+    }
+  },
+  "records": [
+    {
+      "repository_id": "softwareco/owned/agent-kernel",
+      "selection_rank": 2,
+      "ak_task_projection": {
+        "id": 3802,
+        "title": "[SF14/IW14-B P0] Build 21-token feasibility and owner-fact preflight",
+        "status_at_capture": "done",
+        "scope": {
+          "allowed_paths": [
+            "docs/project/direction-explorer-mvp.export.json",
+            "docs/project/direction-explorer-mvp.html",
+            "docs/project/layer12/iw14b-21-token-preflight.v1.json",
+            "scripts/ci/check-iw14b-21-token-preflight.py"
+          ],
+          "required_paths": [
+            "docs/project/layer12/iw14b-21-token-preflight.v1.json",
+            "scripts/ci/check-iw14b-21-token-preflight.py"
+          ],
+          "forbidden_paths": []
+        },
+        "canonical_sha256": "99686b170426a5f94be9ae701cab8ef5cdc801e0fe4d0560bea2421ec6eaf2cc"
+      },
+      "context": {
+        "authority": "owner-supplied task context; repository and task authorities remain external",
+        "mode": "advisor-ready",
+        "provenance": {
+          "owner": "softwareco/owned/agent-kernel",
+          "owner_type": "repository",
+          "produced_at": "2026-07-12T05:00:00Z",
+          "source": "AK task 3802 bounded projection"
+        },
+        "repository_id": "softwareco/owned/agent-kernel",
+        "schema": "engineering-work-context-v1",
+        "scope": {
+          "constraints": [
+            "AK task 3802 is runtime authority.",
+            "Use repo-local cargo and validation wrappers; do not mutate the active AK database from this advisory workflow.",
+            "Keep work inside the required task paths."
+          ],
+          "focus_paths": [
+            "docs/project/layer12/iw14b-21-token-preflight.v1.json",
+            "scripts/ci/check-iw14b-21-token-preflight.py"
+          ],
+          "validation": [
+            "Run the task-authored preflight check.",
+            "Use ./scripts/validate.sh --quiet-success fast when implementation code changes."
+          ]
+        },
+        "work": {
+          "id": "ak-task-3802",
+          "objective": "Produce deterministic owner-fact and feasibility preflight artifacts within the exact AK task scope.",
+          "title": "Build 21-token feasibility and owner-fact preflight"
+        }
+      },
+      "bounded_work_plan": {
+        "constraints": [
+          "AK task 3802 is runtime authority.",
+          "Use repo-local cargo and validation wrappers; do not mutate the active AK database from this advisory workflow.",
+          "Keep work inside the required task paths."
+        ],
+        "focus_paths": [
+          "docs/project/layer12/iw14b-21-token-preflight.v1.json",
+          "scripts/ci/check-iw14b-21-token-preflight.py"
+        ],
+        "next_authority": "repository owner or owning task runtime",
+        "objective": "Produce deterministic owner-fact and feasibility preflight artifacts within the exact AK task scope.",
+        "schema": "engineering-bounded-work-plan-v1",
+        "stop_conditions": [
+          "repository revision changes",
+          "focused scope changes",
+          "deterministic plan or request becomes unavailable",
+          "owner scope or authority is ambiguous"
+        ],
+        "validation": [
+          "Run the task-authored preflight check.",
+          "Use ./scripts/validate.sh --quiet-success fast when implementation code changes."
+        ]
+      },
+      "revision": "e5bae3473456807e4cc50a6235c03dfb592d9409",
+      "packet": {
+        "packet_sha256": "d61c599847b35b549fa41ba3929c9ec65d986fb0e9a7e00135ad06b9c42e51f0",
+        "raw_content_sha256": "30f0900d307b89d5b7fd51eb3b85dec7304e7beb7cb9b7833a1a4802b1e32c37",
+        "context_sha256": "1a81839d89791ed5084051dbd2532b9490e36a88063a62ca97db5803a7a5b301",
+        "scope_sha256": "66e2f1d34d2694ed6005a4c5cb812718d2ba57c122bad99433a6e5aebe0ad9df",
+        "catalog_sha256": "7e35e4dcb79f4cfbd4ed4719bb676e373acb4e1a532b59088526f55d12dc3cc2",
+        "plan_sha256": "20cba574b14a2bc827f3e6b63e045e59ffe80d215e475d73a041ddcfc8eea87c",
+        "request_sha256": "66b762a6c64ee73b0b46a92f0d4a0c8e546e0ce70b2595b303680871c7d1e474",
+        "evidence_manifest": [
+          {
+            "id": "e1",
+            "path": "docs/project/layer12/iw14b-21-token-preflight.v1.json",
+            "bytes": 25279,
+            "sha256": "820fa743e440667066faa659a5bd65b4fb262e4ca2300fdc8b94ff4ddf4e196a"
+          },
+          {
+            "id": "e2",
+            "path": "scripts/ci/check-iw14b-21-token-preflight.py",
+            "bytes": 20163,
+            "sha256": "7cfa74d13f4fc889879d8c12cf99faddaaabe5576ee281c3bba2f19e722483dd"
+          },
+          {
+            "id": "e3",
+            "path": "Cargo.toml",
+            "bytes": 1384,
+            "sha256": "f7a3f7661dfa2d922091defc261406f8897e2428a146f31b49b609766314d303"
+          },
+          {
+            "id": "e4",
+            "path": "docs/engineering.local.md",
+            "bytes": 4896,
+            "sha256": "d6c5dc780f0437ca3189a362ea87a141324e5b8ea085248b120d72c4a00e25f8"
+          },
+          {
+            "id": "e5",
+            "path": "policy/engineering-lane.json",
+            "bytes": 2930,
+            "sha256": "c05976624d464d445ec60fefdaf2c1b0487b3ee584ed2cd7a7b60a387bf45287"
+          }
+        ]
+      },
+      "advice": {
+        "raw_content_sha256": "77cba20675f076b1a0969bd1186b8c52880332cc0a3907d60d4159402c70112a",
+        "summary": "Two bounded recommendations for a deterministic owner-fact preflight; no implementation or runtime claim.",
+        "recommendations": [
+          {
+            "id": "ak-preflight-contract",
+            "recommendation": "Keep the 21-token feasibility preflight as a deterministic owner-fact contract: distinguish supplied facts, unavailable facts, feasibility conclusions, and fail-closed reasons before any publication route consumes it.",
+            "catalog_ids": [
+              "specification-and-dsls",
+              "validation"
+            ],
+            "confidence": 0.72,
+            "unknowns": [
+              "The current packet observes repository structure but not the eventual external owner responses."
+            ],
+            "falsification": [
+              "The checker accepts a missing owner fact or produces different output for identical bounded inputs."
+            ]
+          },
+          {
+            "id": "ak-preflight-tests",
+            "recommendation": "Make the checker fixture-driven and document which fields are authoritative AK inputs versus derived preflight projection fields.",
+            "catalog_ids": [
+              "testing",
+              "documentation"
+            ],
+            "confidence": 0.72,
+            "unknowns": [
+              "No checker implementation was executed by this advice workflow."
+            ],
+            "falsification": [
+              "A focused test cannot demonstrate rejection of malformed, duplicated, or incomplete token facts."
+            ]
+          }
+        ]
+      },
+      "bundle": {
+        "bundle_sha256": "5f1aa2e3919e1c7fb6c655f5f0038241fc28aa53eb4c18307ee51d74e6b45877",
+        "raw_content_sha256": "23c632d80654ef4eae0681ed4867a7af0a2c7f121b86319ff388e45b18e25302",
+        "summary": {
+          "advice_supplied": true,
+          "decision_counts": {
+            "abstained": 0,
+            "accepted": 0,
+            "deferred": 0,
+            "rejected": 0
+          },
+          "dispositions": 0,
+          "mode": "advisor-ready",
+          "owner_state_counts": {},
+          "receipts": 0,
+          "recommendations": 2
+        },
+        "records": [
+          {
+            "disposition": null,
+            "owner_receipts": [],
+            "posture": "awaiting-owner-review",
+            "recommendation": "Keep the 21-token feasibility preflight as a deterministic owner-fact contract: distinguish supplied facts, unavailable facts, feasibility conclusions, and fail-closed reasons before any publication route consumes it.",
+            "subject": {
+              "kind": "recommendation",
+              "recommendation_id": "ak-preflight-contract"
+            }
+          },
+          {
+            "disposition": null,
+            "owner_receipts": [],
+            "posture": "awaiting-owner-review",
+            "recommendation": "Make the checker fixture-driven and document which fields are authoritative AK inputs versus derived preflight projection fields.",
+            "subject": {
+              "kind": "recommendation",
+              "recommendation_id": "ak-preflight-tests"
+            }
+          }
+        ]
+      },
+      "verification": {
+        "authority": "read-only owner-use bundle verification; not execution, CI, release, AK, compliance, rollout, approval, or doctrine authority",
+        "binding_match": true,
+        "bundle_sha256": "5f1aa2e3919e1c7fb6c655f5f0038241fc28aa53eb4c18307ee51d74e6b45877",
+        "effects": {
+          "authority_promotions": [],
+          "consumer_commands_executed": false,
+          "external_models_invoked": false,
+          "mutations_performed": [],
+          "patches_applied": false
+        },
+        "findings": [],
+        "repository": {
+          "current_revision": "e5bae3473456807e4cc50a6235c03dfb592d9409",
+          "id": "softwareco/owned/agent-kernel",
+          "packet_revision": "e5bae3473456807e4cc50a6235c03dfb592d9409",
+          "path": "/home/tryinget/ai-society/softwareco/owned/agent-kernel"
+        },
+        "result": "matched",
+        "revision_relation": "current",
+        "schema": "engineering-work-verification-v1",
+        "scope_match": true
+      },
+      "summary_markdown_sha256": "e22c3c8a56c4ddaafeca9b232eb79cb7df9c24a7ace5a5b3713471abf82bcb5d"
+    },
+    {
+      "repository_id": "softwareco/owned/dspx",
+      "selection_rank": 1,
+      "ak_task_projection": {
+        "id": 3801,
+        "title": "Implement conversational quality-criterion proposal",
+        "status_at_capture": "done",
+        "scope": {
+          "allowed_paths": [
+            "packages/dspx-core/src/dspx/cli/dspx.py",
+            "packages/dspx-core/src/dspx/model_roles.py",
+            "packages/dspx-core/src/dspx/services/artifact_boundary.py",
+            "packages/dspx-core/src/dspx/services/program_quality_contract.py",
+            "packages/dspx-core/src/dspx/services/program_quality_conversation.py",
+            "tests/test_program_intent_normalization.py",
+            "tests/test_program_quality_conversation.py"
+          ],
+          "required_paths": [
+            "packages/dspx-core/src/dspx/services/program_quality_contract.py",
+            "packages/dspx-core/src/dspx/services/program_quality_conversation.py",
+            "tests/test_program_quality_conversation.py"
+          ],
+          "forbidden_paths": []
+        },
+        "canonical_sha256": "ef98e17d33c67e1b066696cc6f9211954bdb523ab90c59b65bfa4c0de166c800"
+      },
+      "context": {
+        "authority": "owner-supplied task context; repository and task authorities remain external",
+        "mode": "advisor-ready",
+        "provenance": {
+          "owner": "softwareco/owned/dspx",
+          "owner_type": "repository",
+          "produced_at": "2026-07-12T05:00:00Z",
+          "source": "AK task 3801 bounded projection"
+        },
+        "repository_id": "softwareco/owned/dspx",
+        "schema": "engineering-work-context-v1",
+        "scope": {
+          "constraints": [
+            "AK task 3801 is runtime authority.",
+            "Keep generated or conversational outputs local and non-authoritative.",
+            "Do not infer production activation from empirical evidence."
+          ],
+          "focus_paths": [
+            "packages/dspx-core/src/dspx/services/program_quality_conversation.py",
+            "tests/test_program_quality_conversation.py",
+            "packages/dspx-core/src/dspx/cli/dspx.py"
+          ],
+          "validation": [
+            "Run focused deterministic pytest coverage.",
+            "Run the owner-selected just check before landing."
+          ]
+        },
+        "work": {
+          "id": "ak-task-3801",
+          "objective": "Implement the bounded conversational quality-criterion service and tests while preserving local empirical-evidence authority boundaries.",
+          "title": "Implement conversational quality-criterion proposal"
+        }
+      },
+      "bounded_work_plan": {
+        "constraints": [
+          "AK task 3801 is runtime authority.",
+          "Keep generated or conversational outputs local and non-authoritative.",
+          "Do not infer production activation from empirical evidence."
+        ],
+        "focus_paths": [
+          "packages/dspx-core/src/dspx/services/program_quality_conversation.py",
+          "tests/test_program_quality_conversation.py",
+          "packages/dspx-core/src/dspx/cli/dspx.py"
+        ],
+        "next_authority": "repository owner or owning task runtime",
+        "objective": "Implement the bounded conversational quality-criterion service and tests while preserving local empirical-evidence authority boundaries.",
+        "schema": "engineering-bounded-work-plan-v1",
+        "stop_conditions": [
+          "repository revision changes",
+          "focused scope changes",
+          "deterministic plan or request becomes unavailable",
+          "owner scope or authority is ambiguous"
+        ],
+        "validation": [
+          "Run focused deterministic pytest coverage.",
+          "Run the owner-selected just check before landing."
+        ]
+      },
+      "revision": "d81faf81321f74e0c7f4e2a60ec841cb2deb2a24",
+      "packet": {
+        "packet_sha256": "7068e4a16f4310748c6f21c3c4456ae47cc7ea536acd41974b574b572c573246",
+        "raw_content_sha256": "4ec2c48cb89455f5d7ca5929258674ae7868a00d5fa3c98d641a6bd6713d0364",
+        "context_sha256": "9ff64f198fdf76506d9bddf93cf7682702a57da9a16a5cbe9e6b15c9d794fbfc",
+        "scope_sha256": "d3fed66e94459470390ec553018135042aba2308a04d13734307f194e3833828",
+        "catalog_sha256": "7e35e4dcb79f4cfbd4ed4719bb676e373acb4e1a532b59088526f55d12dc3cc2",
+        "plan_sha256": "69cce169e20e98587662d465d742f768d0dc514e481a902abdd8e0066ed426da",
+        "request_sha256": "224deafe40c8bc9c497ec1a1577d858a334c4f329c51e405dd4210a33dcd680e",
+        "evidence_manifest": [
+          {
+            "id": "e1",
+            "path": "packages/dspx-core/src/dspx/services/program_quality_conversation.py",
+            "bytes": 11738,
+            "sha256": "7989615cc0dd80c5cc5dfb3eb9b300ccce6553f37af8a0e6345356d4fc5e624a"
+          },
+          {
+            "id": "e2",
+            "path": "tests/test_program_quality_conversation.py",
+            "bytes": 19381,
+            "sha256": "20a2444656c142119bb170a8ecd859efcf58e6e860a799be46aa0784fabfe351"
+          },
+          {
+            "id": "e3",
+            "path": "packages/dspx-core/src/dspx/cli/dspx.py",
+            "bytes": 63449,
+            "sha256": "7d13748c4c18027812d8c59058708dd3aa740b31cb18f533ce01da735a84ac3e"
+          },
+          {
+            "id": "e4",
+            "path": "docs/engineering.local.md",
+            "bytes": 4160,
+            "sha256": "d5ee603e230cb9e7c4d830a842af68359c95a935b7e86c9222ddeff87083bdb5"
+          },
+          {
+            "id": "e5",
+            "path": "policy/engineering-lane.json",
+            "bytes": 2327,
+            "sha256": "96eed6f5f83b8fb2bd91bcbbf18e55ab0d53a1873b362c14eb65a062e6c9083f"
+          },
+          {
+            "id": "e6",
+            "path": "pyproject.toml",
+            "bytes": 1355,
+            "sha256": "8c9995885377d8c8bba73693c595acafd3bd67e6a5ed7bb3758a1dedb9786b97"
+          }
+        ]
+      },
+      "advice": {
+        "raw_content_sha256": "0d82a3d070a02dc7d8f001a109d1801cd9b796181401b4efb13a5f8fdd042ed7",
+        "summary": "Two bounded recommendations for the active conversational quality-criterion slice; owner review and execution evidence remain absent.",
+        "recommendations": [
+          {
+            "id": "dspx-conversation-contract",
+            "recommendation": "Represent conversational quality criteria as a deterministic proposal artifact with explicit question, answer, uncertainty, and non-authority fields before connecting it to any provider-backed interaction.",
+            "catalog_ids": [
+              "ai-ml",
+              "specification-and-dsls"
+            ],
+            "confidence": 0.72,
+            "unknowns": [
+              "The packet captures current dirty scoped files but no executed behavioral example."
+            ],
+            "falsification": [
+              "Identical owner inputs produce structurally different proposal artifacts or hidden provider state changes the result."
+            ]
+          },
+          {
+            "id": "dspx-offline-proof",
+            "recommendation": "Keep the first proof offline and fixture-driven: cover incomplete answers, clarification, duplicate criteria, and the boundary between a proposal and accepted evaluation policy.",
+            "catalog_ids": [
+              "testing",
+              "validation"
+            ],
+            "confidence": 0.72,
+            "unknowns": [
+              "Current uncommitted implementation may change while owner review proceeds."
+            ],
+            "falsification": [
+              "Focused tests require a live model or treat a proposal as promoted evaluation truth."
+            ]
+          }
+        ]
+      },
+      "bundle": {
+        "bundle_sha256": "902d600c01d2b12d0d415b0cdb6de9d04ef5bf943ea06a23f1fcb8d837f2b559",
+        "raw_content_sha256": "a0d62f3a0577a676ce6ac765f1075dd7927a2f9c063007be135be0d690dbc365",
+        "summary": {
+          "advice_supplied": true,
+          "decision_counts": {
+            "abstained": 0,
+            "accepted": 0,
+            "deferred": 0,
+            "rejected": 0
+          },
+          "dispositions": 0,
+          "mode": "advisor-ready",
+          "owner_state_counts": {},
+          "receipts": 0,
+          "recommendations": 2
+        },
+        "records": [
+          {
+            "disposition": null,
+            "owner_receipts": [],
+            "posture": "awaiting-owner-review",
+            "recommendation": "Represent conversational quality criteria as a deterministic proposal artifact with explicit question, answer, uncertainty, and non-authority fields before connecting it to any provider-backed interaction.",
+            "subject": {
+              "kind": "recommendation",
+              "recommendation_id": "dspx-conversation-contract"
+            }
+          },
+          {
+            "disposition": null,
+            "owner_receipts": [],
+            "posture": "awaiting-owner-review",
+            "recommendation": "Keep the first proof offline and fixture-driven: cover incomplete answers, clarification, duplicate criteria, and the boundary between a proposal and accepted evaluation policy.",
+            "subject": {
+              "kind": "recommendation",
+              "recommendation_id": "dspx-offline-proof"
+            }
+          }
+        ]
+      },
+      "verification": {
+        "authority": "read-only owner-use bundle verification; not execution, CI, release, AK, compliance, rollout, approval, or doctrine authority",
+        "binding_match": true,
+        "bundle_sha256": "902d600c01d2b12d0d415b0cdb6de9d04ef5bf943ea06a23f1fcb8d837f2b559",
+        "effects": {
+          "authority_promotions": [],
+          "consumer_commands_executed": false,
+          "external_models_invoked": false,
+          "mutations_performed": [],
+          "patches_applied": false
+        },
+        "findings": [],
+        "repository": {
+          "current_revision": "d81faf81321f74e0c7f4e2a60ec841cb2deb2a24",
+          "id": "softwareco/owned/dspx",
+          "packet_revision": "d81faf81321f74e0c7f4e2a60ec841cb2deb2a24",
+          "path": "/home/tryinget/ai-society/softwareco/owned/dspx"
+        },
+        "result": "matched",
+        "revision_relation": "current",
+        "schema": "engineering-work-verification-v1",
+        "scope_match": true
+      },
+      "summary_markdown_sha256": "99ff1acfd7002c0fe4b816ad1500f84482502b815cdd2caf5802c57f7e34c8b7"
+    },
+    {
+      "repository_id": "softwareco/owned/pi-extensions",
+      "selection_rank": 3,
+      "ak_task_projection": {
+        "id": 3427,
+        "title": "Adopt package loop validation for remaining pi-extensions packages",
+        "status_at_capture": "pending",
+        "scope": {
+          "allowed_paths": [
+            "packages/pi-agent-vent/docs/engineering.local.md",
+            "packages/pi-agent-vent/package.json",
+            "packages/pi-agent-vent/policy/engineering-lane.json",
+            "packages/pi-autoresearch/docs/engineering.local.md",
+            "packages/pi-autoresearch/package.json",
+            "packages/pi-autoresearch/policy/engineering-lane.json",
+            "packages/pi-better-openai/docs/engineering.local.md",
+            "packages/pi-better-openai/package.json",
+            "packages/pi-better-openai/policy/engineering-lane.json",
+            "packages/pi-context-overlay/docs/engineering.local.md",
+            "packages/pi-context-overlay/package.json",
+            "packages/pi-context-overlay/policy/engineering-lane.json",
+            "packages/pi-context-packer/docs/engineering.local.md",
+            "packages/pi-context-packer/package.json",
+            "packages/pi-context-packer/policy/engineering-lane.json",
+            "packages/pi-designmd-foundry/docs/engineering.local.md",
+            "packages/pi-designmd-foundry/package.json",
+            "packages/pi-designmd-foundry/policy/engineering-lane.json",
+            "packages/pi-evalset-lab/docs/engineering.local.md",
+            "packages/pi-evalset-lab/package.json",
+            "packages/pi-evalset-lab/policy/engineering-lane.json",
+            "packages/pi-interaction/docs/engineering.local.md",
+            "packages/pi-interaction/package.json",
+            "packages/pi-interaction/policy/engineering-lane.json",
+            "packages/pi-model-selection/docs/engineering.local.md",
+            "packages/pi-model-selection/package.json",
+            "packages/pi-model-selection/policy/engineering-lane.json",
+            "packages/pi-ontology-workflows/docs/engineering.local.md",
+            "packages/pi-ontology-workflows/package.json",
+            "packages/pi-ontology-workflows/policy/engineering-lane.json",
+            "packages/pi-prompt-template-execution/docs/engineering.local.md",
+            "packages/pi-prompt-template-execution/package.json",
+            "packages/pi-prompt-template-execution/policy/engineering-lane.json",
+            "packages/pi-provenance/docs/engineering.local.md",
+            "packages/pi-provenance/package.json",
+            "packages/pi-provenance/policy/engineering-lane.json",
+            "packages/pi-session-compaction/docs/engineering.local.md",
+            "packages/pi-session-compaction/package.json",
+            "packages/pi-session-compaction/policy/engineering-lane.json",
+            "packages/pi-society-orchestrator/docs/engineering.local.md",
+            "packages/pi-society-orchestrator/package.json",
+            "packages/pi-society-orchestrator/policy/engineering-lane.json",
+            "packages/pi-society-startup-context/docs/engineering.local.md",
+            "packages/pi-society-startup-context/package.json",
+            "packages/pi-society-startup-context/policy/engineering-lane.json",
+            "packages/pi-toolbox-discovery/docs/engineering.local.md",
+            "packages/pi-toolbox-discovery/package.json",
+            "packages/pi-toolbox-discovery/policy/engineering-lane.json",
+            "packages/pi-vault-client/docs/engineering.local.md",
+            "packages/pi-vault-client/package.json",
+            "packages/pi-vault-client/policy/engineering-lane.json",
+            "packages/pi-workstation-inference-provider/docs/engineering.local.md",
+            "packages/pi-workstation-inference-provider/package.json",
+            "packages/pi-workstation-inference-provider/policy/engineering-lane.json"
+          ],
+          "required_paths": [
+            "packages/pi-agent-vent/docs/engineering.local.md",
+            "packages/pi-agent-vent/package.json",
+            "packages/pi-agent-vent/policy/engineering-lane.json",
+            "packages/pi-autoresearch/docs/engineering.local.md",
+            "packages/pi-autoresearch/package.json",
+            "packages/pi-autoresearch/policy/engineering-lane.json",
+            "packages/pi-better-openai/docs/engineering.local.md",
+            "packages/pi-better-openai/package.json",
+            "packages/pi-better-openai/policy/engineering-lane.json",
+            "packages/pi-context-overlay/docs/engineering.local.md",
+            "packages/pi-context-overlay/package.json",
+            "packages/pi-context-overlay/policy/engineering-lane.json",
+            "packages/pi-context-packer/docs/engineering.local.md",
+            "packages/pi-context-packer/package.json",
+            "packages/pi-context-packer/policy/engineering-lane.json",
+            "packages/pi-designmd-foundry/docs/engineering.local.md",
+            "packages/pi-designmd-foundry/package.json",
+            "packages/pi-designmd-foundry/policy/engineering-lane.json",
+            "packages/pi-evalset-lab/docs/engineering.local.md",
+            "packages/pi-evalset-lab/package.json",
+            "packages/pi-evalset-lab/policy/engineering-lane.json",
+            "packages/pi-interaction/docs/engineering.local.md",
+            "packages/pi-interaction/package.json",
+            "packages/pi-interaction/policy/engineering-lane.json",
+            "packages/pi-model-selection/docs/engineering.local.md",
+            "packages/pi-model-selection/package.json",
+            "packages/pi-model-selection/policy/engineering-lane.json",
+            "packages/pi-ontology-workflows/docs/engineering.local.md",
+            "packages/pi-ontology-workflows/package.json",
+            "packages/pi-ontology-workflows/policy/engineering-lane.json",
+            "packages/pi-prompt-template-execution/docs/engineering.local.md",
+            "packages/pi-prompt-template-execution/package.json",
+            "packages/pi-prompt-template-execution/policy/engineering-lane.json",
+            "packages/pi-provenance/docs/engineering.local.md",
+            "packages/pi-provenance/package.json",
+            "packages/pi-provenance/policy/engineering-lane.json",
+            "packages/pi-session-compaction/docs/engineering.local.md",
+            "packages/pi-session-compaction/package.json",
+            "packages/pi-session-compaction/policy/engineering-lane.json",
+            "packages/pi-society-orchestrator/docs/engineering.local.md",
+            "packages/pi-society-orchestrator/package.json",
+            "packages/pi-society-orchestrator/policy/engineering-lane.json",
+            "packages/pi-society-startup-context/docs/engineering.local.md",
+            "packages/pi-society-startup-context/package.json",
+            "packages/pi-society-startup-context/policy/engineering-lane.json",
+            "packages/pi-toolbox-discovery/docs/engineering.local.md",
+            "packages/pi-toolbox-discovery/package.json",
+            "packages/pi-toolbox-discovery/policy/engineering-lane.json",
+            "packages/pi-vault-client/docs/engineering.local.md",
+            "packages/pi-vault-client/package.json",
+            "packages/pi-vault-client/policy/engineering-lane.json",
+            "packages/pi-workstation-inference-provider/docs/engineering.local.md",
+            "packages/pi-workstation-inference-provider/package.json",
+            "packages/pi-workstation-inference-provider/policy/engineering-lane.json"
+          ],
+          "forbidden_paths": []
+        },
+        "canonical_sha256": "8cedbe33a1c4cbafcaaf73e4cdac6669dd1ceeb2675218b7a713b67b57f8e644"
+      },
+      "context": {
+        "authority": "owner-supplied task context; repository and task authorities remain external",
+        "mode": "plan-only",
+        "provenance": {
+          "owner": "softwareco/owned/pi-extensions",
+          "owner_type": "repository",
+          "produced_at": "2026-07-12T05:00:00Z",
+          "source": "AK task 3427 bounded projection"
+        },
+        "repository_id": "softwareco/owned/pi-extensions",
+        "schema": "engineering-work-context-v1",
+        "scope": {
+          "constraints": [
+            "AK task 3427 is runtime authority and remains pending.",
+            "Treat the monorepo root as one repository and packages as members.",
+            "Do not advise edits until task scope and unrelated dirty work are reconciled.",
+            "Live extension changes require separate install reload and runtime proof by the owner."
+          ],
+          "focus_paths": [
+            "packages/pi-agent-vent/docs/engineering.local.md",
+            "packages/pi-agent-vent/package.json",
+            "packages/pi-agent-vent/policy/engineering-lane.json",
+            "packages/pi-autoresearch/docs/engineering.local.md",
+            "packages/pi-autoresearch/package.json",
+            "packages/pi-autoresearch/policy/engineering-lane.json"
+          ],
+          "validation": [
+            "Plan package-local validation only.",
+            "Do not execute package or root commands during preparation."
+          ]
+        },
+        "work": {
+          "id": "ak-task-3427",
+          "objective": "Partition and plan the remaining package-local loop-validation adoption without absorbing unrelated dirty root or package work.",
+          "title": "Adopt package loop validation for remaining pi-extensions packages"
+        }
+      },
+      "bounded_work_plan": {
+        "constraints": [
+          "AK task 3427 is runtime authority and remains pending.",
+          "Treat the monorepo root as one repository and packages as members.",
+          "Do not advise edits until task scope and unrelated dirty work are reconciled.",
+          "Live extension changes require separate install reload and runtime proof by the owner."
+        ],
+        "focus_paths": [
+          "packages/pi-agent-vent/docs/engineering.local.md",
+          "packages/pi-agent-vent/package.json",
+          "packages/pi-agent-vent/policy/engineering-lane.json",
+          "packages/pi-autoresearch/docs/engineering.local.md",
+          "packages/pi-autoresearch/package.json",
+          "packages/pi-autoresearch/policy/engineering-lane.json"
+        ],
+        "next_authority": "repository owner or owning task runtime",
+        "objective": "Partition and plan the remaining package-local loop-validation adoption without absorbing unrelated dirty root or package work.",
+        "schema": "engineering-bounded-work-plan-v1",
+        "stop_conditions": [
+          "repository revision changes",
+          "focused scope changes",
+          "deterministic plan or request becomes unavailable",
+          "owner scope or authority is ambiguous"
+        ],
+        "validation": [
+          "Plan package-local validation only.",
+          "Do not execute package or root commands during preparation."
+        ]
+      },
+      "revision": "6fa52f7306e46a5bcc6687fb17c20f0c0c920ebc",
+      "packet": {
+        "packet_sha256": "1c1d30e81059fa11c8cf671791496580fa06f0bb136339f03a7155c794553a5a",
+        "raw_content_sha256": "14eb02b2499b27884b8c93bf2733c4c6a3540a5fc6b34cec152c6c77ac1183e5",
+        "context_sha256": "0d0a92198a2e510162db7c47390fc8ce76183d5b5696bd48dca3a440c1121438",
+        "scope_sha256": "c27652a4eb71a7ae049c704d84b948e2794713d99e59b3c35e3825a5c12c133e",
+        "catalog_sha256": "7e35e4dcb79f4cfbd4ed4719bb676e373acb4e1a532b59088526f55d12dc3cc2",
+        "plan_sha256": "e4eb3a3c8652e7bc86bec9e2ca740431655538a5ff81ee12ccd379c511e03b7d",
+        "request_sha256": null,
+        "evidence_manifest": []
+      },
+      "advice": null,
+      "bundle": {
+        "bundle_sha256": "b9374fe847685dbe8aeffb585eac0a49c041a9ce9e892e2cb3565f5a1825cec2",
+        "raw_content_sha256": "c0648364b0a673e48bd02117d2fcf022723f9999d4073a63399f70f15dc30287",
+        "summary": {
+          "advice_supplied": false,
+          "decision_counts": {
+            "abstained": 0,
+            "accepted": 0,
+            "deferred": 0,
+            "rejected": 0
+          },
+          "dispositions": 0,
+          "mode": "plan-only",
+          "owner_state_counts": {},
+          "receipts": 0,
+          "recommendations": 0
+        },
+        "records": [
+          {
+            "disposition": null,
+            "owner_receipts": [],
+            "posture": "prepared",
+            "recommendation": null,
+            "subject": {
+              "kind": "plan",
+              "recommendation_id": null
+            }
+          }
+        ]
+      },
+      "verification": {
+        "authority": "read-only owner-use bundle verification; not execution, CI, release, AK, compliance, rollout, approval, or doctrine authority",
+        "binding_match": true,
+        "bundle_sha256": "b9374fe847685dbe8aeffb585eac0a49c041a9ce9e892e2cb3565f5a1825cec2",
+        "effects": {
+          "authority_promotions": [],
+          "consumer_commands_executed": false,
+          "external_models_invoked": false,
+          "mutations_performed": [],
+          "patches_applied": false
+        },
+        "findings": [],
+        "repository": {
+          "current_revision": "6fa52f7306e46a5bcc6687fb17c20f0c0c920ebc",
+          "id": "softwareco/owned/pi-extensions",
+          "packet_revision": "6fa52f7306e46a5bcc6687fb17c20f0c0c920ebc",
+          "path": "/home/tryinget/ai-society/softwareco/owned/pi-extensions"
+        },
+        "result": "matched",
+        "revision_relation": "current",
+        "schema": "engineering-work-verification-v1",
+        "scope_match": true
+      },
+      "summary_markdown_sha256": "c37ade60fc8fee7ff571115e6a5735a190ae981284a18c4965f3b5cfc8619c57"
+    }
+  ],
+  "manifest_sha256": "a689bd9093bd31745c7a6bb1c70a5d605297fd3530c412ee0528af759f9e49ba"
+}
