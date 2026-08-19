@@ -20,6 +20,14 @@ Engineering-core ingests owner-produced JSON; it does not execute discovered com
 
 Inputs are capped at 256 KiB each, arrays are bounded, schemas reject extra fields, SHA-256 bindings are mandatory, and obvious secret-bearing input (including JSON key/value syntax) fails closed. These records are evidence and review aids, not authority promotion mechanisms.
 
+## Persistence and shared semantics
+
+The JSON artifacts remain portable and may be stored by any owner-controlled system. In the AI Society environment, agent-kernel is the appropriate canonical runtime store for evidence rows, governance receipts, artifact references, decisions, and lineage. Engineering-core remains the schema producer and validator; persistence in AK does not convert a claim into independent verification or owner approval.
+
+Receipt state and disposition values remain versioned engineering-core protocol terms. They should not be given a broader global meaning merely because another system uses similar words. When a concept is genuinely shared across systems, ontology-kernel owns the canonical definition and rocs-cli validates and resolves the corresponding ontology material. ROCS source conformance does not upgrade evidence state or prove semantic correctness, adoption, activation, or currentness.
+
+See `docs/evidence-semantics-boundaries.md` for the complete responsibility and reference contract.
+
 ## Relationship to capability observation
 
 `engineering-core-capabilities-v1` may declare the closed-loop receipt and disposition schema identifiers, but doctor/capability scanning remains receipt-free and reports that capability as `not-observed/not-supplied`. It does not discover or ingest receipts.
