@@ -15,6 +15,7 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,11 +36,18 @@ jobs:
             --tag "$GITHUB_REF_NAME" \
             --main-ref origin/main
           uv run python scripts/release-local.py verify
+      - name: Create artifact checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum ./*.whl ./*.tar.gz > SHA256SUMS
       - name: Create release when absent
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             echo "$GITHUB_REF_NAME is already released."
             exit 0
@@ -48,7 +56,7 @@ jobs:
           notes=$(find docs/releases -maxdepth 1 -name "*-v${version}-local-release.md" -print -quit)
           test -n "$notes"
           gh release create "$GITHUB_REF_NAME" \
-            dist/*.whl dist/*.tar.gz \
+            dist/*.whl dist/*.tar.gz dist/SHA256SUMS \
             --title "engineering-core $GITHUB_REF_NAME" \
             --notes-file "$notes" \
             --verify-tag
