@@ -10,6 +10,8 @@ type: "reference"
 
 Disciplines are cross-language engineering contracts. They should remain portable, versioned, and small enough that agents can choose the relevant subset without loading everything.
 
+All substantial discipline proposals also follow `docs/content-lifecycle.md`, including evidence references, counterevidence, falsification conditions, review triggers, and retirement signals. This document adds discipline-specific placement and packaging rules.
+
 ## Add a discipline when
 
 Add a new discipline only when all of these are true:
@@ -19,6 +21,7 @@ Add a new discipline only when all of these are true:
 3. Keeping the concern inside one lane would create duplicated guidance in other lanes.
 4. Repo-local overrides alone would hide a shared risk or quality bar.
 5. The discipline can name clear load triggers and evidence expectations.
+6. A proposal or pilot record identifies the strongest alternative, known exceptions, falsification conditions, review trigger, and retirement signal.
 
 Good discipline candidates:
 
@@ -38,14 +41,16 @@ Split an existing discipline when at least one condition is true:
 - Agents routinely need only one section and loading the whole doc creates noise.
 - One part changes frequently while the other should remain stable.
 - The doc starts duplicating lane recipes to stay understandable.
+- Evidence repeatedly supports one part while falsifying or narrowing another.
 
 After a split:
 
 - update `src/engineering_core/disciplines/README.md`;
 - update the CLI discipline list in `src/engineering_core/cli.py`;
-- update `catalog.json`;
+- update `catalog.json` and its package projection;
 - update adoption examples in `README.md` or `docs/adoption.md` when affected;
-- add or update CLI tests when the public list changes.
+- add or update CLI tests when the public list changes;
+- preserve the evidence and migration lineage from the original discipline.
 
 ## Merge or retire a discipline when
 
@@ -54,9 +59,11 @@ Merge or retire a discipline when it is no longer independently useful:
 - its load triggers are indistinguishable from another discipline;
 - it only repeats lane guidance;
 - it has no current consumers and no clear future consumer;
-- it encodes old migration history instead of current guidance.
+- it encodes old migration history instead of current guidance;
+- repeated exceptions or counterevidence show that its scope is wrong;
+- a replacement expresses the invariant more clearly or with lower adoption cost.
 
-Retirement is a breaking guidance change. Document the migration path in release notes when consumers may reference the old discipline id.
+Retirement is a breaking guidance change when consumers reference the discipline ID. Document the replacement or migration path in release notes, and preserve historical evidence rather than rewriting it as current.
 
 ## Move lane guidance into a discipline when
 
@@ -75,6 +82,7 @@ When moving guidance:
 2. Keep ecosystem-specific command/tool mapping in the lane.
 3. Link or name the discipline from the lane only when it is a normal companion for that lane.
 4. Avoid requiring every repo to load the discipline by default.
+5. Carry forward evidence references, counterexamples, and review/retirement conditions.
 
 ## Keep guidance in a lane when
 
@@ -101,6 +109,14 @@ Keep guidance in `docs/engineering.local.md` when it depends on a repo's local t
 
 Repo-local guidance can select disciplines and explain deviations. It should not redefine shared doctrine for other repos.
 
+## Evidence and semantic references
+
+When live evidence is stored in agent-kernel, reference the stable evidence/receipt/artifact ID and digest instead of copying private payloads into shared guidance. Public contributors may use equivalent digest-bound artifacts; AK is not a required dependency.
+
+Keep discipline-specific states and reason codes in engineering-core. Reference ontology-kernel IDs only when the term already has an accepted cross-system meaning. Use rocs-cli to resolve or validate that ontology material, without treating source conformance as semantic approval.
+
+See `docs/evidence-semantics-boundaries.md`.
+
 ## Review checklist for discipline changes
 
 Before committing a discipline lifecycle change, check:
@@ -110,23 +126,28 @@ Before committing a discipline lifecycle change, check:
 - Are load triggers clear enough for agents to avoid over-loading docs?
 - Are lane-specific commands kept in lanes rather than disciplines?
 - Are repo-specific exceptions kept in repo-local docs?
-- If the discipline id/list changed, were CLI constants, `catalog.json`, README, and tests updated?
-- Did docs strict pass?
+- Are evidence, counterevidence, falsification, review, and retirement conditions explicit?
+- Do external evidence references include stable IDs, digests, scope, and authority ceilings?
+- Are ontology references accepted IDs rather than invented global meanings?
+- If the discipline ID/list changed, were CLI constants, catalogs, README/adoption docs, history, version surfaces, and tests updated?
+- Did the repository and harness-selected documentation checks pass?
 
 ## Validation
 
-Minimum validation for discipline-only documentation changes:
+Minimum repository validation for discipline-only documentation changes:
 
 ```bash
-node /home/tryinget/ai-society/core/agent-scripts/scripts/docs-list.mjs --docs . --strict
-python scripts/check-justfile-addenda.py
+uv run python -m engineering_core.self_check --repo-root .
+uv run python scripts/check-justfile-addenda.py
 ```
 
-If the public CLI list or packaged files change, also run:
+Run any additional documentation task selected by the local Pi/hierarchical `AGENTS.md` harness through that harness. Do not hardcode one workstation's absolute validation-script path into this shared document.
+
+If the public CLI list, catalog, package version, or packaged files change, also run:
 
 ```bash
-python -m py_compile src/engineering_core/cli.py
-PYTHONPATH=src python -m unittest discover -s tests -v
+uv run python -m unittest discover -s tests -v
 uv run engineering-core list-disciplines
+uv run python scripts/check-release-lineage.py --mode ci
 uv build
 ```
