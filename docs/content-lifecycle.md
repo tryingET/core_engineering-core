@@ -22,7 +22,7 @@ These stages are governance language, not new machine states in the catalog sche
 4. **Deprecated** — retained for compatibility while a replacement or migration path is active.
 5. **Retired** — no longer selected or recommended; historical references remain interpretable when practical.
 
-No CI run, agent recommendation, ontology definition, evidence-store record, or generated proposal promotes a stage automatically. Promotion and retirement remain owner decisions.
+No CI run, agent recommendation, ontology definition, evidence-store record, telemetry threshold, KES artifact, or generated proposal promotes a stage automatically. Promotion and retirement remain owner decisions.
 
 ## Minimum decision record
 
@@ -58,6 +58,35 @@ In the AI Society environment, agent-kernel may persist live evidence rows, gove
 A useful external evidence reference includes the producer/schema, stable evidence or receipt ID, subject and revision, digest, capture time, scope, and authority ceiling. Public contributors without agent-kernel may provide equivalent digest-bound local artifacts. AK integration is optional; evidence quality and authority rules are not.
 
 See `docs/evidence-semantics-boundaries.md` for the storage and authority split.
+
+## AI Society observation and crystallization mapping
+
+Operational telemetry may supply review triggers and falsification signals, but telemetry is an observational projection rather than promotion authority. A bounded, provenance-bearing telemetry review snapshot may be persisted as agent-kernel evidence and may be crystallized through the applicable owner-local KES surface into a candidate. A KES learning candidate maps to **Proposal**, never directly to Pilot or Stable.
+
+The intended separation is:
+
+```text
+pi-telemetry observation
+  -> digest-bound review snapshot
+    -> optional agent-kernel evidence persistence
+      -> owner-local KES diary or learning candidate
+        -> owner decision under this lifecycle
+```
+
+Each transition is explicit. None authorizes the next automatically:
+
+```text
+telemetry threshold crossed
+  != evidence independently verified
+  != KES candidate accepted
+  != shared content promoted
+```
+
+Use telemetry only for claims whose predicted effect is meaningfully observable. Predeclare the metric, baseline and review windows, minimum sample size, accepted missingness, live/backfill treatment, relevant versions or configuration, expected direction, threshold, and falsification condition. Keep coverage limitations visible. Disabled, expired, partially backfilled, or unavailable telemetry must not be interpreted as zero failures.
+
+Aggregate telemetry is normally insufficient on its own for causality, security guarantees, privacy compliance, accessibility, architectural correctness, maintainability, user value, or absence of rare catastrophic failures. Pair it with owner-selected execution evidence, representative bounded session evidence, incidents, tests, or qualitative review as the claim requires.
+
+KES remains federated by owner. Capture and candidate staging belong to the repository or package that owns the work. Do not route every Pi observation into one global KES writer, replicate private payloads into shared doctrine, or let a collector mutate agent-kernel, KES, ontology, or engineering-core content directly. Cross-owner promotion requires reviewed synthesis at the broader owner surface.
 
 ## Promotion gates
 
@@ -127,6 +156,8 @@ Before accepting a substantial shared-content change, verify:
 - evidence and counterevidence are distinguishable and attributable;
 - private payloads are referenced rather than copied;
 - falsification and review conditions are observable;
+- telemetry coverage, provenance, sample sufficiency, and nonclaims remain visible when used;
+- KES materialization remains candidate-only and owner-local;
 - pilot scope or stable promotion criteria are explicit;
 - compatibility and rollback effects are understood;
 - retirement can occur without erasing historical evidence;
