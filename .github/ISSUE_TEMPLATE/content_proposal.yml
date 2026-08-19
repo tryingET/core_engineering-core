@@ -1,7 +1,6 @@
 name: Engineering-content proposal
 description: Propose a lane, discipline, addendum, template, catalog, or doctrine change.
 title: "content: "
-labels: [content]
 body:
   - type: dropdown
     id: surface
@@ -28,7 +27,7 @@ body:
     id: evidence
     attributes:
       label: Evidence and examples
-      description: Provide multiple non-sensitive examples, measurements, incidents, or consumer needs. Distinguish observation from inference.
+      description: Provide non-sensitive examples, measurements, incidents, or consumer needs. Distinguish observation from inference.
     validations:
       required: true
   - type: textarea
