@@ -86,10 +86,46 @@ jobs:
           .venv-smoke/bin/engineering-core list-templates >/dev/null
           .venv-smoke/bin/engineering-core check-self --repo-root . >/dev/null
 
+  arch-linux-smoke:
+    name: Arch Linux smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: archlinux:base-devel
+    steps:
+      - name: Install Arch runtime packages
+        run: pacman -Syu --noconfirm --needed git python python-pip
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+      - name: Report rolling platform versions
+        run: |
+          cat /etc/os-release
+          python --version
+      - name: Install uv in an isolated bootstrap environment
+        run: |
+          python -m venv /opt/uv-bootstrap
+          /opt/uv-bootstrap/bin/python -m pip install --disable-pip-version-check uv
+      - name: Install project from lockfile
+        run: /opt/uv-bootstrap/bin/uv sync --locked
+      - name: Run Arch compatibility checks
+        run: |
+          /opt/uv-bootstrap/bin/uv run python -m unittest discover -s tests -v
+          /opt/uv-bootstrap/bin/uv run python -m engineering_core.self_check --repo-root .
+          /opt/uv-bootstrap/bin/uv build
+      - name: Install and exercise built wheel
+        run: |
+          python -m venv /tmp/engineering-core-wheel
+          /tmp/engineering-core-wheel/bin/python -m pip install --disable-pip-version-check dist/*.whl
+          /tmp/engineering-core-wheel/bin/engineering-core list >/dev/null
+          /tmp/engineering-core-wheel/bin/engineering-core list-disciplines >/dev/null
+          /tmp/engineering-core-wheel/bin/engineering-core check-self --repo-root . >/dev/null
+
   required:
     name: required
     if: always()
-    needs: [validate, release-proof, package-smoke]
+    needs: [validate, release-proof, package-smoke, arch-linux-smoke]
     runs-on: ubuntu-latest
     steps:
       - name: Require every CI lane
@@ -98,3 +134,4 @@ jobs:
           test "${{ needs.validate.result }}" = success
           test "${{ needs.release-proof.result }}" = success
           test "${{ needs.package-smoke.result }}" = success
+          test "${{ needs.arch-linux-smoke.result }}" = success
