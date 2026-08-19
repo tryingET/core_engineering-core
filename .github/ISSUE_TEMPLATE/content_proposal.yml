@@ -34,7 +34,12 @@ body:
     id: evidence_refs
     attributes:
       label: Evidence references
-      description: Optional agent-kernel evidence/receipt/artifact IDs or equivalent digest-bound artifact references. Include producer/schema, subject/revision, digest, scope, and authority ceiling where available; do not paste private payloads.
+      description: Optional agent-kernel evidence/receipt/artifact IDs or equivalent digest-bound artifact references. Include producer/schema, stable subject, immutable revision, optional configuration reference, digest, scope, capture time, and authority ceiling where available; do not paste private payloads.
+  - type: textarea
+    id: telemetry_review
+    attributes:
+      label: Telemetry review policy
+      description: When telemetry is used, identify the pi.telemetry-review-snapshot.v1 digest, subject/revision, metric and sample domain, baseline/review windows, minimum sample size, coverage policy, minimum live count, threshold/comparison, and coverage limitations. Leave blank when telemetry is not relevant.
   - type: textarea
     id: invariant
     attributes:
@@ -72,6 +77,6 @@ body:
     id: adoption
     attributes:
       label: Pilot, adoption, compatibility, and rollback
-      description: Explain bounded pilot scope or stable-promotion evidence, migration, catalog/schema impact, consumer cost, and rollback.
+      description: Explain bounded pilot scope or stable-promotion evidence, migration, catalog/schema impact, consumer cost, and rollback. A KES candidate starts at Proposal and does not authorize this transition.
     validations:
       required: true
