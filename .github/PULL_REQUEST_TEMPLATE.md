@@ -1,29 +1,19 @@
-## Problem and users
+## Why and change
 
-<!-- What concrete problem does this solve, and who experiences it? -->
+<!-- What problem does this solve, who is affected, and what is the smallest coherent change? -->
 
-## Change
-
-<!-- Summarize the smallest coherent change. -->
-
-## Authority and content impact
+## Authority and compatibility
 
 <!-- Why does this belong in a lane, discipline, addendum, template, catalog, CLI/schema, or repo-local surface? -->
 
-- Affected IDs/schemas/commands:
-- Normative behavior changed: yes / no
-- Generated projections changed: yes / no
+- Affected IDs, schemas, commands, or generated projections:
+- Normative or breaking behavior changed: yes / no
+- Version or release-note change required: yes / no
+- Migration and rollback:
 
-## Alternatives, counterevidence, and second-order effects
+## Alternatives and second-order effects
 
-<!-- What credible alternative was rejected? What could this make harder, more expensive, or easier to misuse later? -->
-
-## Compatibility, migration, and rollback
-
-- Breaking change: yes / no
-- Version/release-note change required: yes / no
-- Migration or deprecation path:
-- Rollback plan:
+<!-- What credible alternative was rejected? What could become harder, costlier, or easier to misuse? -->
 
 ## Validation evidence
 
@@ -33,11 +23,16 @@
 command -> result
 ```
 
-## Safety and authority checks
+## AI-assisted verification
 
-- [ ] No secrets, private repository content, or host-local paths were committed.
+- Assistance used:
+- Important files or decisions personally inspected:
+- Remaining uncertainty:
+
+## Checks
+
+- [ ] The final diff is small enough to inspect and revert.
+- [ ] Validation claims above correspond to commands that actually ran.
+- [ ] No sensitive data or unnecessary host-local paths were committed.
 - [ ] Generated evidence does not overstate CI, release, compliance, or doctrine authority.
-- [ ] Untrusted paths, files, JSON, subprocesses, and workflow permissions were reviewed when affected.
-- [ ] Catalog/package/root projections are synchronized when affected.
-- [ ] User-facing behavior and migration notes are documented when affected.
-- [ ] The PR is narrowly scoped and independently reviewable.
+- [ ] Catalog, package, and root projections are synchronized when affected.
