@@ -1,5 +1,5 @@
 ---
-summary: "Supported platforms, compatibility surfaces, release channels, and support boundaries for engineering-core."
+summary: "Linux-first platform support, compatibility surfaces, release channels, and support boundaries for engineering-core."
 read_when:
   - "Deciding whether an environment, version, command, schema, or integration is supported."
 type: "reference"
@@ -11,11 +11,22 @@ type: "reference"
 
 `engineering-core` is a pre-1.0, source- and GitHub-Release-distributed CLI plus versioned engineering content. It is suitable for controlled adoption where consumers pin a tag or commit and review upgrades. It is not currently published to a Python package registry and does not provide a hosted service.
 
-## Validated environment
+## Linux-first platform posture
 
-The required CI matrix validates Python 3.10, 3.11, 3.12, and 3.13 on Ubuntu. Linux is therefore the production-validated platform today. macOS and Windows behavior is best-effort until those operating systems are represented in required CI; consumers on those platforms should pin a version and run their own acceptance checks.
+Linux is the supported operating-system family. The repository uses two required CI signals with different purposes:
 
-`uv` and Git are required for the documented source-based development and tagged-install workflows. The built wheel is platform-independent Python, but repository checkout behavior may still depend on filesystem and symlink semantics.
+- **Ubuntu reference validation:** the full Python 3.10, 3.11, 3.12, and 3.13 matrix, deterministic release proof, and installed-wheel smoke run on GitHub-hosted Ubuntu. This is the release-reference environment.
+- **Arch Linux rolling smoke:** the current `archlinux:base-devel` image installs the distribution Python and runs the unit suite, self-check, build, and installed-wheel smoke. This matches the maintainer's local platform family and detects rolling-distribution or forward-Python compatibility drift.
+
+The Arch job proves compatibility only with the package snapshot and Python version present when that CI run executes. It is deliberately rolling rather than a historical Arch support matrix. The exact platform and Python versions are printed in the job log.
+
+Other Linux distributions are expected to work when they provide a supported Python, Git, ordinary POSIX filesystem behavior, and the documented `uv` workflow, but they are not release-gating environments unless represented in CI. Consumers on another distribution should pin a version and run repository-specific acceptance checks.
+
+macOS and Windows are currently unvalidated, best-effort environments. The built wheel is platform-independent Python, but checkout behavior can still depend on symlink, filesystem, shell, and Git semantics. Do not infer operating-system support from the wheel tag alone.
+
+## Python support
+
+The declared package floor is Python 3.10. Ubuntu CI gives explicit compatibility evidence through Python 3.13. The rolling Arch smoke may exercise a newer distribution Python and provides an early compatibility signal, but a passing rolling smoke does not create a long-term support promise for that interpreter until it is added to the explicit Python matrix.
 
 ## Supported release line
 
