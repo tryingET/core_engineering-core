@@ -1,0 +1,75 @@
+name: Bug report
+description: Report a reproducible CLI, packaging, scanner, or generated-output defect.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include secrets, private repository content, or vulnerability details. Use the private process in SECURITY.md for security reports.
+  - type: input
+    id: version
+    attributes:
+      label: engineering-core version or commit
+      placeholder: v0.9.0 or full commit SHA
+    validations:
+      required: true
+  - type: dropdown
+    id: install_source
+    attributes:
+      label: Installation source
+      options:
+        - GitHub Release wheel
+        - Tagged Git checkout / uv tool
+        - Local repository checkout
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Python version, uv version, and shell.
+      placeholder: Ubuntu 24.04, Python 3.13.5, uv 0.10.0, bash
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command or API call
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Include the smallest synthetic fixture that reproduces the issue. Remove private data and absolute host paths.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior and output
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Authority or compatibility impact
+      description: Does the defect affect a versioned schema, catalog ID, exit code, release artifact, or evidence/authority label?
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Safety checks
+      options:
+        - label: I removed secrets, private repository content, and unnecessary personal data.
+          required: true
+        - label: This is not a vulnerability report.
+          required: true
