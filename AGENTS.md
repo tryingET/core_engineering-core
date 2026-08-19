@@ -36,16 +36,24 @@ When adding or renaming a lane, addendum, discipline, template, profile, or adop
 
 ## Validation
 
-Run from repo root before handoff:
+Run from the repository root before handoff:
 
 ```bash
-python -m py_compile src/engineering_core/cli.py src/engineering_core/adoption_scan.py src/engineering_core/adoption_render.py
-python -m unittest discover -s tests
-python scripts/check-justfile-addenda.py
-uv run engineering-core list
-uv run engineering-core catalog --pretty --prefer-repo
-uv run engineering-core scan-adoption --scope /home/tryinget/ai-society/core --repo-discovery recursive --include-scope-root --include-packages --format json --prefer-repo
+uv sync --locked
+uv run python -m unittest discover -s tests -v
+uv run python -m engineering_core.self_check --repo-root .
+uv run python scripts/check-release-lineage.py --mode ci
+uv run python scripts/check-justfile-addenda.py
+uv run python scripts/sync-skill-assets.py --check
+uv run engineering-core scan-adoption \
+  --scope . \
+  --include-scope-root \
+  --format json \
+  --prefer-repo \
+  --max-repositories 10
 uv build
 ```
+
+Run `uv run python scripts/release-local.py verify` for release-affecting changes. It executes the deterministic dogfood harnesses, complete unit suite, CLI checks, and artifact inspection used by the release proof.
 
 `dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless release policy changes explicitly.
