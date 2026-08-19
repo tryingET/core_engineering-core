@@ -1,0 +1,58 @@
+name: Engineering-content proposal
+description: Propose a lane, discipline, addendum, template, catalog, or doctrine change.
+title: "content: "
+body:
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Proposed authority surface
+      options:
+        - Language lane
+        - Conditional lane addendum
+        - Cross-language discipline
+        - Template or profile
+        - Catalog metadata
+        - Repo-local guidance instead of shared doctrine
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Repeated problem
+      description: Describe the recurring risk, inconsistency, or decision cost. Name affected repo shapes or users.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and examples
+      description: Provide non-sensitive examples, measurements, incidents, or consumer needs. Distinguish observation from inference.
+    validations:
+      required: true
+  - type: textarea
+    id: invariant
+    attributes:
+      label: Proposed invariant or decision rule
+      description: State what must remain true without overfitting to one tool or repository.
+    validations:
+      required: true
+  - type: textarea
+    id: triggers
+    attributes:
+      label: Load triggers and non-goals
+      description: When should this guidance be loaded, and when should it not apply?
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Competing guidance and counterevidence
+      description: Include the strongest alternative, known exceptions, and falsification conditions.
+    validations:
+      required: true
+  - type: textarea
+    id: adoption
+    attributes:
+      label: Adoption, compatibility, and measurement
+      description: Explain migration, catalog/schema impact, evidence expected from consumers, and how the rule could later be retired.
