@@ -27,9 +27,14 @@ body:
     id: evidence
     attributes:
       label: Evidence and examples
-      description: Provide non-sensitive examples, measurements, incidents, or consumer needs. Distinguish observation from inference.
+      description: Provide non-sensitive observations, measurements, incidents, or consumer needs. Distinguish direct observation from inference and model-generated analysis.
     validations:
       required: true
+  - type: textarea
+    id: evidence_refs
+    attributes:
+      label: Evidence references
+      description: Optional agent-kernel evidence/receipt/artifact IDs or equivalent digest-bound artifact references. Include producer/schema, subject/revision, digest, scope, and authority ceiling where available; do not paste private payloads.
   - type: textarea
     id: invariant
     attributes:
@@ -48,11 +53,25 @@ body:
     id: alternatives
     attributes:
       label: Competing guidance and counterevidence
-      description: Include the strongest alternative, known exceptions, and falsification conditions.
+      description: Include the strongest alternative, known exceptions, and evidence that points against the proposal.
     validations:
       required: true
   - type: textarea
+    id: falsification_review
+    attributes:
+      label: Falsification, review, and retirement
+      description: Name observable results that would revise or reject the rule, the event/date that triggers review, and the conditions that should deprecate, merge, or retire it.
+    validations:
+      required: true
+  - type: textarea
+    id: semantics
+    attributes:
+      label: Shared semantic references
+      description: Optional accepted ontology-kernel IDs used by more than one system, or candidate terms that need a separate ontology proposal. Keep protocol-specific states in their owning schema.
+  - type: textarea
     id: adoption
     attributes:
-      label: Adoption, compatibility, and measurement
-      description: Explain migration, catalog/schema impact, evidence expected from consumers, and how the rule could later be retired.
+      label: Pilot, adoption, compatibility, and rollback
+      description: Explain bounded pilot scope or stable-promotion evidence, migration, catalog/schema impact, consumer cost, and rollback.
+    validations:
+      required: true
