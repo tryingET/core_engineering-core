@@ -55,34 +55,57 @@ Prefer evidence that is bounded, attributable, reproducible where possible, and 
 
 In the AI Society environment, agent-kernel may persist live evidence rows, governance receipts, decisions, artifact references, and lineage. Shared engineering content should normally reference those records by stable ID and digest rather than copy private payloads into this repository.
 
-A useful external evidence reference includes the producer/schema, stable evidence or receipt ID, subject and revision, digest, capture time, scope, and authority ceiling. Public contributors without agent-kernel may provide equivalent digest-bound local artifacts. AK integration is optional; evidence quality and authority rules are not.
+A useful external evidence reference includes the producer/schema, stable evidence or receipt ID, subject and immutable revision, optional configuration reference, digest, capture time, scope, and authority ceiling. Public contributors without agent-kernel may provide equivalent digest-bound local artifacts. AK integration is optional; evidence quality and authority rules are not.
 
 See `docs/evidence-semantics-boundaries.md` for the storage and authority split.
 
 ## AI Society observation and crystallization mapping
 
-Operational telemetry may supply review triggers and falsification signals, but telemetry is an observational projection rather than promotion authority. A bounded, provenance-bearing telemetry review snapshot may be persisted as agent-kernel evidence and may be crystallized through the applicable owner-local KES surface into a candidate. A KES learning candidate maps to **Proposal**, never directly to Pilot or Stable.
+Operational telemetry may supply review triggers and falsification signals, but telemetry is an observational projection rather than promotion authority. The concrete Pi observation contract is `pi.telemetry-review-snapshot.v1`, produced by `@tryinget/pi-telemetry`. A validated snapshot may be persisted as agent-kernel evidence and may be reviewed through the owner-local Pi tool `telemetry_learning_kes_adapter`, whose result kind is `pi-society-orchestrator.telemetry_learning_kes_adapter.v1`.
 
-The intended separation is:
+The adapter returns an inert Agent Kernel handoff with check type `pi-telemetry-review-snapshot-v1`. A `pass` value means only that the snapshot contract, consistency checks, file custody, and digests were validated. It does not verify causality, the owner-authored claim, KES acceptance, or promotion readiness.
+
+A KES learning candidate maps to **Proposal**, never directly to Pilot or Stable. The intended separation is:
 
 ```text
 pi-telemetry observation
-  -> digest-bound review snapshot
-    -> optional agent-kernel evidence persistence
-      -> owner-local KES diary or learning candidate
-        -> owner decision under this lifecycle
+  -> pi.telemetry-review-snapshot.v1
+    -> telemetry_learning_kes_adapter plan
+      -> explicit owner-local KES materialization
+        -> optional separately authorized agent-kernel evidence record
+          -> owner decision under this lifecycle
 ```
 
 Each transition is explicit. None authorizes the next automatically:
 
 ```text
 telemetry threshold crossed
-  != evidence independently verified
+  != snapshot independently reviewed
+  != evidence claim independently verified
   != KES candidate accepted
   != shared content promoted
 ```
 
-Use telemetry only for claims whose predicted effect is meaningfully observable. Predeclare the metric, baseline and review windows, minimum sample size, accepted missingness, live/backfill treatment, relevant versions or configuration, expected direction, threshold, and falsification condition. Keep coverage limitations visible. Disabled, expired, partially backfilled, or unavailable telemetry must not be interpreted as zero failures.
+### Required telemetry review policy
+
+Use telemetry only for claims whose predicted effect is meaningfully observable. Before reviewing a threshold, explicitly bind:
+
+- the stable subject being observed;
+- an immutable subject revision such as a commit, package version, or configuration revision;
+- an optional bounded configuration/profile reference when relevant;
+- one controlled metric and its sample domain;
+- baseline and review windows;
+- minimum sample size;
+- source-coverage policy;
+- minimum measured-live event count;
+- accepted missingness and live/backfill treatment;
+- expected direction, threshold, and comparison;
+- falsification condition;
+- review trigger and retirement signal.
+
+Do not infer repository authority from session identity or working directory. Do not apply hidden minimum-sample or source-coverage defaults. A `live-required` review needs a positive explicit live-event minimum. Accepting backfill-only or otherwise non-live coverage is a separate explicit owner decision.
+
+Keep source coverage and metric sample domains visible. Disabled, expired, pruned, partially backfilled, malformed, or unavailable telemetry must not be interpreted as zero failures. Most telemetry samples count events; a metric such as compacted-message omission may use a message-domain sample that legitimately exceeds the number of telemetry events.
 
 Aggregate telemetry is normally insufficient on its own for causality, security guarantees, privacy compliance, accessibility, architectural correctness, maintainability, user value, or absence of rare catastrophic failures. Pair it with owner-selected execution evidence, representative bounded session evidence, incidents, tests, or qualitative review as the claim requires.
 
@@ -156,7 +179,8 @@ Before accepting a substantial shared-content change, verify:
 - evidence and counterevidence are distinguishable and attributable;
 - private payloads are referenced rather than copied;
 - falsification and review conditions are observable;
-- telemetry coverage, provenance, sample sufficiency, and nonclaims remain visible when used;
+- telemetry subject, immutable revision, optional configuration, coverage, sample policy, and nonclaims remain visible when used;
+- telemetry collection, snapshot validation, AK persistence, KES materialization, and content promotion remain separate operations;
 - KES materialization remains candidate-only and owner-local;
 - pilot scope or stable promotion criteria are explicit;
 - compatibility and rollback effects are understood;
