@@ -1,7 +1,9 @@
 name: Auto release validated main version
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
     branches: [main]
 
 permissions:
@@ -13,10 +15,17 @@ concurrency:
 
 jobs:
   release:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           fetch-tags: true
       - uses: actions/setup-python@v5
@@ -24,37 +33,63 @@ jobs:
           python-version: "3.13"
       - name: Install uv
         run: python -m pip install --disable-pip-version-check uv
-      - name: Resolve version and existing release state
+      - name: Resolve version and exact release source
         id: state
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          git fetch origin main --tags
+          test "$(git rev-parse HEAD)" = "$CI_HEAD_SHA"
+          git merge-base --is-ancestor "$CI_HEAD_SHA" origin/main
+
           version=$(python - <<'PY'
-          import re
+          import tomllib
           from pathlib import Path
-          match = re.search(r'^version\s*=\s*"([^"]+)"', Path('pyproject.toml').read_text(), re.M)
-          if not match:
-              raise SystemExit('missing project version')
-          print(match.group(1))
+
+          project = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))["project"]
+          print(project["version"])
           PY
           )
           tag="v${version}"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-            echo "tag_exists=true" >> "$GITHUB_OUTPUT"
+            tag_exists=true
+            tag_sha=$(git rev-list -n 1 "$tag")
+            git merge-base --is-ancestor "$tag_sha" origin/main
           else
-            echo "tag_exists=false" >> "$GITHUB_OUTPUT"
+            tag_exists=false
+            tag_sha=""
           fi
+          echo "tag_exists=$tag_exists" >> "$GITHUB_OUTPUT"
+
           if gh release view "$tag" >/dev/null 2>&1; then
+            test "$tag_exists" = true
             echo "release_exists=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "release_exists=false" >> "$GITHUB_OUTPUT"
+            echo "build_sha=$tag_sha" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          echo "release_exists=false" >> "$GITHUB_OUTPUT"
+
+          if [[ "$tag_exists" == true ]]; then
+            build_sha=$tag_sha
+          else
+            build_sha=$CI_HEAD_SHA
+          fi
+          echo "build_sha=$build_sha" >> "$GITHUB_OUTPUT"
       - name: Stop when the current release already exists
-        if: steps.state.outputs.tag_exists == 'true' && steps.state.outputs.release_exists == 'true'
-        run: echo "${{ steps.state.outputs.tag }} is already tagged and released."
+        if: steps.state.outputs.release_exists == 'true'
+        run: echo "${{ steps.state.outputs.tag }} is already released."
+      - name: Check out the exact release source
+        if: steps.state.outputs.release_exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --detach "${{ steps.state.outputs.build_sha }}"
+          test "$(git rev-parse HEAD)" = "${{ steps.state.outputs.build_sha }}"
       - name: Install project and run release proof
         if: steps.state.outputs.release_exists != 'true'
         run: |
@@ -62,9 +97,12 @@ jobs:
           uv run python scripts/check-release-lineage.py --mode ci
           uv run python scripts/release-local.py verify --version "${{ steps.state.outputs.version }}"
       - name: Create and push annotated tag
-        if: steps.state.outputs.tag_exists != 'true'
+        if: >-
+          steps.state.outputs.release_exists != 'true' &&
+          steps.state.outputs.tag_exists != 'true'
         shell: bash
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "${{ steps.state.outputs.tag }}" -m "engineering-core ${{ steps.state.outputs.tag }}"
@@ -77,16 +115,24 @@ jobs:
             --mode release \
             --tag "${{ steps.state.outputs.tag }}" \
             --main-ref origin/main
+      - name: Create artifact checksums
+        if: steps.state.outputs.release_exists != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd dist
+          sha256sum ./*.whl ./*.tar.gz > SHA256SUMS
       - name: Create GitHub Release with artifacts
         if: steps.state.outputs.release_exists != 'true'
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           notes=$(find docs/releases -maxdepth 1 -name "*-v${{ steps.state.outputs.version }}-local-release.md" -print -quit)
           test -n "$notes"
           gh release create "${{ steps.state.outputs.tag }}" \
-            dist/*.whl dist/*.tar.gz \
+            dist/*.whl dist/*.tar.gz dist/SHA256SUMS \
             --title "engineering-core ${{ steps.state.outputs.tag }}" \
             --notes-file "$notes" \
             --verify-tag
