@@ -11,13 +11,15 @@ type: "reference"
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `main`. Its aggregate `required` job succeeds only when the Python 3.10–3.13 test matrix, self-checks, release-lineage check, dogfood checks, package build, and installed-wheel smoke tests all succeed.
 
-CI validates code and release state. GitHub branch protection or a repository ruleset must require the `CI / required` check to prevent an administrator from merging around it.
+CI validates code and release state. GitHub branch protection or a repository ruleset must require the `CI / required` check to prevent an administrator or direct push from bypassing that evidence.
 
 ## Release
 
 A package version is a release candidate only when all checked version surfaces agree, the newest prior stable tag is an ancestor, the version is not lower than an existing stable tag, and release documentation exists.
 
-A validated push to `main` whose package version has no corresponding tag runs `.github/workflows/auto-release.yml`. That workflow performs the complete release proof, creates an annotated version tag, and creates the GitHub Release with wheel and source-distribution artifacts. Manually pushed version tags are independently validated by `.github/workflows/release.yml`.
+`.github/workflows/auto-release.yml` runs only after the `CI` workflow succeeds for a push to `main`. It checks out the triggering workflow's exact commit, confirms that commit is contained in `main`, and performs the complete release proof before creating a tag. When a version tag already exists but its GitHub Release is missing, the workflow builds and publishes from the exact tagged commit rather than from a later `main` checkout. Release assets include the wheel, source distribution, and `SHA256SUMS`.
+
+Manually pushed version tags are independently validated by `.github/workflows/release.yml`. The automatic and manual release workflows share one non-cancelling concurrency group so only one release mutation runs at a time.
 
 ## Branch cleanup
 
@@ -28,9 +30,12 @@ A validated push to `main` whose package version has no corresponding tag runs `
 The repository owner should keep these settings enabled:
 
 - protect `main` with a ruleset;
+- require pull requests for changes to `main`;
 - require `CI / required` before merge;
 - require branches to be current before merge;
+- require review-conversation resolution;
 - block force pushes and deletion of `main`;
+- minimize or disable ruleset bypasses;
 - optionally enable GitHub's built-in automatic head-branch deletion as a second cleanup layer.
 
 The workflows cannot grant themselves repository-administration permissions, so these settings remain repository-owner controls rather than code-owned automation.
