@@ -1,12 +1,11 @@
 name: Bug report
 description: Report a reproducible CLI, packaging, scanner, or generated-output defect.
 title: "bug: "
-labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Do not include secrets, private repository content, or vulnerability details. Use the private process in SECURITY.md for security reports.
+        Do not include sensitive data, private repository content, or vulnerability details. Use the private process in SECURITY.md for security reports.
   - type: input
     id: version
     attributes:
@@ -69,7 +68,7 @@ body:
     attributes:
       label: Safety checks
       options:
-        - label: I removed secrets, private repository content, and unnecessary personal data.
+        - label: I removed sensitive data, private repository content, and unnecessary personal data.
           required: true
         - label: This is not a vulnerability report.
           required: true
