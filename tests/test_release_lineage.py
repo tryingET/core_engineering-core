@@ -36,6 +36,13 @@ class ReleaseLineageTests(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         git(self.root, "init", "-q")
+        self.default_branch = subprocess.run(
+            ["git", "symbolic-ref", "--short", "HEAD"],
+            cwd=self.root,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
         git(self.root, "config", "user.email", "tests@example.invalid")
         git(self.root, "config", "user.name", "Tests")
 
@@ -77,7 +84,7 @@ class ReleaseLineageTests(unittest.TestCase):
         (self.root / "release.txt").write_text("release\n")
         self.commit("release line")
         git(self.root, "tag", "v0.8.0")
-        git(self.root, "checkout", "-q", "master")
+        git(self.root, "checkout", "-q", self.default_branch)
         write_version(self.root, "0.9.0")
         self.commit("different line")
         with self.assertRaisesRegex(ReleaseLineageError, "not an ancestor"):

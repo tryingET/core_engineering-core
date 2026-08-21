@@ -144,6 +144,7 @@ def verify(version: str) -> None:
         ["uv", "run", "engineering-core", "summarize-work", "--help"],
         ["uv", "run", "engineering-core", "scan-adoption", "--scope", ".", "--include-scope-root", "--format", "json", "--prefer-repo", "--max-repositories", "10"],
         ["uv", "run", "engineering-core", "show", "ts", "--prefer-repo"],
+        ["uv", "run", "engineering-core", "show", "common-lisp", "--prefer-repo"],
         ["uv", "run", "engineering-core", "show-discipline", "validation", "--prefer-repo"],
         ["uv", "build"],
     ]

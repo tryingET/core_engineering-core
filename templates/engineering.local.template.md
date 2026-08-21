@@ -13,16 +13,16 @@ This file records repo-local overrides and integration choices on top of enginee
 
 ## Released upstream retrieval
 
-Read upstream guidance only when the relevant surface is in scope. For v0.8.0 adoption, use its immutable remote commit:
+Read upstream guidance only when the relevant surface is in scope. For v0.9.0 adoption, use its immutable remote commit:
 
 ```bash
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core list
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core list-disciplines
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core show <lane> --prefer-repo
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@8f59f4178f0c40f73d64c417e7a591de42a0f0d2' engineering-core show-discipline <discipline> --prefer-repo
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@d74cdcc27a0fe2839707502655c77365ade5cc3a' engineering-core list
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@d74cdcc27a0fe2839707502655c77365ade5cc3a' engineering-core list-disciplines
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@d74cdcc27a0fe2839707502655c77365ade5cc3a' engineering-core show <lane> --prefer-repo
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@d74cdcc27a0fe2839707502655c77365ade5cc3a' engineering-core show-discipline <discipline> --prefer-repo
 ```
 
-Record the matching remote repository, `v0.8.0` ref, resolved commit, and `git+https` source in `policy/engineering-lane.json` as an explicit `release_pin`.
+Record the matching remote repository, `v0.9.0` ref, resolved commit, and `git+https` source in `policy/engineering-lane.json` as an explicit `release_pin`.
 
 ## Local self-development only
 

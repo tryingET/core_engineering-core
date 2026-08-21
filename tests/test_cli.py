@@ -135,7 +135,8 @@ class CliTests(unittest.TestCase):
 
     def test_catalog_lanes_match_cli_and_files(self) -> None:
         catalog = json.loads((REPO_ROOT / "catalog.json").read_text(encoding="utf-8"))
-        catalog_ids = [entry["id"] for entry in catalog["lanes"]]
+        pilots = json.loads((REPO_ROOT / "catalog.pilots.json").read_text(encoding="utf-8"))
+        catalog_ids = [entry["id"] for entry in catalog["lanes"] + pilots.get("lanes", [])]
         self.assertEqual(catalog_ids, list(LANES))
         for entry in catalog["lanes"]:
             self.assertTrue((REPO_ROOT / entry["path"]).exists())
@@ -362,17 +363,17 @@ class CliTests(unittest.TestCase):
     def test_version_matches_current_release(self) -> None:
         self.assertEqual(__version__, "0.9.0")
 
-    def test_v080_self_adoption_uses_portable_immutable_remote(self) -> None:
-        commit = "8f59f4178f0c40f73d64c417e7a591de42a0f0d2"
-        repository = "https://github.com/tryingET/core_engineering-core.git"
-        source = f"git+{repository}@{commit}"
+    def test_self_adoption_uses_portable_immutable_remote(self) -> None:
+        commit = "d74cdcc27a0fe2839707502655c77365ade5cc3a"
+        repository = "https://github.com/tryingET/core_engineering-core"
+        source = f"git+{repository}.git@{commit}"
         policy = json.loads((REPO_ROOT / "policy" / "engineering-lane.json").read_text(encoding="utf-8"))["engineering_core"]
 
         self.assertEqual(policy["repository"], repository)
-        self.assertEqual(policy["ref"], "v0.8.0")
+        self.assertEqual(policy["ref"], "v0.9.0")
         self.assertEqual(
             policy["release_pin"],
-            {"kind": "git-commit", "ref": "v0.8.0", "resolved_commit": commit, "source": source},
+            {"kind": "git-commit", "ref": "v0.9.0", "resolved_commit": commit, "source": source},
         )
         for key in ("catalog_command", "list_disciplines_command", "list_templates_command", "command"):
             self.assertIn(source, policy[key])
