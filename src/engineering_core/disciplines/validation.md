@@ -40,6 +40,14 @@ just doctor    environment sanity
 
 Do not invent fake targets. If a target is intentionally unavailable, say why.
 
+## Aggregate-gate proof ownership
+
+Aggregate gates should execute each expensive proof dimension once. Do not call a composite target alongside the same work reached transitively through that target.
+
+Deduplicate by proof semantics, not merely by command spelling. Lint, formatting check, typecheck, tests, artifact build, generated-drift validation, packaging, and runtime smoke remain distinct when they prove different claims. A repeated invocation is justified only when scope, mode, inputs, environment, artifact under test, isolation boundary, or failure mode materially changes; record that distinction in the repository-owned command surface or validation evidence.
+
+Before accepting an aggregate local gate such as `just ci`, expand its dependency graph, inspect delegated wrappers and package commands, and account for each expensive invocation. Exact textual matching is a useful first pass but cannot establish semantic equivalence by itself.
+
 ## Normalization before validation
 
 Commit workflows should separate mutation-producing normalization from non-mutating validation:
