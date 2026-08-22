@@ -17,6 +17,9 @@ from engineering_core.doctor import build_doctor
 
 
 class DoctorTests(unittest.TestCase):
+    # Default fixture ref tracks the current development version so the
+    # healthy-path cases model a matching pin/package pair; mismatch cases
+    # pass an explicit older ref.
     def repo(self, root: Path, contract=None, ref="v0.10.0") -> Path:
         (root / "policy").mkdir()
         ec = {"ref": ref, "lane": "py", "disciplines": []}
