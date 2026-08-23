@@ -32,6 +32,10 @@ The four pillars below are cumulative properties of one product, not maturity re
 
 All four require a credible baseline before v1.0. They do not need their terminal, ecosystem-scale form before v1.0. Compatible strengthening can continue through v1.x.
 
+The proposed v1 boundary is a deliberate clean break from pre-v1 package releases: v1.0 does not promise to preserve v0 commands, schemas, content behavior, or executable interoperability. From v1.0 forward, public stable surfaces retain compatible meaning through v1.x; package semver does not reset an existing versioned protocol identifier.
+
+The final v1.0 compatibility/rendering manifest is materialized only after bounded pilot dispositions finish, then becomes the assertion-backed baseline for future v1.x comparison. Exact participants, empirical thresholds, and platform budgets remain prospectively accepted qualification facts; they may change without reopening the constitution only when its owner-independence, public contract, authority, and pillar invariants remain unchanged.
+
 No v2, v3, or v4 product contract is defined here. A future major version should require a genuine compatibility break or a materially different product constitution, not an arbitrary strategy horizon.
 
 ## Current observed baseline: v0.10.0
@@ -43,7 +47,7 @@ Evidence anchors: [v0.10.0 release record](../releases/2026-08-22-v0.10.0-local-
 - v0.10.0 is a published, pre-1.0 GitHub Release with wheel, source archive, and checksums.
 - The product is a versioned CLI plus engineering content, distributed from source and GitHub Releases rather than a package registry or hosted service.
 - Linux is the supported operating-system family; Ubuntu Python 3.10–3.13 and rolling Arch are release-validation environments. macOS and Windows remain best effort.
-- Latest stable and current `main` are supported for fixes; older pre-1.0 releases are historical compatibility points.
+- Latest stable and current `main` are supported for fixes; older pre-1.0 releases are historical evidence and optional transition inputs, not compatibility promises for v1.
 
 ### Shipped product surfaces
 
@@ -68,10 +72,10 @@ Evidence anchors: [v0.10.0 release record](../releases/2026-08-22-v0.10.0-local-
 
 | Pillar | Current v0.10 posture | v1.0 target posture | Main proof gap | Proof of closure |
 |---|---|---|---|---|
-| **Dependable Adoption** | The CLI supports selection, explanation, initialization, migration, diagnosis, scanning, release pinning, and local removal-compatible ownership boundaries. | A maintainer on a supported environment can pin, understand, adopt or migrate, diagnose, upgrade, roll back, and remove engineering-core without hidden workspace knowledge or loss of repository authority. | Deterministic mechanics are better proven than the complete independent operator journey. | Predeclared representative new and existing adopters complete success, failure-recovery, upgrade, rollback, and removal journeys under independent owner review, with failures and counterevidence retained. |
-| **Federated Interoperation** | Explicit populations, portable schemas, owner-local outputs, bounded readers, and generic multi-scope scans exist. | Independently governed scopes exchange and aggregate adoption and capability observations while retaining population, dashboard, interpretation, remediation, and rollout authority. | Cross-owner interoperability under version skew, partial populations, privacy constraints, and hostile inputs is not yet established as a product outcome. | Multiple AI Society owner groups demonstrate compatible production and consumption, truthful incompleteness, provenance handling, downgrade behavior, and operation without a central denominator or required control plane. |
-| **Evidence Calibration** | Plans, advice requests, receipts, dispositions, reconciliation, and work packets preserve bindings and authority ceilings. Self-adoption declares planning and advisor capabilities but not `closed_loop`. | Owner-supplied evidence and counterevidence produce explainable, calibrated, falsifiable guidance that improves a predeclared outcome over a static baseline. | Evidence plumbing does not establish recommendation effectiveness, causality, or calibration. | Prospectively designed comparisons preserve abstentions, negative results, uncertainty, provenance, and independent review while demonstrating practically meaningful improvement through an owner-selected empirical authority surface. |
-| **Review-Governed Evolution** | Content lifecycle rules distinguish proposal, pilot, stable, deprecated, and retired guidance; doctrine proposals remain inert. | Independent owners can contribute, contest, pilot, promote, revise, reject, deprecate, and retire shared guidance through reversible, historically preserved review. | A complete multi-owner doctrine lifecycle has not been proven as an ordinary operating capability. | Independent AI Society owner groups complete full proposal-to-pilot-to-review cycles, including rejection or retirement, compatibility handling, rollback, and authority-bearing decisions recorded by their proper owners. |
+| **Dependable Adoption** | The CLI supports selection, explanation, initialization, migration, diagnosis, scanning, release pinning, and local removal-compatible ownership boundaries. | A maintainer can pin and understand v1, adopt cleanly or perform an explicitly supported transition, diagnose, recover, roll back, and remove it without hidden workspace knowledge or lost repository authority. | Deterministic mechanics are better proven than complete public operator journeys. | New and existing adopters execute candidate-shipped planning, apply, recovery, rollback, removal, and rendered instructions under independent owner review; pre-v1 starting states create no compatibility claim. |
+| **Federated Interoperation** | Explicit populations, portable schemas, owner-local outputs, bounded readers, and generic multi-scope scans exist. | Independently governed scopes exchange canonical v1 observations through bounded adapters while retaining population, interpretation, remediation, and rollout authority. | Interoperation under v1 skew, partial populations, privacy constraints, hostile inputs, and unsupported history is not demonstrated. | Multiple owner groups demonstrate compatible v1 production/consumption, safe negotiation, truthful unsupported/incomplete results, provenance, and no central denominator or required control plane. |
+| **Evidence Calibration** | Plans, advice requests, receipts, dispositions, reconciliation, and work packets preserve bindings and authority ceilings. Self-adoption declares planning and advisor capabilities but not `closed_loop`. | Owner-supplied evidence and counterevidence produce explainable, calibrated, falsifiable guidance that improves a predeclared outcome over a static baseline. | Evidence plumbing does not establish recommendation effectiveness, causality, or calibration. | A separately accepted prospective empirical protocol justifies its estimand, owner-balanced weighting, power, thresholds, forecasts, missingness, and harm rules before confirmatory output. |
+| **Review-Governed Evolution** | Content lifecycle rules distinguish proposal, pilot, stable, deprecated, and retired guidance; doctrine proposals remain inert. | Independent owners can contribute, contest, pilot, and disposition shared guidance through reversible, historically preserved review. | A complete multi-owner doctrine lifecycle has not been proven as an ordinary operating capability. | Live cycles reach evidence-supported owner decisions without outcome quotas, while deterministic fixtures/replays cover every transition and rollback path without erasing history. |
 
 ## Cumulative v1 release rule
 
@@ -81,7 +85,7 @@ A v1.0 claim requires all four pillars at their bounded baseline. Strength in on
 - federation cannot excuse ambiguous or unsafe contracts;
 - evidence cannot promote itself into doctrine or governance truth;
 - legitimate review cannot make a false effectiveness claim true;
-- learning cannot weaken deterministic behavior, privacy, compatibility, reversibility, or owner exit.
+- learning cannot weaken deterministic behavior, privacy, v1 compatibility, reversibility, or owner exit.
 
 The representative population, success thresholds, review owners, evidence forms, counterevidence policy, and rollback expectations must be declared before a v1 release candidate is judged. This document intentionally does not invent those thresholds.
 
@@ -97,8 +101,8 @@ Evidence from one repository, one company, one maintainer, or one model is insuf
 
 1. A maintainer selects an immutable release and receives only applicable guidance.
 2. The product explains selections, dependencies, omissions, pilots, and local deviations before any change.
-3. Adoption or migration is dry-run-first, inspectable, idempotent where promised, and reversible.
-4. Static compatibility, observed execution, supplied evidence, empirical analysis, and authority-bearing decisions remain visibly distinct.
+3. Clean adoption or an explicitly supported transition is dry-run-first, inspectable, idempotent where promised, recoverable, and reversible.
+4. V1 compatibility, unsupported history, observed execution, supplied evidence, empirical analysis, and authority-bearing decisions remain visibly distinct.
 5. Scope owners can combine bounded observations without surrendering population or rollout control.
 6. Evidence can improve recommendations while preserving abstention, counterevidence, and falsification.
 7. Shared guidance changes only through review-governed lifecycle decisions with compatibility and rollback paths.
@@ -125,10 +129,10 @@ Evidence from one repository, one company, one maintainer, or one model is insuf
 The highest-leverage convergence is not indiscriminate feature growth. It is:
 
 1. freeze the coherent v1 public contract and define predeclared release evidence;
-2. exercise complete adoption, upgrade, rollback, and removal journeys with independent AI Society owners;
+2. exercise complete clean-adoption, supported-transition, recovery, rollback, and removal journeys with independent AI Society owners;
 3. prove cross-owner interoperability under skew, partial data, privacy limits, and malicious inputs;
 4. run bounded prospective calibration studies through the proper empirical owner surface;
-5. complete review-governed doctrine cycles that include counterevidence, rejection or retirement, and rollback;
+5. complete non-coercive review-governed doctrine cycles plus deterministic transition and rollback conformance;
 6. declare v1.0 only when the cumulative gate is satisfied.
 
 These are product-level convergence priorities. Concrete sequencing, tasks, decisions, and evidence belong in Agent Kernel and the relevant owner repositories.

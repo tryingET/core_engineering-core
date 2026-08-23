@@ -30,9 +30,9 @@ The declared package floor is Python 3.10. Ubuntu CI gives explicit compatibilit
 
 ## Supported release line
 
-The latest stable GitHub Release and current `main` are supported for fixes. Older pre-1.0 releases are historical compatibility points rather than maintained long-term-support branches.
+The latest stable GitHub Release and current `main` are supported for fixes. Older pre-1.0 releases are historical evidence/transition inputs, not maintained branches or compatibility promises for v1.
 
-Consumers should pin an immutable commit for reproducibility while retaining the corresponding semantic tag for human-readable intent. Upgrade reviews should read the changelog, release notes, migration notes, and catalog-history changes.
+Consumers should pin an immutable commit for reproducibility while retaining the corresponding semantic tag for human-readable intent. Transition reviews should read the changelog, release notes, break/transition notes, and catalog-history changes.
 
 ## Compatibility surfaces
 
@@ -47,7 +47,20 @@ Consumer-facing surfaces include:
 
 Python modules are internal implementation details unless a module or symbol is explicitly documented as a public API.
 
-Within a versioned JSON protocol, field meaning should remain backward compatible. An incompatible protocol change should introduce a new schema identifier, coexist long enough for migration where practical, and include fixtures and migration notes. Catalog ID removal or semantic repurposing is a breaking content change even when Python code is unchanged.
+Within a versioned JSON protocol, field meaning should remain backward compatible. An incompatible protocol change should introduce a new schema identifier, coexist long enough for migration where practical, and include fixtures and transition notes. Package semver does not reset protocol identifiers: an existing `*-v1` identifier must retain its meaning or be replaced explicitly. Catalog ID removal or semantic repurposing is a breaking content change even when Python code is unchanged.
+
+## Proposed v1 boundary
+
+Decision 128 remains pre-ADR; this section states the reviewed target, not shipped behavior or release authority.
+
+- `1.0.0` may make a clean break from every pre-v1 package release. It need not preserve v0 command syntax, output, package layout, policy/catalog behavior, or executable interoperability.
+- Pre-v1 records may be clean-transition, explicitly migrated, or structured-unsupported inputs. Historical use alone creates no support promise.
+- From `1.0.0` through v1.x, documented consumer-facing surfaces default to public stable unless explicitly classified experimental/pilot or internal qualification before release.
+- The final v1.0 compatibility manifest is materialized against the post-pilot release candidate. Every stable entry cites a normative source and executable assertion; that manifest and assertion set become the immutable comparison baseline for v1.x.
+- Patch releases preserve documented meaning while fixing behavior; minor releases add compatible optional behavior. Removal, semantic repurposing, incompatible schema/CLI/exit behavior, or supported-platform contraction requires a future major-version decision.
+- Documented parser/schema acceptance guarantees are public compatibility behavior and may not shrink in v1.x. Platform qualification budgets may vary but cannot undercut those guarantees.
+- Owner/provider/AK/empirical adapters remain optional and replaceable outside the portable core. Exposing an adapter through a documented installed surface makes that exposed contract public.
+- A remotely available final-byte candidate commit is an unsupported proof channel until the exact release tag and assets exist.
 
 ## Support boundaries
 
