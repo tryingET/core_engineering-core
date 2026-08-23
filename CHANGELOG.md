@@ -22,7 +22,7 @@ type: "release-history"
 - The Common Lisp lane is shared advisory guidance. Its inclusion does not claim consumer adoption, runtime effectiveness, a completed/tagged release, publication, ontology, or mandatory policy.
 - Restored the aggregate-gate proof-ownership guidance in the `validation` discipline.
 - Restored the v0.8.0 validation evidence record, the narrow-v0.8 owner-use authority ADR, and the v0.8.1 local-release record that the v0.9.0 history reconciliation dropped together with the feature line above.
-- Refreshed adoption templates and `docs/adoption.md` worked examples to the current immutable remote commit pin; the self-adoption ratchet test now enforces the current release pin instead of a historical one.
+- Refreshed adoption templates and `docs/adoption.md` worked examples to the latest prior immutable release available during v0.10.0 preparation (`v0.9.0`). Repository self-adoption advances separately after a release is published, so released examples are not rewritten in place.
 - Release verification smoke-tests the `common-lisp` lane via `engineering-core show common-lisp`.
 - Advanced the package version from `0.9.0` to `0.10.0`; the abandoned in-place `0.8.1`/`0.8.2` version sequence was never released and is intentionally skipped.
 

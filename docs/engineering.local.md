@@ -1,5 +1,5 @@
 ---
-summary: "Repository-local engineering-core v0.6 adoption posture and authority boundary."
+summary: "Current repository-local engineering-core self-adoption posture and authority boundary."
 read_when:
   - "Before planning, advising, or validating engineering work in this repository."
 type: "reference"
@@ -10,7 +10,7 @@ type: "reference"
 ## Upstream
 
 - Source: `core/engineering-core`
-- Release pin: `v0.7.0`
+- Release pin: `v0.10.0` (`9038d1ed3d443f44e18624d908d266e5e6dfd934`)
 - Policy: `policy/engineering-lane.json`
 
 ## Selected guidance
@@ -21,7 +21,7 @@ type: "reference"
 ## Declared capabilities
 
 - `planning`, `advisor`
-- `closed_loop` is not declared under v0.6.
+- `closed_loop` is not declared.
 
 These declarations authorize deterministic static observation only. They do not prove command execution, model use, CI compliance, release readiness, or verified runtime evidence. Repository and AK owner surfaces retain those facts.
 

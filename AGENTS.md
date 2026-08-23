@@ -30,7 +30,7 @@ When adding or renaming a lane, addendum, discipline, template, profile, or adop
 3. `catalog.json` and `src/engineering_core/catalog.json`
 4. CLI constants/commands in `src/engineering_core/cli.py`
 5. scanner modules when adoption behavior changes (`src/engineering_core/adoption_scan.py`, `src/engineering_core/adoption_render.py`)
-6. README examples, `docs/adoption.md`, and `docs/vision.md` when user-facing behavior changes
+6. README examples, `docs/adoption.md`, `docs/project/vision.md`, and `docs/project/product_posture.md` when user-facing behavior changes
 7. tests under `tests/`
 8. package version when the change is package-visible
 
