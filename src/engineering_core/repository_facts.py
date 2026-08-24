@@ -18,6 +18,24 @@ MAX_FILE_BYTES = 1_048_576
 MAX_TOTAL_BYTES = 4_194_304
 
 
+class RepositoryPathError(ValueError):
+    """Fail-closed repository argument: no traversal, no file, no missing dir."""
+
+
+def validate_repository_argument(repo: str | Path) -> Path:
+    """Accept only an existing directory whose given path has no '..' parts."""
+    text = os.fsdecode(repo) if not isinstance(repo, str) else repo
+    if not text or "\0" in text:
+        raise RepositoryPathError("repository path is empty or contains NUL")
+    given = Path(text)
+    if any(part == ".." for part in given.parts):
+        raise RepositoryPathError("repository path must not contain '..'")
+    root = given.resolve()
+    if not root.is_dir():
+        raise RepositoryPathError("repository path must be an existing directory")
+    return root
+
+
 def _sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
@@ -90,7 +108,7 @@ def _read_regular_file(root: Path, relative: str, remaining: int) -> tuple[bytes
 
 def extract_repository_facts(repo: Path) -> dict[str, Any]:
     """Read a fixed, byte-bounded set of declarative regular files; execute nothing."""
-    root = repo.resolve()
+    root = validate_repository_argument(repo)
     evidence: list[dict[str, Any]] = []
     diagnostics: list[dict[str, str]] = []
     consumed = 0

@@ -436,6 +436,29 @@ class CliTests(unittest.TestCase):
         self.assertEqual(plan["status"], "incomplete")
         self.assertTrue(any(item["code"] == "file-not-regular" for item in plan["diagnostics"]))
 
+    def test_plan_rejects_parent_traversal_atomically(self) -> None:
+        stdout = io.StringIO()
+        with (
+            patch.object(sys, "argv", ["engineering-core", "plan", "--repo", "../../etc/passwd", "--repo-root", str(REPO_ROOT)]),
+            redirect_stdout(stdout),
+            self.assertRaises(SystemExit) as ctx,
+        ):
+            main()
+        self.assertNotEqual(ctx.exception.code, 0)
+        self.assertEqual(stdout.getvalue(), "")
+
+    def test_plan_rejects_non_directory_atomically(self) -> None:
+        with tempfile.NamedTemporaryFile() as handle:
+            stdout = io.StringIO()
+            with (
+                patch.object(sys, "argv", ["engineering-core", "plan", "--repo", handle.name, "--repo-root", str(REPO_ROOT)]),
+                redirect_stdout(stdout),
+                self.assertRaises(SystemExit) as ctx,
+            ):
+                main()
+            self.assertNotEqual(ctx.exception.code, 0)
+            self.assertEqual(stdout.getvalue(), "")
+
 
 if __name__ == "__main__":
     unittest.main()

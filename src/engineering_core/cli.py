@@ -19,6 +19,7 @@ from engineering_core.catalog import load_catalog
 from engineering_core.capability_cli import add_parsers as add_capability_parsers, run as run_capability
 from engineering_core.closed_loop_cli import add_parsers as add_closed_loop_parsers, run as run_closed_loop
 from engineering_core.engineering_plan import compile_plan, explain_plan
+from engineering_core.repository_facts import RepositoryPathError
 from engineering_core.evidence_reconcile_cli import add_parser as add_evidence_reconcile_parser, run as run_evidence_reconcile
 from engineering_core.policy import load_policy
 from engineering_core.work_cli import add_parsers as add_work_parsers, run as run_work
@@ -358,14 +359,20 @@ def main() -> None:
 
     if args.cmd in ("plan", "explain"):
         catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
-        plan = compile_plan(Path(args.repo), catalog)
+        try:
+            plan = compile_plan(Path(args.repo), catalog)
+        except RepositoryPathError as exc:
+            raise SystemExit(f"plan rejected: {exc}") from exc
         output = plan if args.cmd == "plan" else explain_plan(plan, args.subject)
         print(json.dumps(output, indent=2 if args.pretty else None, sort_keys=True, separators=None if args.pretty else (",", ":")))
         return
 
     if args.cmd == "advise":
         catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
-        plan = compile_plan(Path(args.repo), catalog)
+        try:
+            plan = compile_plan(Path(args.repo), catalog)
+        except RepositoryPathError as exc:
+            raise SystemExit(f"advice rejected: {exc}") from exc
         ids = set(catalog.ids("lanes")) | set(catalog.ids("disciplines"))
         try:
             request = build_request(Path(args.repo), plan, ids, max_files=args.max_files, max_file_bytes=args.max_file_bytes, max_total_bytes=args.max_total_bytes)
