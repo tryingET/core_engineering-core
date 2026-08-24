@@ -1,0 +1,111 @@
+{
+  "schema": "engineering-core.v1.g1-fanin/1",
+  "candidate_commit": "b313becf7f1bf5261843d7b29c939b0bc5072ef1",
+  "g1_pass_claimed": false,
+  "independent_review": false,
+  "negative_control": {
+    "repo": "healthco/agents",
+    "mutated": false,
+    "role": "read_only"
+  },
+  "baselines": [
+    {
+      "baseline_id": "pos-1",
+      "repo": "holdingco/fcos-control-board",
+      "counts": {
+        "pass": 6,
+        "fail": 1,
+        "incomplete": 3
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "incomplete",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "fail",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos-2",
+      "repo": "teachingco/mathe",
+      "counts": {
+        "pass": 6,
+        "fail": 1,
+        "incomplete": 3
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "incomplete",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "fail",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos-3",
+      "repo": "teachingco/wib@316c457",
+      "counts": {
+        "pass": 7,
+        "fail": 1,
+        "incomplete": 2
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "pass",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "fail",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos-4",
+      "repo": "softwareco/owned/pi-extensions",
+      "counts": {
+        "pass": 6,
+        "fail": 1,
+        "incomplete": 3
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "incomplete",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "fail",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    }
+  ],
+  "notes": [
+    "failure_boundaries failed: init --repo missing-dir exits 0 (plan traversal is fail-closed)",
+    "rollback and removal incomplete: no public candidate commands",
+    "apply incomplete on pos-1/2/4 due to init conflicts; pos-3 apply passed in replica only",
+    "same controller claimed all owner tasks; not independent owner origination"
+  ]
+}
