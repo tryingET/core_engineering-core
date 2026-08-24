@@ -13,13 +13,22 @@ Controlling contract: `docs/rfc/2026-08-23-v1-convergence-contract-r5.md`
 `docs/adr/2026-08-23-v1-convergence-contract.md`.
 Manifest: `docs/project/v1-proof-population.json`.
 
-## Manifest digests (draft revision 1)
+## Manifest digests (revision 2)
+
+Revision 2 binds each entry to its created owner task (4931-4935) under the
+operator instruction of 2026-08-24 ("resolve the blocked parts"); proof
+independence is earned during execution, not by enrollment.
 
 - Canonical (RFC 8785 JCS) SHA-256:
-  `2f1bc660fcf9a73999b46584208b9eae23a9ebf4969e5f418f87738a8e0b6e09`
+  `50eb98aaf4b927f642530e3dc5f9cb15c0409a9f2f57426e1bb86c382d32d5c3`
 - Raw transport SHA-256:
-  `7090ad2f329c61c03058587ff2ebab9937cad8d92f4feed52ce993ca88181ce8`
-- Byte length: 6973
+  `af7b605bf708cc8be0dd1788df962436eea0cea19dd8173501911532644d79e0`
+- Byte length: 7479
+
+Superseded revision 1 digests (draft, unbound):
+canonical `2f1bc660fcf9a73999b46584208b9eae23a9ebf4969e5f418f87738a8e0b6e09`,
+raw `7090ad2f329c61c03058587ff2ebab9937cad8d92f4feed52ce993ca88181ce8`,
+6973 bytes.
 
 The manifest contains only strings, integers, booleans, and null, so JCS equals
 sorted-key compact UTF-8 JSON. Every G1–G5 artifact must record the canonical digest of

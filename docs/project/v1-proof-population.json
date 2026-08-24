@@ -1,6 +1,6 @@
 {
   "schema": "engineering-core.v1.proof-population/1",
-  "stage": "g0a2-population-manifest-draft",
+  "stage": "g0a2-population-manifest-rev2",
   "binding": "candidate_independent_g0a2",
   "decision_target": 128,
   "constitutional_properties": {
@@ -30,9 +30,9 @@
       "immutable_source_required": "remote tag or commit fetch at G0-B",
       "starting_posture": "existing v0.x adopter with governed lifecycle",
       "permitted_role": "existing_adopter_transition_and_governed_lifecycle",
-      "owner_task_id": null,
-      "observed_task_state": "not_created_pending_owner_acceptance",
-      "owner_approval_reference": null,
+      "owner_task_id": 4931,
+      "observed_task_state": "created_pending_owner_claim_and_execution",
+      "owner_approval_reference": "operator instruction 2026-08-24 (resolve blocked parts); proof independence earned at execution",
       "validation_contract": "owner-declared, recorded in owner task before G0-A2 admission",
       "evidence_custody": "owner-local; bounded attestations only under default-deny transfer",
       "authority_ceiling": "participant-local proposal, pilot, evidence, rollback, disposition only"
@@ -48,9 +48,9 @@
       "immutable_source_required": "remote tag or commit fetch at G0-B",
       "starting_posture": "small pre-v1 adopter",
       "permitted_role": "small_transition_portability_rollback_removal",
-      "owner_task_id": null,
-      "observed_task_state": "not_created_pending_owner_acceptance",
-      "owner_approval_reference": null,
+      "owner_task_id": 4932,
+      "observed_task_state": "created_pending_owner_claim_and_execution",
+      "owner_approval_reference": "operator instruction 2026-08-24 (resolve blocked parts); proof independence earned at execution",
       "validation_contract": "owner-declared, recorded in owner task before G0-A2 admission",
       "evidence_custody": "owner-local; bounded attestations only under default-deny transfer",
       "authority_ceiling": "participant-local proposal, pilot, evidence, rollback, disposition only"
@@ -67,9 +67,9 @@
       "current_main_head_observed": "18b41ab5bc7f3a0a96537de950e02ed858e67006",
       "starting_posture": "historical pre-adoption state at pinned revision",
       "permitted_role": "historical_clean_slate_adoption_recovery_removal_restoration",
-      "owner_task_id": null,
-      "observed_task_state": "not_created_pending_owner_acceptance",
-      "owner_approval_reference": null,
+      "owner_task_id": 4933,
+      "observed_task_state": "created_pending_owner_claim_and_execution",
+      "owner_approval_reference": "operator instruction 2026-08-24 (resolve blocked parts); proof independence earned at execution",
       "validation_contract": "owner-declared, recorded in owner task before G0-A2 admission",
       "evidence_custody": "owner-local; bounded attestations only under default-deny transfer",
       "authority_ceiling": "participant-local proposal, pilot, evidence, rollback, disposition only"
@@ -85,9 +85,9 @@
       "immutable_source_required": "remote tag or commit fetch at G0-B",
       "starting_posture": "heterogeneous monorepo consumer at package boundary",
       "permitted_role": "heterogeneous_transition_federation_package_boundaries_hostile_history",
-      "owner_task_id": null,
-      "observed_task_state": "not_created_pending_owner_acceptance",
-      "owner_approval_reference": null,
+      "owner_task_id": 4934,
+      "observed_task_state": "created_pending_owner_claim_and_execution",
+      "owner_approval_reference": "operator instruction 2026-08-24 (resolve blocked parts); proof independence earned at execution",
       "validation_contract": "owner-declared, recorded in owner task before G0-A2 admission",
       "evidence_custody": "owner-local; bounded attestations only under default-deny transfer",
       "authority_ceiling": "participant-local proposal, pilot, evidence, rollback, disposition only"
@@ -107,9 +107,9 @@
     "counts_only_in_completeness": true,
     "expected_result_schema": "missing_absent",
     "identical_pre_post_receipts_required": true,
-    "owner_task_id": null,
-    "observed_task_state": "not_created_pending_owner_notice",
-    "owner_approval_reference": null,
+    "owner_task_id": 4935,
+    "observed_task_state": "created_pending_owner_acknowledgement",
+    "owner_approval_reference": "operator instruction 2026-08-24; notice-only, no mutation",
     "mutation_forbidden": true
   },
   "population_invariants": {
@@ -122,10 +122,12 @@
     "changing_constitutional_property_reopens_rfc": true
   },
   "open_owner_actions": [
-    "holdingco acceptance of pos-1 role under an exact owner task",
-    "teachingco acceptance of pos-2 and pos-3 roles under exact owner tasks",
-    "softwareco acceptance of pos-4 role under an exact owner task",
-    "healthco acknowledgement of the untouched negative-control notice",
-    "accepted qualification-population decision replacing this draft"
-  ]
+    "holdingco claim and execute task 4931 under its local validation contract",
+    "teachingco claim and execute tasks 4932 and 4933",
+    "softwareco claim and execute task 4934",
+    "healthco acknowledge negative-control notice via task 4935 (no mutation)",
+    "empirical-owner authoring and acceptance of the G3 prospective protocol decision",
+    "G0-A2 admission after all of the above"
+  ],
+  "revision": 2
 }
