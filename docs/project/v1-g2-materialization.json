@@ -1,0 +1,1215 @@
+{
+  "candidate_branch": "proof/v1-candidate",
+  "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+  "executed_cells": 1,
+  "fixture_count": 48,
+  "fixtures": [
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "pass",
+      "fixture_class": "pre_v1_clean_transition",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "pre_v1_explicit_migration",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "unsupported",
+      "fixture_class": "pre_v1_unsupported",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "pass",
+      "fixture_class": "canonical_candidate_v1",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "pass",
+      "fixture_class": "additive_v1x",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "unsupported",
+      "fixture_class": "unsupported_future_major",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unknown_critical_extension",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "complete",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "partial",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "unavailable",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "denied",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "redacted",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "stale",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "incomplete",
+      "fixture_class": "unsupported",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "pass",
+      "fixture_class": "duplicate_json",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "pass",
+      "fixture_class": "reordering",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unknown_fields",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unknown_schema",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": null,
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "pass",
+      "fixture_class": "catalog_skew",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "malformed_json",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "invalid_utf8",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "depth_limit",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "size_limit",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "growth_limit",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "exact_limit",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_absolute",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_empty",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_dot",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_traversal",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_control_chars",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_option_injection",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "revision_ambiguous",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "symlink_target",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hardlink_target",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "special_file",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unreadable_file",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unwritable_file",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "parent_replacement",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "toctou_race",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hostile_git_helper",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "terminal_injection",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "markdown_injection",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "html_injection",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "link_injection",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "url_payload",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "tool_instruction",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hostile_patch",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    },
+    {
+      "boundary": "ingress_parse",
+      "candidate_binding": "unassigned",
+      "diagnostics": {
+        "contains_private_metadata": false,
+        "sanitized": true
+      },
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hostile_model_response",
+      "schema": "engineering-core.v1.g2/1",
+      "stage": "g2-fixture-instance"
+    }
+  ],
+  "g2_pass_claimed": false,
+  "materialized_only_cells": 48,
+  "matrix": [
+    {
+      "entrypoint": "cli_command",
+      "state": "executed_no_effect",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "cli_command",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "cli_command",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "cli_command",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "cli_command",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "cli_command",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "cli_command",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "parser",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "renderer",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "git_subprocess",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "output_path",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "owner_transfer",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "path_attack"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "race_replacement"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "injection"
+    },
+    {
+      "entrypoint": "model_response_sink",
+      "state": "materialized_not_executed",
+      "threat_family": "hostile_source"
+    }
+  ],
+  "schema": "engineering-core.v1.g2-materialization/1",
+  "stage": "g2-materialization",
+  "template_schema": "engineering-core.v1.g2/1",
+  "validations": [
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "pass",
+      "fixture_class": "pre_v1_clean_transition",
+      "fixture_digest": "f4fa25bc41d68f063bf49a9ac971d90e3756fe4c5ee2278d8e7d3e0c1bea8917",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "pre_v1_explicit_migration",
+      "fixture_digest": "851a4a0189fe1b02f456b5e577d5d894a382293a7f243b41b86db64a73c3913e",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "unsupported",
+      "fixture_class": "pre_v1_unsupported",
+      "fixture_digest": "3e12679b264c01b8da0417ada6913a97fc4013ab6d81d5613d954afb1eb62c71",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "pass",
+      "fixture_class": "canonical_candidate_v1",
+      "fixture_digest": "981c2d2cc2977b6d7eaad7967992696320a642070359ac159ebef898789a38c2",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "pass",
+      "fixture_class": "additive_v1x",
+      "fixture_digest": "40a0debda954d5925e2711531068be6027d5f40664ca882525e859c3efbda3c9",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "unsupported",
+      "fixture_class": "unsupported_future_major",
+      "fixture_digest": "08e8ee2e1f86e1bbdc247d74c1087fe56ad15f7f0af92a29b441f6be68c622b2",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unknown_critical_extension",
+      "fixture_digest": "6011021a87ced701fd30e96e1b84b7513a1134b42dae19bd3bf5699b61522568",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "complete",
+      "fixture_digest": "e6d39fa192fc43351ea3cb54068e7da297796aaa7d5bf3894c0abe3c6c1ab34e",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "partial",
+      "fixture_digest": "1588168eb6d9f7fb58ee2d1db3dda5c24f79d3f8d00ba4ea12dfd560976b3bcd",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "unavailable",
+      "fixture_digest": "34a431f6936333cda33292ee114475e95f923d6388e1872355e7df8c6586bb85",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "denied",
+      "fixture_digest": "e879a5808f140089564796e8cc25fb9e88f706890903429838835070c0ef17d2",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "redacted",
+      "fixture_digest": "91ebaf75c92fc0cd4289f1fdecf56bf08c2a5410946cda58f79f6f3bdf46f24f",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "stale",
+      "fixture_digest": "143b01e74ba885b2dec3a5f5841915ad7d4a00e989b31d9ba1dd814c25100bc2",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "incomplete",
+      "fixture_class": "unsupported",
+      "fixture_digest": "0a8a2e1e5bb616bb2264f9eb1cebf64f5a986e4d289ba00c4107b88ccf6de000",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "pass",
+      "fixture_class": "duplicate_json",
+      "fixture_digest": "2fc4804f55d468c7c7c817f4f3ca72affb519e2f3480a2afee60d47230959b99",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "pass",
+      "fixture_class": "reordering",
+      "fixture_digest": "8cf68d9cd778bfa8b1dc70a114a6282ef6f3b47f955d2314e6815d0e0091140c",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unknown_fields",
+      "fixture_digest": "2cd24c876c6283b435d1daf6ce75d857c743c469ee9a2edbe0e990d00afbce3a",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unknown_schema",
+      "fixture_digest": "5c81eea66f6ebec26de7e626533488ce63b47288f6721b5305e175747675f2f1",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "pass",
+      "fixture_class": "catalog_skew",
+      "fixture_digest": "88cb870315c38b9451cf7765566025dd518d7d49b6f3a9e07316c48ee04a2526",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "malformed_json",
+      "fixture_digest": "5895f06d2387b13cb46bb82e849859585edd8651bb0961dab21bfc42088efa81",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "invalid_utf8",
+      "fixture_digest": "748e447d92905f45f4f93e7331c10785e2209bf864277db0ad1eebdfc0a43d1c",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "depth_limit",
+      "fixture_digest": "057e5a9efdf8493f58cdad3deff3447488f01490e6db1e01f3dce485b478a925",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "size_limit",
+      "fixture_digest": "188f862ae61aae75003ca226424ebc909851d45289d0657ac16baf4319bed0b6",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "growth_limit",
+      "fixture_digest": "1e442015ce55c62e0a474b0322e1ccdfc3f05e953055df878f8a8ad42740c80a",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "exact_limit",
+      "fixture_digest": "dd4b6f26b3387aa775c19b48ef6a1e8d9934c32c8c819c34773907f19f596329",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_absolute",
+      "fixture_digest": "cb3c0c1260d11e56905eb4c323c6ae758cb7ed5e0f3f9f96a4dd5f5197501947",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_empty",
+      "fixture_digest": "39d33c235f2f3352630617c0ca81fcb1715fc0f594dee7a3212e22ce260183d1",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_dot",
+      "fixture_digest": "da64bca6504bd30067da348aec8a32e3a1cfc336b73ade84a1e0048535bd98ac",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_traversal",
+      "fixture_digest": "dd95301605e5512b2b654d49b3a1a5d2f334f2a6336ae993c57402e58d87d744",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_control_chars",
+      "fixture_digest": "9f8a6118a566325602e83dbfb011dcf96d8dea7cf6f74b0632933f904ef78c63",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "path_option_injection",
+      "fixture_digest": "66a61b30df6be732e74e49931d26c3b8c8145dc9d65d175e84ac0adb6125f70f",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "revision_ambiguous",
+      "fixture_digest": "4d9fe40e7e3ff486eea2b9589f33f40bc3cffd9410dab7515a39ecb2a3149458",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "symlink_target",
+      "fixture_digest": "41a14a3ba3f5329ae36919f4cd6ab787110e18d7293d5d6fabe2cb1c021b6b4b",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hardlink_target",
+      "fixture_digest": "5d1cc6a718b22157471b70d17e6f50c2b68e5e9d6008d6dad139d53c2382b290",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "special_file",
+      "fixture_digest": "7131628e880fe1fe1462a4ae5d409a372d6be443076e1571af61d2f9fd91c24a",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unreadable_file",
+      "fixture_digest": "26be2c36a5f057f90f2389669dd555a4f9a387990d045eccdb525771121243dd",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "unwritable_file",
+      "fixture_digest": "bfe13cbedf892d58416749aef5befcaedcb32a27e6077cd7e13f3cfdbe444d5c",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "parent_replacement",
+      "fixture_digest": "00d220779ecc1837632cd898c1e7add7006bbef4149654907214b6a88e7a13d6",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "toctou_race",
+      "fixture_digest": "af352cb5a674c853df1ae3d99acaae87b58eec9f5c05e9d336880ea62fc1294e",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hostile_git_helper",
+      "fixture_digest": "ea19e990faa8bced58d5c9195adc3f47004e9e0be8b6010ed39dad88d2d5b5b6",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "terminal_injection",
+      "fixture_digest": "7b08b3a33b4023bc64411629865f6bef8390b1c31e908e83d7604dd5c048da09",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "markdown_injection",
+      "fixture_digest": "3685e7c6c19ca08b3538c1cf3ac5b5d395fdf422ae1fc4301b26bbd8f7d5e692",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "html_injection",
+      "fixture_digest": "fbe9e0b7ff5f549566f471d1b0734c89a1dbe493618e6b9721e537ff6f063f4d",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "link_injection",
+      "fixture_digest": "6f6325a4496c736c9461c162c19f803b0c14c0fb773deab18597e5f7e3eae623",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "url_payload",
+      "fixture_digest": "5d850fbec37312dd381cd83390010ef924cbf38572c727b87828f47e53eef5f2",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "tool_instruction",
+      "fixture_digest": "8938ce4a73d153c26ad5d13539118d6735c7bea3d900362382e86187dbfe6e73",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hostile_patch",
+      "fixture_digest": "07901b642ae659d9e1e3a6048ac23ee1efe12c00b0c239bbc0c87e26868e4fd9",
+      "status": "pass"
+    },
+    {
+      "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+      "expected_outcome": "fail_at_boundary",
+      "fixture_class": "hostile_model_response",
+      "fixture_digest": "a5846cf5b39a27972f80aa984a41db2e5b2563d062e4e0a2d69091084212f0f9",
+      "status": "pass"
+    }
+  ],
+  "wheel_smoke": {
+    "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+    "commands": [
+      {
+        "argv": [
+          "--help"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 3879
+      },
+      {
+        "argv": [
+          "list"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 119
+      },
+      {
+        "argv": [
+          "list-disciplines"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 295
+      },
+      {
+        "argv": [
+          "catalog"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 20040
+      }
+    ],
+    "entrypoint": "cli_command",
+    "failed": [],
+    "status": "pass"
+  },
+  "wheel_source": "empty-venv install of fa7c9a9 engineering_core-1.0.0-py3-none-any.whl; cwd had no checkout"
+}
