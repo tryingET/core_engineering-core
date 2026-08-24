@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import difflib
 import json
+import os
+import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -15,6 +17,7 @@ from engineering_core.adoption_scan import (
     extract_policy,
 )
 from engineering_core.catalog_model import collection_entries, collection_ids
+from engineering_core.repository_facts import validate_repository_argument
 from engineering_core.safe_io import SafeInputError, read_bounded_json
 
 MANAGED_MARKER = "<!-- engineering-core-managed:v1 -->"
@@ -298,7 +301,7 @@ def plan_init(
     ref: str = "workspace-local-unpinned",
     force: bool = False,
 ) -> AdoptionPlan:
-    repo_root = repo_root.resolve()
+    repo_root = validate_repository_argument(repo_root)
     selected_lanes, selected_disciplines = select_guidance(
         repo_root,
         catalog,
@@ -354,7 +357,7 @@ def plan_migration(
     force: bool = False,
     remove_legacy: bool = False,
 ) -> AdoptionPlan:
-    repo_root = repo_root.resolve()
+    repo_root = validate_repository_argument(repo_root)
     legacy_policy_path = repo_root / LEGACY_POLICY
     legacy_doc_path = repo_root / LEGACY_DOC
     legacy_policy, legacy_error = load_json(legacy_policy_path)
@@ -394,14 +397,40 @@ def plan_migration(
 def apply_plan(plan: AdoptionPlan) -> None:
     if plan.conflicts:
         raise ValueError("cannot apply adoption plan with conflicts")
-    repo_root = Path(plan.repo)
+    repo_root = validate_repository_argument(plan.repo)
+    staged: list[tuple[FileChange, Path]] = []
     for change in plan.changes:
-        path = repo_root / change.path
-        if change.after is None:
-            path.unlink(missing_ok=True)
-            continue
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(change.after, encoding="utf-8")
+        relative = Path(change.path)
+        if relative.is_absolute() or any(part == ".." for part in relative.parts):
+            raise ValueError(f"refusing escaped change path: {change.path}")
+        dest = (repo_root / relative).resolve()
+        try:
+            dest.relative_to(repo_root.resolve())
+        except ValueError as exc:
+            raise ValueError(f"refusing escaped change path: {change.path}") from exc
+        staged.append((change, dest))
+    temps: list[Path] = []
+    try:
+        for change, dest in staged:
+            if change.after is None:
+                continue
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            handle, temporary_name = tempfile.mkstemp(prefix=f".{dest.name}.", dir=dest.parent)
+            temporary = Path(temporary_name)
+            temps.append(temporary)
+            with os.fdopen(handle, "w", encoding="utf-8") as stream:
+                stream.write(change.after)
+                stream.flush()
+                os.fsync(stream.fileno())
+            os.replace(temporary, dest)
+            temps.pop()
+        for change, dest in staged:
+            if change.after is None:
+                dest.unlink(missing_ok=True)
+    except Exception:
+        for temporary in temps:
+            temporary.unlink(missing_ok=True)
+        raise
 
 
 def render_diff(plan: AdoptionPlan) -> str:

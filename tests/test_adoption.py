@@ -14,10 +14,13 @@ sys.path.insert(0, str(REPO_ROOT / "src"))
 
 from engineering_core.adoption import (
     MANAGED_MARKER,
+    AdoptionPlan,
+    FileChange,
     apply_plan,
     plan_init,
     plan_migration,
 )
+from engineering_core.repository_facts import RepositoryPathError
 from engineering_core.catalog_model import load_catalog
 from engineering_core.cli import main
 
@@ -109,6 +112,40 @@ class AdoptionTests(unittest.TestCase):
             result = json.loads(stdout.getvalue())
             self.assertFalse(result["applied"])
             self.assertFalse((repo / "policy" / "engineering-lane.json").exists())
+
+    def test_init_rejects_missing_directory_before_any_plan(self) -> None:
+        missing = Path("/this/path/does/not/exist-engineering-core-test")
+        with self.assertRaises(RepositoryPathError):
+            plan_init(missing, self.catalog)
+
+    def test_init_rejects_parent_traversal_before_any_plan(self) -> None:
+        with self.assertRaises(RepositoryPathError):
+            plan_init(Path("../../etc/passwd"), self.catalog)
+
+    def test_apply_refuses_escaped_change_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            plan = AdoptionPlan(
+                repo=str(repo),
+                mode="init",
+                lanes=["py"],
+                disciplines=["validation"],
+                changes=[FileChange("../outside.md", "create", None, "leaked\n")],
+                conflicts=[],
+            )
+            with self.assertRaises(ValueError):
+                apply_plan(plan)
+            self.assertFalse((Path(tmp).parent / "outside.md").exists())
+
+    def test_cli_init_rejects_traversal_with_no_stdout(self) -> None:
+        stdout = io.StringIO()
+        with patch.object(
+            sys, "argv",
+            ["engineering-core", "init", "--repo", "../../etc/passwd", "--format", "json"],
+        ), redirect_stdout(stdout), self.assertRaises(SystemExit) as ctx:
+            main()
+        self.assertNotEqual(ctx.exception.code, 0)
+        self.assertEqual(stdout.getvalue(), "")
 
 
 if __name__ == "__main__":

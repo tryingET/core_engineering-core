@@ -19,7 +19,7 @@ from engineering_core.catalog import load_catalog
 from engineering_core.capability_cli import add_parsers as add_capability_parsers, run as run_capability
 from engineering_core.closed_loop_cli import add_parsers as add_closed_loop_parsers, run as run_closed_loop
 from engineering_core.engineering_plan import compile_plan, explain_plan
-from engineering_core.repository_facts import RepositoryPathError
+from engineering_core.repository_facts import RepositoryPathError, validate_repository_argument
 from engineering_core.evidence_reconcile_cli import add_parser as add_evidence_reconcile_parser, run as run_evidence_reconcile
 from engineering_core.policy import load_policy
 from engineering_core.work_cli import add_parsers as add_work_parsers, run as run_work
@@ -348,7 +348,10 @@ def main() -> None:
     if args.cmd == "recommend":
         catalog = _load_catalog(Path(args.repo_root).resolve(), args.prefer_repo)
         if args.repo:
-            repo_root = Path(args.repo).resolve()
+            try:
+                repo_root = validate_repository_argument(args.repo)
+            except RepositoryPathError as exc:
+                raise SystemExit(f"recommend rejected: {exc}") from exc
             lanes, disciplines = _infer_repo_recommendation(repo_root)
             _print_recommendation_items(f"repo:{repo_root}", lanes, disciplines)
             return

@@ -57,6 +57,10 @@ class DoctorTests(unittest.TestCase):
         self.assertLessEqual(len(report["repository"].encode()), 4096)
         self.assertEqual(set(report["capabilities"]), {"planning", "advisor", "closed_loop"})
 
+    def test_parent_traversal_is_blocked_without_following(self):
+        report = build_doctor(Path("../../etc/passwd"))
+        self.assertEqual(report["status"], "blocked")
+
     def test_symlinked_policy_is_rejected_without_reading_target(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp); (root / "policy").mkdir()

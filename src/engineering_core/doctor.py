@@ -79,6 +79,8 @@ def build_doctor(repo: Path, *, repo_root: Path | None = None, prefer_repo: bool
         supplied = str(repo)
         if len(supplied.encode("utf-8")) > 4096 or any(ord(char) < 32 for char in supplied):
             raise ValueError("target path exceeds bounds or contains control characters")
+        if any(part == ".." for part in Path(supplied).parts):
+            raise ValueError("repository path must not contain '..'")
         root = repo.resolve()
         target_is_dir = root.is_dir()
     except (OSError, ValueError) as exc:
