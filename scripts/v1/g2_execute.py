@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 SCHEMA = "engineering-core.v1.g2-execution/1"
-CANDIDATE_COMMIT = "b313becf7f1bf5261843d7b29c939b0bc5072ef1"
+CANDIDATE_COMMIT = "7a41ea321015c6a5210d6ea26b6f3e5ac6632045"
 
 # expected: "zero" (exit 0) or "nonzero"
 PROBES = [
