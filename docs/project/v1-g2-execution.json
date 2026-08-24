@@ -1,0 +1,189 @@
+{
+  "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+  "executed_cells": [
+    {
+      "entrypoint": "cli_command",
+      "threat_family": "compatibility"
+    },
+    {
+      "entrypoint": "cli_command",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "cli_command",
+      "threat_family": "population_missingness"
+    },
+    {
+      "entrypoint": "parser",
+      "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "renderer",
+      "threat_family": "compatibility"
+    }
+  ],
+  "failed": [
+    "plan-traversal-repo"
+  ],
+  "findings": [
+    "plan-traversal-repo"
+  ],
+  "g2_pass_claimed": false,
+  "probe_count": 10,
+  "probes": [
+    {
+      "argv": [
+        "--help"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 0,
+      "expected": "zero",
+      "fixture_class": "canonical_candidate_v1",
+      "id": "help",
+      "pass": true,
+      "stderr_bytes": 0,
+      "stdout_bytes": 3879,
+      "threat_family": "compatibility"
+    },
+    {
+      "argv": [
+        "list"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 0,
+      "expected": "zero",
+      "fixture_class": "canonical_candidate_v1",
+      "id": "list",
+      "pass": true,
+      "stderr_bytes": 0,
+      "stdout_bytes": 119,
+      "threat_family": "compatibility"
+    },
+    {
+      "argv": [
+        "show",
+        "py"
+      ],
+      "entrypoint": "renderer",
+      "exit": 0,
+      "expected": "zero",
+      "fixture_class": "canonical_candidate_v1",
+      "id": "show-py",
+      "pass": true,
+      "stderr_bytes": 0,
+      "stdout_bytes": 8856,
+      "threat_family": "compatibility"
+    },
+    {
+      "argv": [
+        "this-command-does-not-exist"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 2,
+      "expected": "nonzero",
+      "fixture_class": "malformed_json",
+      "id": "unknown-command",
+      "pass": true,
+      "stderr_bytes": 923,
+      "stdout_bytes": 0,
+      "threat_family": "malformed_input"
+    },
+    {
+      "argv": [
+        "show"
+      ],
+      "entrypoint": "parser",
+      "exit": 2,
+      "expected": "nonzero",
+      "fixture_class": "unknown_fields",
+      "id": "show-missing-lane",
+      "pass": true,
+      "stderr_bytes": 297,
+      "stdout_bytes": 0,
+      "threat_family": "malformed_input"
+    },
+    {
+      "argv": [
+        "plan"
+      ],
+      "entrypoint": "parser",
+      "exit": 2,
+      "expected": "nonzero",
+      "fixture_class": "malformed_json",
+      "id": "plan-missing-repo-flag",
+      "pass": true,
+      "stderr_bytes": 201,
+      "stdout_bytes": 0,
+      "threat_family": "malformed_input"
+    },
+    {
+      "argv": [
+        "plan",
+        "--repo",
+        "definitely-missing-repo-xyz"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 0,
+      "expected": "zero",
+      "fixture_class": "unavailable",
+      "id": "plan-absent-repo",
+      "pass": true,
+      "stderr_bytes": 0,
+      "stdout_bytes": 2299,
+      "threat_family": "population_missingness"
+    },
+    {
+      "argv": [
+        "plan",
+        "--repo",
+        "../../etc/passwd"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 0,
+      "expected": "nonzero",
+      "fixture_class": "path_traversal",
+      "id": "plan-traversal-repo",
+      "pass": false,
+      "stderr_bytes": 0,
+      "stdout_bytes": 2299,
+      "threat_family": "path_attack"
+    },
+    {
+      "argv": [
+        "scan-adoption",
+        "--scope",
+        "definitely-missing-scope-xyz",
+        "--format",
+        "json"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 0,
+      "expected": "zero",
+      "fixture_class": "unavailable",
+      "id": "scan-missing-scope",
+      "pass": true,
+      "stderr_bytes": 0,
+      "stdout_bytes": 1440,
+      "threat_family": "population_missingness"
+    },
+    {
+      "argv": [
+        "doctor",
+        "--repo",
+        "definitely-missing-repo-xyz"
+      ],
+      "entrypoint": "cli_command",
+      "exit": 1,
+      "expected": "nonzero",
+      "fixture_class": "unavailable",
+      "id": "doctor-absent",
+      "pass": true,
+      "stderr_bytes": 0,
+      "stdout_bytes": 1893,
+      "threat_family": "population_missingness"
+    }
+  ],
+  "schema": "engineering-core.v1.g2-execution/1",
+  "stage": "g2-execution",
+  "status": "pass_with_findings"
+}
