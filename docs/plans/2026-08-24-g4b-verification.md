@@ -8,7 +8,7 @@ type: "implementation-plan"
 
 # G4-B verification
 
-Candidate: `proof/v1-candidate` `fa7c9a9f2524816adf2cc4026c8b94a5e929d560`.
+Candidate: `proof/v1-candidate-2` `b313becf7f1bf5261843d7b29c939b0bc5072ef1`.
 Harness: `scripts/v1/g4b_verify.py` (does not modify the frozen G4-A harness).
 
 ## Checks

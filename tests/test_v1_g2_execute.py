@@ -23,8 +23,9 @@ class G2ExecuteTests(unittest.TestCase):
         rec = json.loads(RECORD.read_text())
         r = ge.validate_record(rec)
         self.assertEqual(r["status"], "pass")
-        self.assertEqual(rec["status"], "pass_with_findings")
-        self.assertIn("plan-traversal-repo", rec["failed"])
+        self.assertEqual(rec["status"], "pass")
+        self.assertEqual(rec.get("failed") or [], [])
+        self.assertIn({"entrypoint": "cli_command", "threat_family": "path_attack"}, rec["executed_cells"])
         self.assertFalse(rec["g2_pass_claimed"])
 
     def test_cli_validate(self):

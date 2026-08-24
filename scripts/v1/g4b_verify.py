@@ -23,8 +23,8 @@ import sys
 from pathlib import Path
 
 SCHEMA = "engineering-core.v1.g4b/1"
-CANDIDATE_COMMIT = "fa7c9a9f2524816adf2cc4026c8b94a5e929d560"
-CANDIDATE_BRANCH = "proof/v1-candidate"
+CANDIDATE_COMMIT = "b313becf7f1bf5261843d7b29c939b0bc5072ef1"
+CANDIDATE_BRANCH = "proof/v1-candidate-2"
 SUITE_CASES = [
     "proposal", "pilot_selection", "promotion", "revision_split", "rejection",
     "deprecation", "retirement", "expiry", "rollback", "invalid_transition",
@@ -167,7 +167,7 @@ def validate_record(record: dict, repo_root: Path) -> dict:
     _require(record["candidate_commit"] == CANDIDATE_COMMIT, "wrong_candidate",
              "candidate commit does not match frozen G0-B SHA")
     _require(record["candidate_branch"] == CANDIDATE_BRANCH, "wrong_branch",
-             "candidate branch must be proof/v1-candidate")
+             "candidate branch must be proof/v1-candidate-2")
     _require(record["accepted_g4_content"] == [], "accepted_content_not_empty",
              "G4-B inclusion map must be empty until a promotion lands")
     _require(record["tag_absent"] is True, "tag_present", "v1.0.0 must remain untagged")
@@ -210,6 +210,8 @@ def validate_record(record: dict, repo_root: Path) -> dict:
         _require(rec is not None, "suite_incomplete", f"missing case {live['suite_case']}")
         _require(rec.get("result") == live["result"], "suite_result_mismatch",
                  f"{live['suite_case']} result drifted")
+        _require(rec.get("digest") == live["digest"], "suite_digest_mismatch",
+                 f"{live['suite_case']} digest drifted or omitted")
 
     return {
         "schema": SCHEMA,

@@ -1,5 +1,5 @@
 ---
-summary: "G2 candidate-bound fixture materialization and installed-wheel entrypoint proof against fa7c9a9. Does not claim G2 PASS."
+summary: "G2 candidate-bound fixture materialization and installed-wheel entrypoint proof against b313bec. Does not claim G2 PASS."
 read_when:
   - "Continuing Gate G2 after G0-B candidate freeze."
   - "Checking which G2 cells are materialized vs actually executed."
@@ -8,7 +8,7 @@ type: "implementation-plan"
 
 # G2 materialization (no PASS)
 
-Candidate: `proof/v1-candidate` `fa7c9a9f2524816adf2cc4026c8b94a5e929d560`.
+Candidate: `proof/v1-candidate-2` `b313becf7f1bf5261843d7b29c939b0bc5072ef1`.
 Harness: `scripts/v1/g2_materialize.py` (does not edit the frozen G2 template harness).
 
 ## This slice

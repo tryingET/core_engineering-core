@@ -1,5 +1,5 @@
 ---
-summary: "G2 additional candidate-wheel cell execution against fa7c9a9. Still not Gate G2 PASS."
+summary: "G2 additional candidate-wheel cell execution against b313bec. Still not Gate G2 PASS."
 read_when:
   - "Continuing G2 after corpus materialization."
 type: "implementation-plan"
@@ -7,7 +7,7 @@ type: "implementation-plan"
 
 # G2 additional wheel execution
 
-Candidate wheel from `fa7c9a9`, empty cwd, no checkout fallback.
+Candidate wheel from `b313bec`, empty cwd, no checkout fallback.
 Harness: `scripts/v1/g2_execute.py`.
 
 This slice executes more `cli_command` / `parser` cells (unknown command,

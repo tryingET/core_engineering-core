@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 
 SCHEMA = "engineering-core.v1.g2-execution/1"
-CANDIDATE_COMMIT = "fa7c9a9f2524816adf2cc4026c8b94a5e929d560"
+CANDIDATE_COMMIT = "b313becf7f1bf5261843d7b29c939b0bc5072ef1"
 
 # expected: "zero" (exit 0) or "nonzero"
 PROBES = [
@@ -43,7 +43,7 @@ PROBES = [
      "entrypoint": "parser", "threat_family": "malformed_input",
      "fixture_class": "malformed_json"},
     {"id": "plan-absent-repo", "argv": ["plan", "--repo", "definitely-missing-repo-xyz"],
-     "expected": "zero", "entrypoint": "cli_command", "threat_family": "population_missingness",
+     "expected": "nonzero", "entrypoint": "cli_command", "threat_family": "population_missingness",
      "fixture_class": "unavailable"},
     {"id": "plan-traversal-repo", "argv": ["plan", "--repo", "../../etc/passwd"],
      "expected": "nonzero", "entrypoint": "cli_command", "threat_family": "path_attack",

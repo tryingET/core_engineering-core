@@ -63,6 +63,13 @@ class G4BTests(unittest.TestCase):
             gv.validate_record(rec, ROOT)
         self.assertEqual(ctx.exception.code, "digest_mismatch")
 
+    def test_suite_digest_drift_rejected(self):
+        rec = load_record()
+        rec["suite_replay"][0]["digest"] = "0" * 64
+        with self.assertRaises(gv.ValidationError) as ctx:
+            gv.validate_record(rec, ROOT)
+        self.assertEqual(ctx.exception.code, "suite_digest_mismatch")
+
     def test_incomplete_suite_rejected(self):
         rec = load_record()
         rec["suite_replay"] = rec["suite_replay"][:10]

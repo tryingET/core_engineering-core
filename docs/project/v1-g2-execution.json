@@ -1,5 +1,5 @@
 {
-  "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+  "candidate_commit": "b313becf7f1bf5261843d7b29c939b0bc5072ef1",
   "executed_cells": [
     {
       "entrypoint": "cli_command",
@@ -8,6 +8,10 @@
     {
       "entrypoint": "cli_command",
       "threat_family": "malformed_input"
+    },
+    {
+      "entrypoint": "cli_command",
+      "threat_family": "path_attack"
     },
     {
       "entrypoint": "cli_command",
@@ -22,12 +26,8 @@
       "threat_family": "compatibility"
     }
   ],
-  "failed": [
-    "plan-traversal-repo"
-  ],
-  "findings": [
-    "plan-traversal-repo"
-  ],
+  "failed": [],
+  "findings": [],
   "g2_pass_claimed": false,
   "probe_count": 10,
   "probes": [
@@ -123,13 +123,13 @@
         "definitely-missing-repo-xyz"
       ],
       "entrypoint": "cli_command",
-      "exit": 0,
-      "expected": "zero",
+      "exit": 1,
+      "expected": "nonzero",
       "fixture_class": "unavailable",
       "id": "plan-absent-repo",
       "pass": true,
-      "stderr_bytes": 0,
-      "stdout_bytes": 2299,
+      "stderr_bytes": 61,
+      "stdout_bytes": 0,
       "threat_family": "population_missingness"
     },
     {
@@ -139,13 +139,13 @@
         "../../etc/passwd"
       ],
       "entrypoint": "cli_command",
-      "exit": 0,
+      "exit": 1,
       "expected": "nonzero",
       "fixture_class": "path_traversal",
       "id": "plan-traversal-repo",
-      "pass": false,
-      "stderr_bytes": 0,
-      "stdout_bytes": 2299,
+      "pass": true,
+      "stderr_bytes": 53,
+      "stdout_bytes": 0,
       "threat_family": "path_attack"
     },
     {
@@ -163,7 +163,7 @@
       "id": "scan-missing-scope",
       "pass": true,
       "stderr_bytes": 0,
-      "stdout_bytes": 1440,
+      "stdout_bytes": 1437,
       "threat_family": "population_missingness"
     },
     {
@@ -179,11 +179,11 @@
       "id": "doctor-absent",
       "pass": true,
       "stderr_bytes": 0,
-      "stdout_bytes": 1893,
+      "stdout_bytes": 1891,
       "threat_family": "population_missingness"
     }
   ],
   "schema": "engineering-core.v1.g2-execution/1",
   "stage": "g2-execution",
-  "status": "pass_with_findings"
+  "status": "pass"
 }

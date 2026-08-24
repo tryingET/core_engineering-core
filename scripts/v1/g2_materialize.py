@@ -24,8 +24,8 @@ import sys
 from pathlib import Path
 
 SCHEMA = "engineering-core.v1.g2-materialization/1"
-CANDIDATE_COMMIT = "fa7c9a9f2524816adf2cc4026c8b94a5e929d560"
-CANDIDATE_BRANCH = "proof/v1-candidate"
+CANDIDATE_COMMIT = "b313becf7f1bf5261843d7b29c939b0bc5072ef1"
+CANDIDATE_BRANCH = "proof/v1-candidate-2"
 
 
 class ValidationError(Exception):
