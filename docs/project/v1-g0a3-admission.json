@@ -1,0 +1,83 @@
+{
+  "schema": "engineering-core.v1.g0a3/1",
+  "stage": "g0a3-admission",
+  "template_digest": "ae976d6979405448a849cee761df823ceb2b9fdee73eb3fa5a74430ae1695ae5",
+  "base_commit": "d761bba16e89e1aa54cbd1dda14a050885fa40af",
+  "candidate_commit": "unassigned",
+  "candidate_digest": "unassigned",
+  "package_version": "unassigned",
+  "candidate_task_id": 4876,
+  "target_channel": "proof/v1-candidate",
+  "path_allowlist": [
+    "CHANGELOG.md",
+    "README.md",
+    "catalog-history/**",
+    "catalog.json",
+    "docs/releases/**",
+    "docs/support-policy.md",
+    "pyproject.toml",
+    "src/engineering_core/__init__.py",
+    "src/engineering_core/catalog-history/**",
+    "src/engineering_core/catalog.json",
+    "uv.lock"
+  ],
+  "decisions": {
+    "governing": 128,
+    "population": 131,
+    "g3_protocol": 132,
+    "g0a2": 134
+  },
+  "bindings": {
+    "g0a2_admission": {
+      "path": "docs/project/v1-g0a2-admission.json",
+      "sha256": "f2621aedb76075cca118e1f704ea9b3ea29a2c2c53a0b06868e2f0883fb03bc4"
+    },
+    "population_manifest": {
+      "path": "docs/project/v1-proof-population.json",
+      "sha256": "af7b605bf708cc8be0dd1788df962436eea0cea19dd8173501911532644d79e0"
+    },
+    "g4a_content_owner_decisions": {
+      "path": "docs/project/v1-g4a-content-owner-decisions.md",
+      "sha256": "41d3b2aff08bfeecabf80bf4876baa0438d210ea86e2201f550fd27951408e89"
+    },
+    "impact_matrix": {
+      "path": "docs/project/v1-impact-matrix.json",
+      "sha256": "2115d65bfb4977a6b922801c70b9c6e9f58ed78cd71477538d5cbd4754c559cf"
+    }
+  },
+  "accepted_g4_content": [],
+  "revised_lineage": [
+    {
+      "cycle_id": "cycle-holdingco-pin-drift",
+      "disposition": "revised",
+      "immutable": true,
+      "cycle_digest": "6e188a012d0a661fa4536506e259974fc25bcc6e52b5e8fc670d1810d1967ff7"
+    },
+    {
+      "cycle_id": "cycle-teachingco-minimal-validation",
+      "disposition": "revised",
+      "immutable": true,
+      "cycle_digest": "0ece9f07cb4eecf43760c981231ee0acc5785b3326ae2bba817707e85794f151"
+    },
+    {
+      "cycle_id": "cycle-softwareco-package-scopes",
+      "disposition": "revised",
+      "immutable": true,
+      "cycle_digest": "f3feef7f66d09877708f4a783d06a1977b6814173bf690ea3998239cb7293473"
+    }
+  ],
+  "implementation_fanin_tasks": [
+    4871,
+    4872,
+    4873,
+    4874,
+    4875,
+    4951
+  ],
+  "g4a_tasks": [
+    4952,
+    4953,
+    4954,
+    4956
+  ]
+}
