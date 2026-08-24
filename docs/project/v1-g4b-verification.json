@@ -1,0 +1,93 @@
+{
+  "accepted_g4_content": [],
+  "candidate_branch": "proof/v1-candidate",
+  "candidate_commit": "fa7c9a9f2524816adf2cc4026c8b94a5e929d560",
+  "main_untouched": true,
+  "mutating": false,
+  "revised_lineage": [
+    {
+      "cycle_digest": "6e188a012d0a661fa4536506e259974fc25bcc6e52b5e8fc670d1810d1967ff7",
+      "cycle_id": "cycle-holdingco-pin-drift",
+      "disposition": "revised",
+      "immutable": true
+    },
+    {
+      "cycle_digest": "0ece9f07cb4eecf43760c981231ee0acc5785b3326ae2bba817707e85794f151",
+      "cycle_id": "cycle-teachingco-minimal-validation",
+      "disposition": "revised",
+      "immutable": true
+    },
+    {
+      "cycle_digest": "f3feef7f66d09877708f4a783d06a1977b6814173bf690ea3998239cb7293473",
+      "cycle_id": "cycle-softwareco-package-scopes",
+      "disposition": "revised",
+      "immutable": true
+    }
+  ],
+  "schema": "engineering-core.v1.g4b/1",
+  "stage": "g4b-verification",
+  "suite_replay": [
+    {
+      "digest": "11d98603e6e9d8ccf0184630b3f9a0bc19552358ab78de24fdd7f3fbc31a6d2c",
+      "result": "accepted",
+      "suite_case": "proposal"
+    },
+    {
+      "digest": "f99b5e53d8c083217d4a0063e9c5cb02d8312a7270d7c21d7008997b87698aaf",
+      "result": "accepted",
+      "suite_case": "pilot_selection"
+    },
+    {
+      "digest": "c02831e6585bd66a99b34985b9046517948b345f97a190f011f01e87dbd1b547",
+      "result": "accepted",
+      "suite_case": "promotion"
+    },
+    {
+      "digest": "970aef3849783676fb593c1e353c963a9b250f9602df2bcb609d696010b60bc1",
+      "result": "accepted",
+      "suite_case": "revision_split"
+    },
+    {
+      "digest": "1067f7f6189e69799d48f865de8134d07a2844e7cd2ac44a13e7fbfe5f4bfb7e",
+      "result": "accepted",
+      "suite_case": "rejection"
+    },
+    {
+      "digest": "fb557e63a94fedbd5735cc2b40a6497095ba588ec6ff5ba890683dd8c43e1de3",
+      "result": "accepted",
+      "suite_case": "deprecation"
+    },
+    {
+      "digest": "b674f242253d99d2306a2fbaf9f168cbcdd0c066ec6bb7316753eb023d6060d8",
+      "result": "accepted",
+      "suite_case": "retirement"
+    },
+    {
+      "digest": "896e53f549f4952905f3eee4af2eac9d5a90b6cefcb050554490b3e76e57fae1",
+      "result": "accepted",
+      "suite_case": "expiry"
+    },
+    {
+      "digest": "4fd3eabe676118f2ce8b176967e411d44497170644b8581a118d7fe3f40debf1",
+      "result": "accepted",
+      "suite_case": "rollback"
+    },
+    {
+      "digest": "7b0680a47ef708180f268d5ae71241c08ab562114af0b0408353aceb338edd44",
+      "result": "rejected",
+      "suite_case": "invalid_transition"
+    },
+    {
+      "digest": "9e8669dcb472066a9abb8e4e12841ddc4ec80a47331fb599b48c1a81b8c08a99",
+      "result": "accepted",
+      "suite_case": "stale_evidence"
+    },
+    {
+      "digest": "b7c974167b2b60450700829fd884b25a5d14ff20b78aa7dd3964958f9fd5ad10",
+      "result": "rejected",
+      "suite_case": "unauthorized_promotion"
+    }
+  ],
+  "tag_absent": true,
+  "template_digest": "c20d05fc6022faa1e0e4b889cc1c8638d747f78bda41c290ac08081c4587e318"
+}
