@@ -1,0 +1,24 @@
+{
+  "schema": "engineering-core.v1.rendered-product/1",
+  "stage": "g0a2-candidate-independent-inventory",
+  "binding": "candidate_independent_g0a2",
+  "oracle": {
+    "requires": [
+      "source_root_package_parity",
+      "install_exact_wheel_into_empty_environment",
+      "execute_exact_extracted_sdist_through_documented_workflow",
+      "normalized_candidate_bound_output_comparison",
+      "links_and_front_matter",
+      "deterministic_promises",
+      "hostile_rendering",
+      "no_checkout_local_paths"
+    ],
+    "candidate_bound_outputs": "unassigned"
+  },
+  "inventory": [
+    {"surface": "cli --help", "class": "public_stable", "assertion": "unassigned"},
+    {"surface": "list / list-disciplines / list-templates / catalog", "class": "public_stable", "assertion": "unassigned"},
+    {"surface": "show-template engineering.local", "class": "public_stable", "assertion": "unassigned"},
+    {"surface": "packaged README and support policy", "class": "public_stable", "assertion": "unassigned"}
+  ]
+}

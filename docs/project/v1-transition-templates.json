@@ -1,0 +1,13 @@
+{
+  "schema": "engineering-core.v1.transition-templates/1",
+  "stage": "g0a2-templates",
+  "binding": "candidate_independent_g0a2",
+  "rule": "templates here; G0-B instances bind candidate identity later. No expected-result digest is fabricated now.",
+  "templates": [
+    {"id": "g1-journey-manifest", "kind": "template", "source": "scripts/v1/dependable_adoption.py template", "candidate_identity": "unassigned"},
+    {"id": "g2-corpus-template", "kind": "template", "source": "scripts/v1/federated_interoperation.py template", "candidate_identity": "unassigned"},
+    {"id": "g3-protocol", "kind": "accepted_protocol", "source": "dspx docs/v1-proof/g3-protocol-manifest.json", "candidate_identity": "unassigned"},
+    {"id": "g4-lifecycle-template", "kind": "template", "source": "scripts/v1/governed_evolution.py template", "candidate_identity": "unassigned"}
+  ],
+  "g0b_instances": "unassigned"
+}

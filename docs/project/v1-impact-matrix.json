@@ -1,0 +1,14 @@
+{
+  "schema": "engineering-core.v1.impact-matrix/1",
+  "stage": "g0a2-candidate-independent",
+  "rule": "undeclared change invalidates the run; this matrix names mandatory reruns",
+  "mappings": [
+    {"change_class": "protocol_template", "rerun": ["affected_gate_template", "g0a2_admission"]},
+    {"change_class": "population", "rerun": ["g0a2_admission", "g1", "g2", "g3", "g4", "g5"]},
+    {"change_class": "compatibility_class", "rerun": ["g0a2_admission", "g0b_manifest", "g2"]},
+    {"change_class": "rendered_product", "rerun": ["g0b_render", "g5"]},
+    {"change_class": "candidate_bytes", "rerun": ["g0a3", "g0b", "g1", "g2", "g4b", "g5"]},
+    {"change_class": "empirical_protocol", "rerun": ["g3"], "requires_fresh_accepted_decision": true},
+    {"change_class": "g4_content", "rerun": ["g4a_affected_cycle", "g0a3", "g0b", "g4b"]}
+  ]
+}

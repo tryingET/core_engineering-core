@@ -1,0 +1,28 @@
+{
+  "schema": "engineering-core.v1.compatibility-manifest/1",
+  "stage": "g0a2-candidate-independent-inventory",
+  "binding": "candidate_independent_g0a2",
+  "classification_rules": {
+    "unlabeled_documented_consumer_facing_defaults_to": "public_stable",
+    "classes": ["public_stable", "experimental_pilot", "internal_qualification", "owner_adapter"]
+  },
+  "required_entry_fields": [
+    "stable_id", "class", "normative_source", "introduced_version",
+    "semantic_promise", "deprecation_state", "executable_assertion"
+  ],
+  "inventory": [
+    {"stable_id": "cli.list", "class": "public_stable", "normative_source": "src/engineering_core/cli.py", "introduced_version": "unassigned", "semantic_promise": "list lanes", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "cli.list-disciplines", "class": "public_stable", "normative_source": "src/engineering_core/cli.py", "introduced_version": "unassigned", "semantic_promise": "list disciplines", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "cli.list-templates", "class": "public_stable", "normative_source": "src/engineering_core/cli.py", "introduced_version": "unassigned", "semantic_promise": "list templates", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "cli.catalog", "class": "public_stable", "normative_source": "src/engineering_core/cli.py", "introduced_version": "unassigned", "semantic_promise": "print catalog", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "cli.scan-adoption", "class": "public_stable", "normative_source": "src/engineering_core/cli.py", "introduced_version": "unassigned", "semantic_promise": "scan adoption coverage", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "protocol.engineering-capability-scan-v1", "class": "public_stable", "normative_source": "src/engineering_core/capability_scan.py", "introduced_version": "retained_pre_v1_id", "semantic_promise": "retain already-declared meaning or mint a new identifier at G0-B", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "protocol.engineering-plan-v1", "class": "public_stable", "normative_source": "src/engineering_core/advisor.py", "introduced_version": "retained_pre_v1_id", "semantic_promise": "retain already-declared meaning or mint a new identifier at G0-B", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "protocol.engineering-advice-request-v1", "class": "public_stable", "normative_source": "src/engineering_core/advisor.py", "introduced_version": "retained_pre_v1_id", "semantic_promise": "retain already-declared meaning or mint a new identifier at G0-B", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "scripts.v1.dependable_adoption", "class": "internal_qualification", "normative_source": "scripts/v1/dependable_adoption.py", "introduced_version": "unassigned", "semantic_promise": "G1 harness; not a public API", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "scripts.v1.federated_interoperation", "class": "internal_qualification", "normative_source": "scripts/v1/federated_interoperation.py", "introduced_version": "unassigned", "semantic_promise": "G2 harness; not a public API", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "scripts.v1.calibration_manifest", "class": "internal_qualification", "normative_source": "scripts/v1/calibration_manifest.py", "introduced_version": "unassigned", "semantic_promise": "G3 validator; not a public API", "deprecation_state": "active", "executable_assertion": "unassigned"},
+    {"stable_id": "scripts.v1.governed_evolution", "class": "internal_qualification", "normative_source": "scripts/v1/governed_evolution.py", "introduced_version": "unassigned", "semantic_promise": "G4 harness; not a public API", "deprecation_state": "active", "executable_assertion": "unassigned"}
+  ],
+  "candidate_fields": "unassigned_until_g0b"
+}

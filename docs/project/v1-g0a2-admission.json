@@ -1,0 +1,89 @@
+{
+  "schema": "engineering-core.v1.g0a2/1",
+  "stage": "g0a2-admission",
+  "template_digest": "122d7992cef515f2d3b2909d1810d85e4cc60f945d2dfa00e07529e0680a61f2",
+  "candidate_commit": "unassigned",
+  "candidate_digest": "unassigned",
+  "package_version": "unassigned",
+  "decisions": {
+    "governing": 128,
+    "population": 131,
+    "g3_protocol": 132
+  },
+  "owner_tasks": {
+    "holdingco": 4931,
+    "teachingco_mathe": 4932,
+    "teachingco_wib": 4933,
+    "softwareco": 4934,
+    "healthco_notice": 4935,
+    "dspx_protocol": 4936
+  },
+  "freezes": {
+    "g1_protocol_plan": {
+      "path": "docs/plans/2026-08-23-v1-dependable-adoption-proof.md",
+      "sha256": "cfb2da414a874d82ef42a94d83d4c112154f5d0ea2715e2dab55c7715768b64c"
+    },
+    "g1_harness": {
+      "path": "scripts/v1/dependable_adoption.py",
+      "sha256": "913c66e7346a00e3e52efc95a75025f615b86adeb7abbf9a8775cafee71a1d0e"
+    },
+    "g2_protocol_plan": {
+      "path": "docs/plans/2026-08-23-v1-federated-interoperation-proof.md",
+      "sha256": "b485ad56eeed5b3880d03f975c4851f997e4b10891b652aa96e5ef4f1e26ef2b"
+    },
+    "g2_harness": {
+      "path": "scripts/v1/federated_interoperation.py",
+      "sha256": "3fb320da301f97857a2246bc40a6c8b3896107a4a06d8dd245996fac33548865"
+    },
+    "g3_handoff_plan": {
+      "path": "docs/plans/2026-08-23-v1-evidence-calibration-handoff.md",
+      "sha256": "2b9f74c078979b080a38eb8641d9f730dc47387fdf08fd7644f650f0dda02abe"
+    },
+    "g3_harness": {
+      "path": "scripts/v1/calibration_manifest.py",
+      "sha256": "58290c28fce8bfef3f451a90390bbcca5a5b1d68aecf51c9477cbf7089609c3e"
+    },
+    "g4_protocol_plan": {
+      "path": "docs/plans/2026-08-23-v1-review-governed-evolution-proof.md",
+      "sha256": "8f06645ea576c4584d1319bf21aa481f62297365fb9cc5183ac5b8d97e4f39a0"
+    },
+    "g4_harness": {
+      "path": "scripts/v1/governed_evolution.py",
+      "sha256": "ca08885b4fce632741a9e42df0bc5d69a7390cedf78513ab9d02432d54cdbbb2"
+    },
+    "population_manifest": {
+      "path": "docs/project/v1-proof-population.json",
+      "sha256": "af7b605bf708cc8be0dd1788df962436eea0cea19dd8173501911532644d79e0"
+    },
+    "compatibility_schema": {
+      "path": "docs/project/v1-compatibility-manifest-schema.json",
+      "sha256": "998f5ab1ee664a0351f5a3354fa351e6a6994947e9c342797cc40258cbc9eddc"
+    },
+    "rendered_product_schema": {
+      "path": "docs/project/v1-rendered-product-schema.json",
+      "sha256": "cb0024a827d4bd403a2bb1a97f038d02a90f668b76bb26be8e96257ba42c1cac"
+    },
+    "impact_matrix": {
+      "path": "docs/project/v1-impact-matrix.json",
+      "sha256": "2115d65bfb4977a6b922801c70b9c6e9f58ed78cd71477538d5cbd4754c559cf"
+    },
+    "transition_templates": {
+      "path": "docs/project/v1-transition-templates.json",
+      "sha256": "de1463115d40a48d9b88ba181a6940b40e98e54fb21b1dcda22a127cddf1da31"
+    }
+  },
+  "compatibility_schema_ref": "docs/project/v1-compatibility-manifest-schema.json",
+  "rendered_product_schema_ref": "docs/project/v1-rendered-product-schema.json",
+  "impact_matrix_ref": "docs/project/v1-impact-matrix.json",
+  "transition_templates_ref": "docs/project/v1-transition-templates.json",
+  "admits": [
+    "convergence_implementation_tasks",
+    "owner_accepted_g4a_pilots"
+  ],
+  "does_not_admit": [
+    "candidate_freeze",
+    "gate_outcome_capture",
+    "publication",
+    "participant_mutation_beyond_exact_owner_tasks"
+  ]
+}
