@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import base64
 import difflib
+import hashlib
 import json
 import os
 import tempfile
@@ -22,6 +24,8 @@ from engineering_core.safe_io import SafeInputError, read_bounded_json
 
 MANAGED_MARKER = "<!-- engineering-core-managed:v1 -->"
 ADOPTION_SCHEMA_VERSION = "1"
+JOURNAL_SCHEMA_VERSION = "engineering-core.adoption-journal/1"
+ADOPTION_JOURNAL = Path(".engineering-core/adoption-journal.json")
 
 
 def load_json(path: Path) -> tuple[dict[str, Any] | None, str | None]:
@@ -427,10 +431,148 @@ def apply_plan(plan: AdoptionPlan) -> None:
         for change, dest in staged:
             if change.after is None:
                 dest.unlink(missing_ok=True)
+        _write_journal(repo_root, plan)
     except Exception:
         for temporary in temps:
             temporary.unlink(missing_ok=True)
         raise
+
+
+def _sha256(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def _write_journal(repo_root: Path, plan: AdoptionPlan) -> None:
+    """Persist the exact applied transaction so rollback/remove are provable.
+
+    Records per-change before/after bytes (base64) and sha256 digests. Written
+    atomically after the file changes; a failed journal write never reverts a
+    completed apply (rollback then refuses on drift/absence instead of
+    fabricating a restore).
+    """
+    entries = []
+    for change in plan.changes:
+        entries.append({
+            "path": change.path,
+            "action": change.action,
+            "before_sha256": _sha256(change.before.encode("utf-8")) if change.before is not None else None,
+            "after_sha256": _sha256(change.after.encode("utf-8")) if change.after is not None else None,
+            "before_b64": base64.b64encode(change.before.encode("utf-8")).decode("ascii") if change.before is not None else None,
+            "after_b64": base64.b64encode(change.after.encode("utf-8")).decode("ascii") if change.after is not None else None,
+        })
+    journal = {
+        "schema": JOURNAL_SCHEMA_VERSION,
+        "mode": plan.mode,
+        "repo": str(repo_root),
+        "changes": entries,
+    }
+    journal_path = repo_root / ADOPTION_JOURNAL
+    journal_path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary_name = tempfile.mkstemp(prefix=f".{journal_path.name}.", dir=journal_path.parent)
+    temporary = Path(temporary_name)
+    with os.fdopen(handle, "w", encoding="utf-8") as stream:
+        stream.write(json.dumps(journal, indent=2, sort_keys=True) + "\n")
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, journal_path)
+
+
+def _load_journal(repo_root: Path) -> dict[str, Any]:
+    journal_path = repo_root / ADOPTION_JOURNAL
+    if not journal_path.is_file():
+        raise ValueError("no adoption journal found: nothing applied by this tool to roll back or remove")
+    try:
+        journal = json.loads(journal_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"adoption journal is unreadable: {exc}") from exc
+    if not isinstance(journal, dict) or journal.get("schema") != JOURNAL_SCHEMA_VERSION:
+        raise ValueError("adoption journal schema mismatch")
+    if not isinstance(journal.get("changes"), list):
+        raise ValueError("adoption journal has no changes list")
+    return journal
+
+
+def _current_sha256(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    return _sha256(path.read_bytes())
+
+
+def _journal_drift(repo_root: Path, journal: dict[str, Any]) -> list[str]:
+    """Fail-closed owner-edit detection: any byte drift from the applied
+    transaction refuses rollback/removal instead of clobbering owner work."""
+    drifted: list[str] = []
+    for entry in journal["changes"]:
+        if any(part == ".." for part in Path(entry["path"]).parts):
+            drifted.append(f"{entry['path']}: escaped path in journal")
+            continue
+        current = _current_sha256(repo_root / entry["path"])
+        if current != entry["after_sha256"]:
+            drifted.append(f"{entry['path']}: current bytes drift from the applied transaction")
+    return drifted
+
+
+def rollback_adoption(repo_root: Path) -> dict[str, Any]:
+    """Public rollback: restore the exact pre-adoption bytes recorded in the
+    journal, then remove the journal. Refuses (raises ValueError) on drift,
+    missing journal, or empty transactions — never fabricates a restore."""
+    repo_root = validate_repository_argument(repo_root)
+    journal = _load_journal(repo_root)
+    entries = journal["changes"]
+    if not entries:
+        raise ValueError("adoption journal records no changes: nothing to roll back")
+    drift = _journal_drift(repo_root, journal)
+    if drift:
+        raise ValueError("refusing rollback on owner edits: " + "; ".join(drift))
+    restored: list[dict[str, str]] = []
+    for entry in reversed(entries):
+        path = repo_root / entry["path"]
+        if entry["before_b64"] is None:
+            path.unlink(missing_ok=True)
+            restored.append({"path": entry["path"], "action": "removed"})
+        else:
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(base64.b64decode(entry["before_b64"]))
+            restored.append({"path": entry["path"], "action": "restored"})
+    (repo_root / ADOPTION_JOURNAL).unlink(missing_ok=True)
+    return {
+        "command": "rollback",
+        "repo": str(repo_root),
+        "status": "rolled_back",
+        "restored": list(reversed(restored)),
+        "journal_removed": True,
+    }
+
+
+def remove_adoption(repo_root: Path) -> dict[str, Any]:
+    """Public removal of v1 adoption surfaces. Deletes only files whose current
+    bytes still equal the applied transaction (owner edits refuse fail-closed),
+    plus the journal. Raises ValueError on drift, missing adoption, or nothing
+    to remove (no noop success)."""
+    repo_root = validate_repository_argument(repo_root)
+    journal = _load_journal(repo_root)
+    entries = journal["changes"]
+    if not entries:
+        raise ValueError("adoption journal records no changes: nothing to remove")
+    drift = _journal_drift(repo_root, journal)
+    if drift:
+        raise ValueError("refusing removal on owner edits: " + "; ".join(drift))
+    removed: list[dict[str, str]] = []
+    for entry in entries:
+        path = repo_root / entry["path"]
+        if path.exists():
+            path.unlink()
+            removed.append({"path": entry["path"], "action": "removed"})
+    (repo_root / ADOPTION_JOURNAL).unlink(missing_ok=True)
+    if not removed:
+        raise ValueError("adoption surfaces already absent: refusing noop success")
+    return {
+        "command": "remove",
+        "repo": str(repo_root),
+        "status": "removed",
+        "removed": removed,
+        "journal_removed": True,
+    }
 
 
 def render_diff(plan: AdoptionPlan) -> str:

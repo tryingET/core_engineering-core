@@ -75,6 +75,22 @@ engineering-core migrate --repo .
 engineering-core migrate --repo . --remove-legacy --apply
 ```
 
+## Rollback and removal
+
+Every successful `init`/`migrate --apply` writes an adoption journal at
+`.engineering-core/adoption-journal.json` recording the exact before/after bytes
+of each changed file. Two public commands consume it:
+
+```bash
+engineering-core rollback --repo .   # restore exact pre-adoption bytes, then remove the journal
+engineering-core remove --repo .      # delete adoption surfaces (policy + managed doc), then remove the journal
+```
+
+Both refuse fail-closed with exit 2 when there is no journal, when current file
+bytes drift from the applied transaction (owner edits are preserved, never
+clobbered), or when there is nothing to act on (no noop success). Refusals print
+a JSON receipt with the reasons.
+
 
 ## Ownership rule
 

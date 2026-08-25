@@ -5,7 +5,15 @@ import json
 from pathlib import Path
 from typing import Any, Sequence
 
-from engineering_core.adoption import AdoptionPlan, apply_plan, plan_init, plan_migration, render_plan
+from engineering_core.adoption import (
+    AdoptionPlan,
+    apply_plan,
+    plan_init,
+    plan_migration,
+    remove_adoption,
+    render_plan,
+    rollback_adoption,
+)
 from engineering_core.catalog_model import load_catalog
 
 
@@ -34,6 +42,14 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--format", choices=("human", "json"), default="human")
     migrate.add_argument("--repo-root", default=".")
     migrate.add_argument("--prefer-repo", action="store_true")
+
+    rollback_cmd = sub.add_parser("rollback", help="Restore the exact pre-adoption bytes recorded in the apply journal")
+    rollback_cmd.add_argument("--repo", default=".")
+    rollback_cmd.add_argument("--format", choices=("human", "json"), default="human")
+
+    remove_cmd = sub.add_parser("remove", help="Remove v1 adoption surfaces (owner-edited files refuse fail-closed)")
+    remove_cmd.add_argument("--repo", default=".")
+    remove_cmd.add_argument("--format", choices=("human", "json"), default="human")
     return parser
 
 
@@ -47,10 +63,41 @@ def _print(plan: AdoptionPlan, output_format: str, *, applied: bool) -> None:
     print(f"applied: {str(applied).lower()}")
 
 
+def _print_receipt(receipt: dict[str, Any], output_format: str) -> None:
+    if output_format == "json":
+        print(json.dumps(receipt, indent=2, sort_keys=True))
+        return
+    print(f"engineering-core {receipt['command']}: {receipt['repo']}")
+    print(f"status: {receipt['status']}")
+    for item in receipt.get("restored", receipt.get("removed", [])):
+        print(f"{item['action']}: {item['path']}")
+    if receipt.get("journal_removed"):
+        print("journal: removed")
+
+
 def main(argv: Sequence[str] | None = None) -> None:
     parser = build_parser()
     args = parser.parse_args(argv)
-    catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo)
+    catalog = load_catalog(Path(args.repo_root).resolve(), prefer_repo=args.prefer_repo) if args.command in ("init", "migrate") else None
+
+    if args.command in ("rollback", "remove"):
+        try:
+            receipt = (
+                rollback_adoption(Path(args.repo))
+                if args.command == "rollback"
+                else remove_adoption(Path(args.repo))
+            )
+        except ValueError as exc:
+            refused = {
+                "command": args.command,
+                "repo": str(Path(args.repo).resolve()),
+                "status": "refused",
+                "reasons": [str(exc)],
+            }
+            _print_receipt(refused, args.format)
+            raise SystemExit(2)
+        _print_receipt(receipt, args.format)
+        return
 
     try:
         if args.command == "init":
