@@ -139,5 +139,14 @@ class RollbackRemoveTests(unittest.TestCase):
         self.assertEqual(receipt["status"], "refused")
 
 
+
+class EntryRoutingTests(unittest.TestCase):
+    def test_console_entry_routes_rollback_and_remove(self):
+        # AK 5050 follow-up: the public console entry must dispatch the new
+        # commands to the adoption CLI (the freeze defect this test pins).
+        source = (Path(__file__).resolve().parents[1]
+                  / "src/engineering_core/cli.py").read_text(encoding="utf-8")
+        self.assertIn('("init", "migrate", "rollback", "remove")', source)
+
 def true_sentinel() -> bool:
     return True

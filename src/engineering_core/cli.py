@@ -167,7 +167,7 @@ def _infer_repo_recommendation(repo_root: Path) -> tuple[list[str], list[str]]:
 
 def main() -> None:
     command = sys.argv[1] if len(sys.argv) > 1 else None
-    if command in ("init", "migrate"):
+    if command in ("init", "migrate", "rollback", "remove"):
         from engineering_core.adoption_cli import main as adoption_main
 
         adoption_main(sys.argv[1:])
