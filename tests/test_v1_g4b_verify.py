@@ -85,6 +85,46 @@ class G4BTests(unittest.TestCase):
         self.assertEqual(a.returncode, 0)
         self.assertEqual(a.stdout, b.stdout)
 
+    def test_lineage_binds_decided_v2_cycles(self):
+        # Task 5043: lineage is the re-originated, content-owner-decided v2
+        # cycles with their actual differentiated dispositions.
+        rec = load_record()
+        self.assertEqual(
+            [(e["cycle_id"], e["disposition"]) for e in rec["revised_lineage"]],
+            [
+                ("cycle-holdingco-coordination-nonclaimable-v2", "revised"),
+                ("cycle-teachingco-g1-already-adopted-refusal", "other_disposition"),
+                ("cycle-softwareco-g1-scanner-completeness-is-not-active-resolution",
+                 "revised"),
+            ],
+        )
+
+    def test_lineage_promoted_rejected(self):
+        rec = load_record()
+        rec["revised_lineage"][0]["disposition"] = "promoted"
+        with self.assertRaises(gv.ValidationError) as ctx:
+            gv.validate_record(rec, ROOT)
+        self.assertEqual(ctx.exception.code, "invalid_lineage")
+
+    def test_lineage_disposition_drift_rejected(self):
+        rec = load_record()
+        rec["revised_lineage"][1]["disposition"] = "revised"
+        with self.assertRaises(gv.ValidationError) as ctx:
+            gv.validate_record(rec, ROOT)
+        self.assertEqual(ctx.exception.code, "disposition_mismatch")
+
+    def test_validate_resolves_repo_root_from_any_cwd(self):
+        # Lineage paths are workspace-relative to repo root, not cwd-relative
+        # and not machine-local absolutes (task 5043 debt reduction).
+        import os
+        p = subprocess.run(
+            [sys.executable, str(SCRIPT), "validate", str(RECORD),
+             "--repo-root", str(ROOT)],
+            capture_output=True, text=True, cwd=os.path.expanduser("~"))
+        self.assertEqual(p.returncode, 0, p.stderr)
+        for item in gv.LINEAGE:
+            self.assertFalse(Path(item["path"]).is_absolute())
+
 
 if __name__ == "__main__":
     unittest.main()

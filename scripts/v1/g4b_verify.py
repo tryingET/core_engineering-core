@@ -30,25 +30,36 @@ SUITE_CASES = [
     "deprecation", "retirement", "expiry", "rollback", "invalid_transition",
     "stale_evidence", "unauthorized_promotion",
 ]
+# Decided v2 lineage (task 5043): the re-originated, content-owner-decided cycles
+# from tasks 5018/5019/5020 under EC decision task 5036. Dispositions are the
+# actual differentiated decisions, not a hardcoded quota (independent review
+# must-fix 5). Paths are workspace-relative to this repo root (no machine-local
+# absolutes) and resolve against --repo-root at validation time.
 LINEAGE = [
     {
-        "cycle_id": "cycle-holdingco-pin-drift",
+        "cycle_id": "cycle-holdingco-coordination-nonclaimable-v2",
         "disposition": "revised",
-        "cycle_digest": "6e188a012d0a661fa4536506e259974fc25bcc6e52b5e8fc670d1810d1967ff7",
-        "path": "/home/tryinget/ai-society/holdingco/fcos-control-board/docs/v1-proof/g4a-cycle.json",
+        "cycle_digest": "d7081a6fd9661c4168c768b11788656eb042e422c89fe4adf62b95d5814570af",
+        "path": "../../holdingco/fcos-control-board/docs/v1-proof/g4a-cycle-v2.json",
     },
     {
-        "cycle_id": "cycle-teachingco-minimal-validation",
-        "disposition": "revised",
-        "cycle_digest": "0ece9f07cb4eecf43760c981231ee0acc5785b3326ae2bba817707e85794f151",
-        "path": "/home/tryinget/ai-society/teachingco/mathe/docs/v1-proof/g4a-cycle.json",
+        "cycle_id": "cycle-teachingco-g1-already-adopted-refusal",
+        "disposition": "other_disposition",
+        "cycle_digest": "a7de8b71b608a59ab4df993b11df50bcecdcd861df4923741522849c4ed9669a",
+        "path": "../../teachingco/mathe/docs/v1-proof/g4a-cycle-v2.json",
     },
     {
-        "cycle_id": "cycle-softwareco-package-scopes",
+        "cycle_id": "cycle-softwareco-g1-scanner-completeness-is-not-active-resolution",
         "disposition": "revised",
-        "cycle_digest": "f3feef7f66d09877708f4a783d06a1977b6814173bf690ea3998239cb7293473",
-        "path": "/home/tryinget/ai-society/softwareco/owned/pi-extensions/docs/v1-proof/g4a-cycle.json",
+        "cycle_digest": "74abfae0056df09a64c0aafaeff4c0aa60e79e844627eaa4289cdf931668550f",
+        "path": "../../softwareco/owned/pi-extensions/docs/v1-proof/g4a-cycle-v2.json",
     },
+]
+# Lineage dispositions lawful for non-promoted G4-A cycles (task 5043).
+# Mirrors governed_evolution.py LAWFUL_FINAL_DISPOSITIONS minus "promoted":
+# promoted content belongs in accepted_g4_content, never in lineage.
+LINEAGE_LAWFUL_DISPOSITIONS = [
+    "revised", "rejected", "deprecated", "retired", "other_disposition",
 ]
 ILLEGAL_CASES = {"invalid_transition", "unauthorized_promotion"}
 CASE_TRANSITIONS = {
@@ -190,11 +201,17 @@ def validate_record(record: dict, repo_root: Path) -> dict:
     for item in lineage:
         exp = expected.get(item.get("cycle_id"))
         _require(exp is not None, "unknown_cycle", f"unknown cycle {item.get('cycle_id')}")
-        _require(item.get("disposition") == "revised" and item.get("immutable") is True,
-                 "invalid_lineage", f"{item.get('cycle_id')} is not immutable revised")
+        _require(item.get("disposition") in LINEAGE_LAWFUL_DISPOSITIONS
+                 and item.get("immutable") is True,
+                 "invalid_lineage",
+                 f"{item.get('cycle_id')} is not an immutable lawful non-promoted "
+                 f"disposition {LINEAGE_LAWFUL_DISPOSITIONS}")
+        _require(item.get("disposition") == exp["disposition"],
+                 "disposition_mismatch",
+                 f"{item['cycle_id']} disposition drifted from the decided record")
         _require(item.get("cycle_digest") == exp["cycle_digest"], "digest_mismatch",
                  f"{item['cycle_id']} digest drifted")
-        path = Path(exp["path"])
+        path = (repo_root / exp["path"]).resolve()
         _require(path.is_file(), "missing_file", f"cycle file missing: {path}")
         live = ge.validate_cycle(json.loads(path.read_text(encoding="utf-8")))
         _require(live["cycle_digest"] == exp["cycle_digest"], "digest_mismatch",
@@ -237,7 +254,7 @@ def emit_record(repo_root: Path) -> dict:
         "mutating": False,
         "accepted_g4_content": [],
         "revised_lineage": [
-            {"cycle_id": i["cycle_id"], "disposition": "revised",
+            {"cycle_id": i["cycle_id"], "disposition": i["disposition"],
              "immutable": True, "cycle_digest": i["cycle_digest"]}
             for i in LINEAGE
         ],
