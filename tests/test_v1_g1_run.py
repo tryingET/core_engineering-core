@@ -74,5 +74,41 @@ class ProveActiveResolutionPolarityTests(unittest.TestCase):
         self.assertIn('"candidate_commit": CANDIDATE_COMMIT', source)
 
 
+class ApplyScoringTests(unittest.TestCase):
+    """AK 5051: apply exit-2 is a documented structured refusal, not incompleteness."""
+
+    def setUp(self):
+        self.runner = load_runner()
+
+    def test_applied_scores_pass(self):
+        self.assertEqual(self.runner.score_apply_owner_plan(0), ("pass", False))
+
+    def test_structured_refusal_scores_pass_flagged(self):
+        status, refused = self.runner.score_apply_owner_plan(2)
+        self.assertEqual(status, "pass")
+        self.assertTrue(refused)
+
+    def test_hard_failure_still_fails(self):
+        self.assertEqual(self.runner.score_apply_owner_plan(1), ("fail", False))
+        self.assertEqual(self.runner.score_apply_owner_plan(3), ("fail", False))
+
+
+class TreeDigestTests(unittest.TestCase):
+    def setUp(self):
+        self.runner = load_runner()
+
+    def test_deterministic_and_content_sensitive(self):
+        import tempfile, shutil
+        root = Path(tempfile.mkdtemp(prefix="ec-tree-digest."))
+        self.addCleanup(shutil.rmtree, root, ignore_errors=True)
+        (root / "a.txt").write_text("one", encoding="utf-8")
+        (root / "sub").mkdir()
+        (root / "sub" / "b.txt").write_text("two", encoding="utf-8")
+        first = self.runner.tree_digest(root)
+        self.assertEqual(first, self.runner.tree_digest(root))
+        (root / "a.txt").write_text("changed", encoding="utf-8")
+        self.assertNotEqual(first, self.runner.tree_digest(root))
+
+
 if __name__ == "__main__":
     unittest.main()

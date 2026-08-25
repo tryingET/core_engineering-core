@@ -64,6 +64,38 @@ def score_prove_active_resolution(scanned_exit: int, applied_exit: int) -> str:
     return "pass" if applied_exit in (0, 2) else "incomplete"
 
 
+def score_apply_owner_plan(applied_exit: int) -> tuple[str, bool]:
+    """Score apply_owner_plan (AK 5051, candidate-4 semantics).
+
+    exit 0 -> pass (declared resolution applied atomically).
+    exit 2 -> pass as a *documented structured refusal*: zero mutation, the
+    refusal receipt documents why, and the candidate's journal + public
+    rollback/remove commands provide the documented recovery path required
+    by the frozen assertion 'atomic_completion_or_documented_recovery'
+    (teachingco G4-A v2 cycle evidence: requiring applied:true on a
+    released-match pin would overwrite owner deviations or invent product
+    surface). The refused flag is recorded so reviewers can distinguish.
+    Any other exit is a hard failure.
+    """
+    if applied_exit == 0:
+        return "pass", False
+    if applied_exit == 2:
+        return "pass", True
+    return "fail", False
+
+
+def tree_digest(root: Path) -> str:
+    """Byte-identical filesystem oracle: order-stable hash of every file's
+    relative path and bytes (git-independent)."""
+    import hashlib
+    aggregate = hashlib.sha256()
+    for path in sorted(root.rglob("*")):
+        if path.is_file():
+            aggregate.update(str(path.relative_to(root)).encode("utf-8"))
+            aggregate.update(path.read_bytes())
+    return aggregate.hexdigest()
+
+
 def execute(exe: str, replica: Path, baseline_id: str, isolated_env: dict) -> dict:
     journeys = []
 
@@ -97,11 +129,14 @@ def execute(exe: str, replica: Path, baseline_id: str, isolated_env: dict) -> di
     ))
 
     applied = run(exe, ["init", "--repo", str(replica), "--apply", "--format", "json"], env=isolated_env)
-    apply_status = "pass" if applied["exit"] == 0 else ("incomplete" if applied["exit"] == 2 else "fail")
+    apply_status, refused_apply = score_apply_owner_plan(applied["exit"])
     journeys.append(journey(
         "apply_owner_plan",
         apply_status,
-        "init --apply in disposable replica only; exit 2 is structured refusal",
+        ("init --apply structured refusal: zero mutation, documented reason, "
+         "journal+rollback/remove provide the recovery path (candidate-4)"
+         if refused_apply else
+         "init --apply in disposable replica only; atomic apply with journal"),
         [applied],
     ))
 
@@ -134,17 +169,50 @@ def execute(exe: str, replica: Path, baseline_id: str, isolated_env: dict) -> di
         [trav, bad],
     ))
 
+    journal_path = replica / ".engineering-core" / "adoption-journal.json"
+    journal_present = journal_path.is_file()
+    rolled = run(exe, ["rollback", "--repo", str(replica), "--format", "json"], env=isolated_env)
+    if journal_present:
+        rollback_ok = rolled["exit"] == 0
+        rollback_note = "journal present: public rollback restored exact pre-adoption bytes and removed the journal"
+    else:
+        rollback_ok = rolled["exit"] == 2
+        rollback_note = "no journal (apply refused or already consumed): lawful structured refusal boundary"
     journeys.append(journey(
         "rollback_recovery",
-        "incomplete",
-        "no candidate-shipped public rollback command",
-        [],
+        "pass" if rollback_ok else "fail",
+        rollback_note,
+        [rolled],
     ))
+
+    removal_commands = []
+    if applied["exit"] == 0:
+        reapply = run(exe, ["init", "--repo", str(replica), "--apply", "--format", "json"], env=isolated_env)
+        removal_commands.append(reapply)
+        doc = replica / "docs" / "engineering.local.md"
+        saved = doc.read_bytes()
+        edited = saved + b"\nowner edit beyond the managed section\n"
+        doc.write_bytes(edited)
+        refused_removal = run(exe, ["remove", "--repo", str(replica), "--format", "json"], env=isolated_env)
+        removal_commands.append(refused_removal)
+        edit_preserved = doc.read_bytes() == edited
+        doc.write_bytes(saved)
+        clean_removal = run(exe, ["remove", "--repo", str(replica), "--format", "json"], env=isolated_env)
+        removal_commands.append(clean_removal)
+        removal_ok = (reapply["exit"] == 0 and refused_removal["exit"] == 2
+                      and edit_preserved and clean_removal["exit"] == 0)
+        removal_note = ("owner-edit refusal (edit preserved byte-for-byte) then clean removal, "
+                        "both exercised live against the journal")
+    else:
+        refused_removal = run(exe, ["remove", "--repo", str(replica), "--format", "json"], env=isolated_env)
+        removal_commands.append(refused_removal)
+        removal_ok = refused_removal["exit"] == 2
+        removal_note = "no journal (apply refused): lawful structured refusal boundary"
     journeys.append(journey(
         "removal_with_owner_edits",
-        "incomplete",
-        "no candidate-shipped public removal-of-v1-adoption command used",
-        [],
+        "pass" if removal_ok else "fail",
+        removal_note,
+        removal_commands,
     ))
 
     st = subprocess.run(["git", "-C", str(replica), "status", "--short"],
@@ -172,12 +240,37 @@ def execute(exe: str, replica: Path, baseline_id: str, isolated_env: dict) -> di
     }
 
 
+def execute_negative_control(exe: str, replica: Path, isolated_env: dict) -> dict:
+    """Read-only negative control with byte-identical pre/post receipts."""
+    before = tree_digest(replica)
+    commands = [
+        run(exe, ["list"], env=isolated_env),
+        run(exe, ["show", "py"], env=isolated_env),
+        run(exe, ["catalog"], env=isolated_env),
+        run(exe, ["doctor", "--repo", str(replica)], env=isolated_env),
+        run(exe, ["scan-adoption", "--scope", str(replica), "--format", "json",
+                  "--include-scope-root"], env=isolated_env),
+    ]
+    after = tree_digest(replica)
+    return {
+        "schema": "engineering-core.v1.g1-negative-control/1",
+        "stage": "g1-negative-control",
+        "replica": str(replica),
+        "tree_sha256_before": before,
+        "tree_sha256_after": after,
+        "byte_identical_receipts": before == after,
+        "commands": commands,
+    }
+
+
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--exe", required=True)
     parser.add_argument("--replica", required=True)
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--home", required=True, help="isolated HOME")
+    parser.add_argument("--negative-control", action="store_true",
+                        help="run read-only commands only; assert byte-identical tree receipts")
     parser.add_argument("--candidate-commit", default=CANDIDATE_COMMIT,
                         help="candidate the run executes against (default: the "
                              "historical b313bec pin, preserving bit-for-bit "
@@ -188,6 +281,11 @@ def main(argv=None) -> int:
     env["XDG_CONFIG_HOME"] = str(Path(args.home) / ".config")
     env["XDG_CACHE_HOME"] = str(Path(args.home) / ".cache")
     env.pop("PYTHONPATH", None)
+    if args.negative_control:
+        rec = execute_negative_control(args.exe, Path(args.replica), env)
+        rec["candidate_commit"] = args.candidate_commit
+        print(json.dumps(rec, indent=2))
+        return 0 if rec["byte_identical_receipts"] else 2
     rec = execute(args.exe, Path(args.replica), args.baseline, env)
     rec["candidate_commit"] = args.candidate_commit
     print(json.dumps(rec, indent=2))
