@@ -23,6 +23,14 @@ from pathlib import Path
 SCHEMA = "engineering-core.v1.g0a3/1"
 UNASSIGNED = "unassigned"
 CANDIDATE_TASK_ID = 4876
+# Lineage dispositions lawful for non-promoted G4-A cycles (task 5039).
+# Mirrors governed_evolution.py LAWFUL_FINAL_DISPOSITIONS minus "promoted":
+# promoted content belongs in accepted_g4_content, never in lineage. Hardcoding
+# "revised" as the only legal lineage disposition repeats the lockstep-quota
+# defect the independent review banned (must-fix 5; origination rule \u00a76).
+LINEAGE_LAWFUL_DISPOSITIONS = [
+    "revised", "rejected", "deprecated", "retired", "other_disposition",
+]
 REQUIRED_ALLOWLIST = [
     "CHANGELOG.md",
     "README.md",
@@ -156,10 +164,12 @@ def validate_admission(record: dict, repo_root: Path) -> dict:
     _require(isinstance(lineage, list) and len(lineage) >= 3, "lineage_too_small",
              "need at least three revised/negative lineage entries")
     for item in lineage:
-        _require(isinstance(item, dict) and item.get("cycle_id") and item.get("disposition") == "revised"
+        _require(isinstance(item, dict) and item.get("cycle_id")
+                 and item.get("disposition") in LINEAGE_LAWFUL_DISPOSITIONS
                  and item.get("immutable") is True,
                  "invalid_lineage",
-                 "each lineage entry needs cycle_id, disposition=revised, immutable=true")
+                 "each lineage entry needs cycle_id, a lawful non-promoted "
+                 f"disposition {LINEAGE_LAWFUL_DISPOSITIONS}, immutable=true")
 
     decisions = record["decisions"]
     _require(decisions.get("governing") == 128, "missing_decision", "governing must be 128")

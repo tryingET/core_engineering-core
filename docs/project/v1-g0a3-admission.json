@@ -38,7 +38,7 @@
     },
     "g4a_content_owner_decisions": {
       "path": "docs/project/v1-g4a-content-owner-decisions.md",
-      "sha256": "41d3b2aff08bfeecabf80bf4876baa0438d210ea86e2201f550fd27951408e89"
+      "sha256": "17e2900976f9a6b3e2ca3cd890f546cf830deef0b00536a1eef21072c1d22774"
     },
     "impact_matrix": {
       "path": "docs/project/v1-impact-matrix.json",
@@ -48,22 +48,22 @@
   "accepted_g4_content": [],
   "revised_lineage": [
     {
-      "cycle_id": "cycle-holdingco-pin-drift",
+      "cycle_id": "cycle-holdingco-coordination-nonclaimable-v2",
       "disposition": "revised",
       "immutable": true,
-      "cycle_digest": "6e188a012d0a661fa4536506e259974fc25bcc6e52b5e8fc670d1810d1967ff7"
+      "cycle_digest": "d7081a6fd9661c4168c768b11788656eb042e422c89fe4adf62b95d5814570af"
     },
     {
-      "cycle_id": "cycle-teachingco-minimal-validation",
-      "disposition": "revised",
+      "cycle_id": "cycle-teachingco-g1-already-adopted-refusal",
+      "disposition": "other_disposition",
       "immutable": true,
-      "cycle_digest": "0ece9f07cb4eecf43760c981231ee0acc5785b3326ae2bba817707e85794f151"
+      "cycle_digest": "a7de8b71b608a59ab4df993b11df50bcecdcd861df4923741522849c4ed9669a"
     },
     {
-      "cycle_id": "cycle-softwareco-package-scopes",
+      "cycle_id": "cycle-softwareco-g1-scanner-completeness-is-not-active-resolution",
       "disposition": "revised",
       "immutable": true,
-      "cycle_digest": "f3feef7f66d09877708f4a783d06a1977b6814173bf690ea3998239cb7293473"
+      "cycle_digest": "74abfae0056df09a64c0aafaeff4c0aa60e79e844627eaa4289cdf931668550f"
     }
   ],
   "implementation_fanin_tasks": [
@@ -75,9 +75,9 @@
     4951
   ],
   "g4a_tasks": [
-    4952,
-    4953,
-    4954,
-    4956
+    5018,
+    5019,
+    5020,
+    5036
   ]
 }

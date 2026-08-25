@@ -94,6 +94,33 @@ class AdmissionTest(unittest.TestCase):
             ga.validate_admission(rec, ROOT)
         self.assertEqual(ctx.exception.code, "allowlist_mismatch")
 
+    def test_record_binds_v2_g4a_lineage(self):
+        # Task 5039: the admission lineage is the re-originated v2 cycles with
+        # their real differentiated dispositions, not the superseded v1 set.
+        rec = load_record()
+        self.assertEqual(
+            [e["cycle_id"] for e in rec["revised_lineage"]],
+            [
+                "cycle-holdingco-coordination-nonclaimable-v2",
+                "cycle-teachingco-g1-already-adopted-refusal",
+                "cycle-softwareco-g1-scanner-completeness-is-not-active-resolution",
+            ],
+        )
+        self.assertEqual(rec["g4a_tasks"], [5018, 5019, 5020, 5036])
+
+    def test_lineage_accepts_lawful_nonpromoted_dispositions(self):
+        rec = load_record()
+        rec["revised_lineage"][1]["disposition"] = "other_disposition"
+        r = ga.validate_admission(rec, ROOT)
+        self.assertEqual(r["status"], "pass")
+
+    def test_lineage_promoted_rejected(self):
+        rec = load_record()
+        rec["revised_lineage"][0]["disposition"] = "promoted"
+        with self.assertRaises(ga.ValidationError) as ctx:
+            ga.validate_admission(rec, ROOT)
+        self.assertEqual(ctx.exception.code, "invalid_lineage")
+
 
 if __name__ == "__main__":
     unittest.main()
