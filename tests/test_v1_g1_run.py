@@ -64,6 +64,15 @@ class ProveActiveResolutionPolarityTests(unittest.TestCase):
         self.assertIn("owner-apply polarity", source)
         self.assertIn("[scanned, applied]", source)
 
+    def test_candidate_commit_parameterized_with_historical_default(self):
+        # Task 5046: the runner takes an explicit --candidate-commit; the
+        # default must stay the historical b313bec pin so the 5004 fan-in
+        # remains bit-for-bit reproducible (ambiguity register Q4).
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn('"--candidate-commit", default=CANDIDATE_COMMIT', source)
+        self.assertIn('rec["candidate_commit"] = args.candidate_commit', source)
+        self.assertIn('"candidate_commit": CANDIDATE_COMMIT', source)
+
 
 if __name__ == "__main__":
     unittest.main()

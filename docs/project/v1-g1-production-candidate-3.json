@@ -1,0 +1,111 @@
+{
+  "schema": "engineering-core.v1.g1-fanin/1",
+  "candidate_commit": "7a41ea321015c6a5210d6ea26b6f3e5ac6632045",
+  "candidate_branch": "proof/v1-candidate-3",
+  "candidate_wheel_sha256": "181ec373049632e7ba7a9b19b2b725a9cc7b95d2e78e546d39bc8305dfed4ffc",
+  "produced_by_task": 5046,
+  "produced_at": "2026-08-25",
+  "g1_pass_claimed": false,
+  "independent_review": false,
+  "runner_semantics": "scripts/v1/g1_run.py with --candidate-commit; includes AK 5037 prove_active_resolution owner-apply polarity binding (scanner completeness is diagnostic; pass requires lawful same-revision init --apply exit 0 or 2)",
+  "negative_control": {
+    "repo": "healthco/agents",
+    "mutated": false,
+    "role": "read_only",
+    "note": "read-only diagnostic invocations; git status clean after (0 dirty files); doctor exit 1 is lawful blocked diagnosis"
+  },
+  "baselines": [
+    {
+      "baseline_id": "pos1",
+      "repo": "holdingco/fcos-control-board",
+      "counts": {
+        "pass": 7,
+        "fail": 0,
+        "incomplete": 3
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "incomplete",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos2",
+      "repo": "teachingco/mathe",
+      "counts": {
+        "pass": 7,
+        "fail": 0,
+        "incomplete": 3
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "incomplete",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos3",
+      "repo": "teachingco/wib@316c457",
+      "counts": {
+        "pass": 8,
+        "fail": 0,
+        "incomplete": 2
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "pass",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos4",
+      "repo": "softwareco/owned/pi-extensions",
+      "counts": {
+        "pass": 7,
+        "fail": 0,
+        "incomplete": 3
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "incomplete",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "incomplete",
+        "removal_with_owner_edits": "incomplete",
+        "final_posture_disposal": "pass"
+      }
+    }
+  ]
+}

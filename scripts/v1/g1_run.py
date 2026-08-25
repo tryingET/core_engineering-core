@@ -178,6 +178,10 @@ def main(argv=None) -> int:
     parser.add_argument("--replica", required=True)
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--home", required=True, help="isolated HOME")
+    parser.add_argument("--candidate-commit", default=CANDIDATE_COMMIT,
+                        help="candidate the run executes against (default: the "
+                             "historical b313bec pin, preserving bit-for-bit "
+                             "reproduction of the 5004 fan-in)")
     args = parser.parse_args(argv)
     env = os.environ.copy()
     env["HOME"] = args.home
@@ -185,6 +189,7 @@ def main(argv=None) -> int:
     env["XDG_CACHE_HOME"] = str(Path(args.home) / ".cache")
     env.pop("PYTHONPATH", None)
     rec = execute(args.exe, Path(args.replica), args.baseline, env)
+    rec["candidate_commit"] = args.candidate_commit
     print(json.dumps(rec, indent=2))
     return 0 if rec["counts"]["fail"] == 0 else 2
 
