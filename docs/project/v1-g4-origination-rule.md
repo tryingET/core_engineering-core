@@ -31,8 +31,11 @@ minute. That is the process bug.
 ## Status of 4952–4954
 
 **Non-qualifying.** They remain historical evidence of a failed process. They
-must not be counted toward G4 PASS. Replacement tasks are unclaimed in the
-owner repos.
+must not be counted toward G4 PASS. They were superseded 2026-08-24 by the
+re-originated v2 cycles: tasks 5018/5019/5020 originated in distinct
+owner-repo sessions and were judged by EC content-owner task 5036
+(`v1-g4a-content-owner-decisions.md`). G4-B verification lineage is bound to
+the decided v2 cycles (task 5043).
 
 ## What this does not do
 
