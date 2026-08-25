@@ -17,6 +17,13 @@ by verification rather than by design.
 
 ## Open ambiguities (need an owner decision later; none blocks current records)
 
+> EC positions on all five questions are now on record in
+> `2026-08-24-v1-g4-ambiguity-resolutions.md` (task 5044, operator-solicited
+> multi-lens analysis). The questions below stay listed because Q1/Q2 in
+> particular take effect only when restated by a future G4 PASS / G5 review;
+> the resolutions document is the position that review should confirm or
+> overturn with reasons.
+
 1. **Does the TeachingCo `other_disposition` (owner_local_diagnosis) cycle
    count toward G4 gate population?** The origination rule requires each
    positive owner group to originate one substantial candidate; TeachingCo
