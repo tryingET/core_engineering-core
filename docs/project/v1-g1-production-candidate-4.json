@@ -1,0 +1,114 @@
+{
+  "schema": "engineering-core.v1.g1-fanin/1",
+  "candidate_commit": "bc43bb972121bf6c02792bf318cb14aa974b7e17",
+  "candidate_branch": "proof/v1-candidate-4",
+  "candidate_wheel_sha256": "94b6a2bd5d34ef82dce0f7f40e209e4d55b00c478ce8e49ecd9cd1bc5edb54f8",
+  "produced_by_task": 5055,
+  "produced_at": "2026-08-25",
+  "g1_pass_claimed": false,
+  "independent_review": false,
+  "runner_semantics": "scripts/v1/g1_run.py v2 with --candidate-commit: AK 5037 prove_active_resolution owner-apply polarity; AK 5051 apply exit-2 = documented structured refusal (flagged per-baseline, zero mutation + journal/rollback recovery path per the frozen atomic_completion_or_documented_recovery assertion); executable rollback_recovery and removal_with_owner_edits journeys against the public CLIs with lawful-outcome scoring; live owner-edit-refusal + clean-removal exercise on journaled baselines",
+  "negative_control": {
+    "repo": "healthco/agents",
+    "mutated": false,
+    "role": "read_only",
+    "mode": "--negative-control byte-identical tree receipts (git-independent order-stable digest over all files)",
+    "tree_sha256_before": "700fe28fdd0ebf673576e68d42288392be64ba6aa3ac86423c369297752c66de",
+    "tree_sha256_after": "700fe28fdd0ebf673576e68d42288392be64ba6aa3ac86423c369297752c66de",
+    "byte_identical_receipts": true
+  },
+  "baselines": [
+    {
+      "baseline_id": "pos1",
+      "repo": "holdingco/fcos-control-board",
+      "counts": {
+        "pass": 10,
+        "fail": 0,
+        "incomplete": 0
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "pass",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "pass",
+        "removal_with_owner_edits": "pass",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos2",
+      "repo": "teachingco/mathe",
+      "counts": {
+        "pass": 10,
+        "fail": 0,
+        "incomplete": 0
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "pass",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "pass",
+        "removal_with_owner_edits": "pass",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos3",
+      "repo": "teachingco/wib@316c457",
+      "counts": {
+        "pass": 10,
+        "fail": 0,
+        "incomplete": 0
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "pass",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "pass",
+        "removal_with_owner_edits": "pass",
+        "final_posture_disposal": "pass"
+      }
+    },
+    {
+      "baseline_id": "pos4",
+      "repo": "softwareco/owned/pi-extensions",
+      "counts": {
+        "pass": 10,
+        "fail": 0,
+        "incomplete": 0
+      },
+      "g1_pass_claimed": false,
+      "independent_review": false,
+      "journeys": {
+        "resolve_install_remote": "pass",
+        "retrieve_explain_guidance": "pass",
+        "plan_transition_mode": "pass",
+        "apply_owner_plan": "pass",
+        "diagnose_v1_adoption": "pass",
+        "prove_active_resolution": "pass",
+        "failure_boundaries": "pass",
+        "rollback_recovery": "pass",
+        "removal_with_owner_edits": "pass",
+        "final_posture_disposal": "pass"
+      }
+    }
+  ]
+}
