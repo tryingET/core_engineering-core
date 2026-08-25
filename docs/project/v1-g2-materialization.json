@@ -1170,5 +1170,45 @@
       "fixture_digest": "a5846cf5b39a27972f80aa984a41db2e5b2563d062e4e0a2d69091084212f0f9",
       "status": "pass"
     }
-  ]
+  ],
+  "wheel_smoke": {
+    "candidate_commit": "bc43bb972121bf6c02792bf318cb14aa974b7e17",
+    "commands": [
+      {
+        "argv": [
+          "--help"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 3879
+      },
+      {
+        "argv": [
+          "list"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 119
+      },
+      {
+        "argv": [
+          "list-disciplines"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 295
+      },
+      {
+        "argv": [
+          "catalog"
+        ],
+        "exit": 0,
+        "pass": true,
+        "stdout_bytes": 20040
+      }
+    ],
+    "entrypoint": "cli_command",
+    "failed": [],
+    "status": "pass"
+  }
 }
