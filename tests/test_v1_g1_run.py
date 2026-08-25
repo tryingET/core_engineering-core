@@ -1,15 +1,23 @@
-"""Smoke tests for the G1 replica runner (task 5004)."""
+"""Tests for the G1 replica runner (tasks 5004, 5037)."""
 
 from __future__ import annotations
 
 import ast
 import json
 import unittest
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "v1" / "g1_run.py"
 FANIN = ROOT / "docs" / "project" / "v1-g1-run.json"
+
+
+def load_runner():
+    spec = spec_from_file_location("g1_run_under_test", SCRIPT)
+    mod = module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
 class G1RunTests(unittest.TestCase):
@@ -23,6 +31,38 @@ class G1RunTests(unittest.TestCase):
         self.assertEqual(len(rec["baselines"]), 4)
         self.assertFalse(rec["negative_control"]["mutated"])
         self.assertEqual(rec["candidate_commit"], "b313becf7f1bf5261843d7b29c939b0bc5072ef1")
+
+
+class ProveActiveResolutionPolarityTests(unittest.TestCase):
+    """AK 5037: scanner completeness alone can never pass prove_active_resolution."""
+
+    def setUp(self):
+        self.runner = load_runner()
+
+    def test_scanner_green_plus_hard_apply_failure_is_not_pass(self):
+        # The exact softwareco gap: scan-adoption completeness=complete while
+        # init --apply crashed (exit 1). Must not score pass.
+        self.assertEqual(
+            self.runner.score_prove_active_resolution(0, 1), "incomplete"
+        )
+
+    def test_pass_when_scan_completes_and_apply_applied(self):
+        self.assertEqual(self.runner.score_prove_active_resolution(0, 0), "pass")
+
+    def test_pass_when_scan_completes_and_apply_is_structured_refusal(self):
+        self.assertEqual(self.runner.score_prove_active_resolution(0, 2), "pass")
+
+    def test_scanner_failure_is_incomplete_regardless_of_apply(self):
+        for applied_exit in (0, 1, 2):
+            self.assertEqual(
+                self.runner.score_prove_active_resolution(1, applied_exit),
+                "incomplete",
+            )
+
+    def test_journey_note_and_basis_recorded(self):
+        source = SCRIPT.read_text(encoding="utf-8")
+        self.assertIn("owner-apply polarity", source)
+        self.assertIn("[scanned, applied]", source)
 
 
 if __name__ == "__main__":

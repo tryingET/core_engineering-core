@@ -49,6 +49,21 @@ def journey(category: str, status: str, note: str, commands: list) -> dict:
     return {"category": category, "status": status, "note": note, "commands": commands}
 
 
+def score_prove_active_resolution(scanned_exit: int, applied_exit: int) -> str:
+    """Bind prove_active_resolution to owner-apply polarity (AK 5037).
+
+    Scanner completeness is a diagnostic, never proof of an active v1
+    resolution. Pass requires the scan to complete AND the same revision's
+    init --apply to be lawful: exit 0 (declared resolution applied) or exit 2
+    (structured refusal, e.g. released-match scope already resolved). Scanner
+    completeness alone can never pass this journey (G4-A v2 softwareco cycle
+    decision, task 5036).
+    """
+    if scanned_exit != 0:
+        return "incomplete"
+    return "pass" if applied_exit in (0, 2) else "incomplete"
+
+
 def execute(exe: str, replica: Path, baseline_id: str, isolated_env: dict) -> dict:
     journeys = []
 
@@ -100,12 +115,14 @@ def execute(exe: str, replica: Path, baseline_id: str, isolated_env: dict) -> di
 
     scanned = run(exe, ["scan-adoption", "--scope", str(replica), "--format", "json",
                         "--include-scope-root"], env=isolated_env)
-    prove_ok = scanned["exit"] == 0
+    prove_status = score_prove_active_resolution(scanned["exit"], applied["exit"])
     journeys.append(journey(
         "prove_active_resolution",
-        "pass" if prove_ok else "incomplete",
-        "scan-adoption on the replica; not a mixed-runtime proof",
-        [scanned],
+        prove_status,
+        "scan-adoption diagnostic bound to owner-apply polarity: pass requires scan "
+        "completion plus a lawful same-revision init --apply (exit 0 applied or "
+        "exit 2 structured refusal)",
+        [scanned, applied],
     ))
 
     trav = run(exe, ["plan", "--repo", "../../etc/passwd"], env=isolated_env)
