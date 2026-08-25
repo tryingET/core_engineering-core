@@ -1,5 +1,5 @@
 {
-  "candidate_commit": "7a41ea321015c6a5210d6ea26b6f3e5ac6632045",
+  "candidate_commit": "bc43bb972121bf6c02792bf318cb14aa974b7e17",
   "executed_cells": [
     {
       "entrypoint": "cli_command",
@@ -163,7 +163,7 @@
       "id": "scan-missing-scope",
       "pass": true,
       "stderr_bytes": 0,
-      "stdout_bytes": 1437,
+      "stdout_bytes": 1395,
       "threat_family": "population_missingness"
     },
     {
@@ -179,7 +179,7 @@
       "id": "doctor-absent",
       "pass": true,
       "stderr_bytes": 0,
-      "stdout_bytes": 1891,
+      "stdout_bytes": 1863,
       "threat_family": "population_missingness"
     }
   ],

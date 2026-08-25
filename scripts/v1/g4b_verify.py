@@ -23,8 +23,8 @@ import sys
 from pathlib import Path
 
 SCHEMA = "engineering-core.v1.g4b/1"
-CANDIDATE_COMMIT = "7a41ea321015c6a5210d6ea26b6f3e5ac6632045"
-CANDIDATE_BRANCH = "proof/v1-candidate-3"
+CANDIDATE_COMMIT = "bc43bb972121bf6c02792bf318cb14aa974b7e17"
+CANDIDATE_BRANCH = "proof/v1-candidate-4"
 SUITE_CASES = [
     "proposal", "pilot_selection", "promotion", "revision_split", "rejection",
     "deprecation", "retirement", "expiry", "rollback", "invalid_transition",
@@ -178,7 +178,7 @@ def validate_record(record: dict, repo_root: Path) -> dict:
     _require(record["candidate_commit"] == CANDIDATE_COMMIT, "wrong_candidate",
              "candidate commit does not match frozen G0-B SHA")
     _require(record["candidate_branch"] == CANDIDATE_BRANCH, "wrong_branch",
-             "candidate branch must be proof/v1-candidate-3")
+             "candidate branch must be proof/v1-candidate-4")
     _require(record["accepted_g4_content"] == [], "accepted_content_not_empty",
              "G4-B inclusion map must be empty until a promotion lands")
     _require(record["tag_absent"] is True, "tag_present", "v1.0.0 must remain untagged")
