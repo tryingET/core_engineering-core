@@ -1,0 +1,83 @@
+{
+  "candidate": {
+    "branch": "proof/v1-candidate-4",
+    "commit": "bc43bb972121bf6c02792bf318cb14aa974b7e17",
+    "wheel_sha256": "94b6a2bd5d34ef82dce0f7f40e209e4d55b00c478ce8e49ecd9cd1bc5edb54f8"
+  },
+  "carry_forwards": [
+    "Q1 population counting confirm-or-overturn (ambiguity register; pre-embedded in validators)",
+    "G1 review non-blocking observations: apply-over-drift journal hardening; envelope-mode validation unused; clone-bound absolute digests",
+    "G4 advisory carry-forwards (review synthesis): incl. bulk-parallel task-creation guardrail consideration"
+  ],
+  "gate_scores": {
+    "g0": "PASS (G0-A3 admission validated; G0-B frozen candidate-4)",
+    "g1": "PASS (40/40 frozen threshold met; independent review PASS with lawful structured-refusal ruling)",
+    "g2": "PASS (probes 10/10 live, materialization complete; no G2 PASS was ever claimed by producers \u2014 this record scores it satisfied as evidence-complete)",
+    "g3": "NOT PASSED \u2014 operator-stopped incomplete (127/168, null signal on generic tasks); v3 pilot shows contract-conformance separation with model-dependent sign. G3 remains the open empirical question.",
+    "g4": "PASS CONSIDERATION EARNED (independent re-review, all must-fixes closed); formal G4 PASS declaration reserved to this record: granted, per review evidence 7739 and the closed v2 lineage"
+  },
+  "inputs": {
+    "g0a3_admission": {
+      "note": "5039 rebind; candidate-task gate",
+      "sha256": "f18039007e939cdcbd811a669d0d10cf4a1a051995e783de4b61fd913b590593"
+    },
+    "g1_production": {
+      "note": "40/40 on candidate-4, evidence 7748",
+      "sha256": "4710714de910adcfca2bb77576fd6d0cd9c2c96885a77537d200a97c0e9d92af"
+    },
+    "g1_review": {
+      "note": "PASS, evidence 7737/7738 (c3, revise_before_pass) and 7753 (c4, PASS incl. lawful exit-2 ruling)",
+      "sha256": null
+    },
+    "g2_execution": {
+      "note": "10/10 probes live vs c4 wheel",
+      "sha256": "79e480b4621ec36610a56d37f7f6a728d1c316a4c6b133046c025ca6bb518969"
+    },
+    "g2_materialization": {
+      "note": "48 fixtures + embedded wheel smoke",
+      "sha256": "73511d46edd6d52c4ccd7fe6e238c9220f52167a340e539be7017fc5858ddf84"
+    },
+    "g3_campaign": {
+      "note": "operator_stopped_incomplete 127/168, null signal",
+      "sha256": "89bf9f27e2ba6dd39f8e12a92f2e919890de1d5c0ce79a7b7f554df0fc09783b"
+    },
+    "g3_v3_pilot": {
+      "note": "separation observed, model-dependent sign",
+      "sha256": "efe9cf719a42c25af7213fdd29b43e80c70bbebd46b5b478412d9031ab28abb5"
+    },
+    "g4_v2_rereview": {
+      "note": "3 lenses PASS, g4_pass_consideration_earned=yes, evidence 7739",
+      "sha256": null
+    },
+    "g4a_decisions": {
+      "note": "differentiated dispositions, task 5036",
+      "sha256": "17e2900976f9a6b3e2ca3cd890f546cf830deef0b00536a1eef21072c1d22774"
+    },
+    "g4b_verification": {
+      "note": "12/12 suite, digest 326943b4, candidate c4",
+      "sha256": "d963136a558b7a4e460e7d2523128f81d5dd520533c112a41a2e7ca193456a22"
+    }
+  },
+  "non_authorizations": [
+    "tag",
+    "merge to main",
+    "publish",
+    "release decision",
+    "doctrine"
+  ],
+  "produced_at": "2026-08-26T05:15:42.885630+00:00",
+  "produced_by_task": 4877,
+  "release_decision_gate": "Separate exact task + operator approval after this record; not created by G5.",
+  "schema": "engineering-core.v1.g5-readiness/1",
+  "stage": "g5-readiness-fanin",
+  "unblock_paths": [
+    "PRIMARY: G3 rev2 as an accepted protocol decision \u2014 convention-space corpus (v3 design), per-family analysis, adequate N for effect sizes; est. 100+ executions. The pilot's model-dependence finding makes per-family executor policy a rev2 design input.",
+    "SECONDARY: explicit scope decision to ship v1.0 as machinery/standards-only (no guidance-lift claim), reclassifying G3 out of the release contract \u2014 requires a fresh accepted decision superseding D128's G3 requirement.",
+    "PRODUCT FOLLOW-UP (cheap, non-gating): investigate why guidance degrades glm conformance (critique falsification string-vs-array trap hit from both directions suggests presentation defect)."
+  ],
+  "verdict": "NOT READY FOR v1.0.0 RELEASE",
+  "verdict_reasons": [
+    "G3, the sole empirical-evidence gate, is incomplete and its two studies conflict in direction: generic-task campaign showed no discrimination (ceiling); contract-conformance pilot showed strong separation with opposite sign per model family. No defensible empirical claim about guidance value exists.",
+    "Release under these facts would ship machinery (safe, reversible, honest) without the product's value proposition being proven \u2014 a marketing claim the evidence does not support."
+  ]
+}
