@@ -21,3 +21,33 @@ Use engineering-core as a versioned guidance and adoption-visibility substrate. 
 ## Deviation evidence
 
 A deliberate deviation should record a stable ID, reason, owner, evidence paths or links, and a review date. Do not invent evidence or silently suppress objective catalog and policy failures.
+
+## Advice responses (engineering-advice-response-v1)
+
+When producing an advice response for `engineering-core advise --response`, the
+compiled request carries a `response_contract` block with the full grammar; the
+binding rules are:
+
+- Top level requires exactly: `schema`, `request_sha256`, `provenance`,
+  `status`, `summary`, `recommendations`, `critiques`, `patch_proposals`.
+- `status` is `advice`, `abstain`, or `unknown`; abstain/unknown carry no
+  recommendations or patches.
+- Every recommendation requires exactly: `id`, `catalog_ids`, `recommendation`,
+  `confidence` (0..1), `unknowns`, `counterevidence`, `falsification`,
+  `citations`, `competes_with`; `catalog_ids` must be a subset of the request's
+  `allowed_catalog_ids`; citations index captured evidence with
+  `0 <= start < end`.
+- Every critique requires exactly: `recommendation_id`, `critique`, `severity`
+  (`low|medium|high`), `falsification`.
+- `falsification` is a bounded string or an array of bounded strings, in every
+  position — the same rule for recommendations and critiques.
+- Patch proposals are owner-local, recommendation-bound unified diffs.
+- Budgets: at most 20 recommendations, 20 critiques, 10 patches.
+
+## Default discipline set
+
+When nothing narrower is declared, adoption recommends five default
+disciplines: `validation`, `testing`, `security-privacy`, `documentation`,
+`dependency-governance` (plus `design-system` and `accessibility` when a
+frontend lane is selected, and `specification-and-dsls` when a `schema`/
+`schemas`/`contracts` directory exists).

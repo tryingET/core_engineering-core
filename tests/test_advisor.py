@@ -94,4 +94,50 @@ class AdvisorTests(unittest.TestCase):
         with self.assertRaises(AdviceError): validate_response(request, response)
 
 
+class FalsificationContractTests(unittest.TestCase):
+    """AK 5082: uniform falsification grammar, self-describing request, self-correcting errors."""
+
+    def setUp(self):
+        self.request = AdvisorTests.request(self)
+        self.response = AdvisorTests.response(self, self.request)
+
+    def test_critique_falsification_accepts_array(self):
+        self.response["critiques"][0]["falsification"] = ["Confirm active build output.", "Check CI artifacts."]
+        validate_response(self.request, self.response)
+
+    def test_critique_falsification_still_accepts_string(self):
+        self.response["critiques"][0]["falsification"] = "Confirm active build output."
+        validate_response(self.request, self.response)
+
+    def test_recommendation_falsification_accepts_string(self):
+        self.response["recommendations"][0]["falsification"] = "Show that Python is not shipped."
+        validate_response(self.request, self.response)
+
+    def test_falsification_rejects_object_with_type_explicit_message(self):
+        self.response["critiques"][0]["falsification"] = {"claim": "wrong shape"}
+        with self.assertRaises(AdviceError) as ctx:
+            validate_response(self.request, self.response)
+        message = str(ctx.exception)
+        self.assertIn("critique.falsification", message)
+        self.assertIn("bounded string or an array of bounded strings", message)
+        self.assertIn("e.g.", message)
+
+    def test_request_carries_response_contract(self):
+        contract = self.request["response_contract"]
+        self.assertEqual(contract["schema"], "engineering-advice-response-v1")
+        for key in ("top_level_keys", "provenance_keys", "recommendation_keys", "critique_keys", "patch_proposal_keys", "types", "item_budgets"):
+            self.assertIn(key, contract)
+        self.assertIn("falsification", contract["types"])
+        self.assertIn("string or an array of bounded strings", contract["types"]["falsification"])
+
+    def test_contract_matches_validator_top_level(self):
+        contract = self.request["response_contract"]
+        self.assertEqual(
+            sorted(contract["recommendation_keys"]),
+            sorted(["id", "catalog_ids", "recommendation", "confidence", "unknowns", "counterevidence", "falsification", "citations", "competes_with"]),
+        )
+        self.assertEqual(sorted(contract["critique_keys"]), sorted(["recommendation_id", "critique", "severity", "falsification"]))
+
+
 if __name__ == "__main__": unittest.main()
+

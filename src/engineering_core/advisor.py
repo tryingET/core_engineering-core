@@ -44,6 +44,30 @@ def _text(value: Any, where: str, *, allow_empty: bool = False) -> str:
     return value
 
 
+def _falsification(value: Any, where: str) -> None:
+    """Falsification accepts one bounded string or an array of bounded strings.
+
+    Uniform in every position (recommendations and critiques alike): the field
+    is semantically 'conditions that would disprove this', which may be one
+    condition or several. The earlier grammar (array-only in recommendations,
+    string-only in critiques) was an arbitrary asymmetry models cannot infer;
+    accepting both shapes everywhere removes the trap without invalidating any
+    previously valid response. Rejections state the accepted shapes and an
+    example so a retry can self-correct in one bounded attempt.
+    """
+    if isinstance(value, str):
+        _text(value, where)
+        return
+    if isinstance(value, list):
+        for item in value:
+            _text(item, f"{where} item")
+        return
+    raise AdviceError(
+        f"{where} must be a bounded string or an array of bounded strings, "
+        f'e.g. "the claim fails when X" or ["the claim fails when X", "and also when Y"]'
+    )
+
+
 def _redact(text: str) -> tuple[str, int]:
     text, secrets = _SECRET.subn(
         lambda m: m.group(1) + m.group(2) + "[REDACTED]" + m.group(4), text
@@ -158,6 +182,25 @@ def build_request(repo: Path, plan: dict[str, Any], catalog_ids: set[str], *, fo
         "budgets": {"max_files": max_files, "max_file_bytes": max_file_bytes, "max_total_bytes": max_total_bytes, "files": len(evidence), "bytes": total},
         "safeguards": {"redactions": redactions, "secret_pii_redaction": True},
         "prompt": {"id": "engineering-core-bounded-advisor", "version": "1", "instructions": "Advise only from allowed catalog IDs and captured evidence. Express uncertainty, counterevidence, and falsification. Abstain when evidence is insufficient. Patches are proposals only."},
+        "response_contract": {
+            "schema": RESPONSE_SCHEMA,
+            "top_level_keys": ["schema", "request_sha256", "provenance", "status", "summary", "recommendations", "critiques", "patch_proposals"],
+            "status_values": ["advice", "abstain", "unknown"],
+            "provenance_keys": ["provider", "model", "model_version", "adapter", "adapter_version", "prompt_id", "prompt_version"],
+            "recommendation_keys": ["id", "catalog_ids", "recommendation", "confidence", "unknowns", "counterevidence", "falsification", "citations", "competes_with"],
+            "critique_keys": ["recommendation_id", "critique", "severity", "falsification"],
+            "patch_proposal_keys": ["path", "unified_diff", "rationale", "recommendation_id"],
+            "types": {
+                "confidence": "number between 0 and 1",
+                "severity": "one of low, medium, high",
+                "falsification": "a bounded string or an array of bounded strings, in every position",
+                "catalog_ids": "array; every id must appear in allowed_catalog_ids",
+                "citations": "array of {evidence_id, path, start, end} with 0 <= start < end indexing captured evidence",
+                "path": "owner-local relative path; absolute paths, ~, and .. are rejected",
+            },
+            "item_budgets": {"recommendations": 20, "critiques": 20, "patch_proposals": 10},
+            "note": "abstain/unknown must not contain recommendations or patch proposals",
+        },
     }
     request["request_sha256"] = _digest(request)
     return request
@@ -189,12 +232,13 @@ def validate_response_intrinsic(response: Any, allowed_catalog_ids: set[str]) ->
         recommendation_ids.add(rid)
         if not isinstance(rec["confidence"], (int, float)) or isinstance(rec["confidence"], bool) or not 0 <= rec["confidence"] <= 1:
             raise AdviceError("confidence must be between 0 and 1")
-        for key in ("catalog_ids", "unknowns", "counterevidence", "falsification", "citations", "competes_with"):
+        for key in ("catalog_ids", "unknowns", "counterevidence", "citations", "competes_with"):
             if not isinstance(rec[key], list):
                 raise AdviceError(f"{key} must be an array")
-        for key in ("catalog_ids", "unknowns", "counterevidence", "falsification", "competes_with"):
+        for key in ("catalog_ids", "unknowns", "counterevidence", "competes_with"):
             for item in rec[key]:
                 _text(item, f"recommendation.{key} item")
+        _falsification(rec["falsification"], f"recommendations[{index}].falsification")
         if not set(rec["catalog_ids"]).issubset(allowed_catalog_ids):
             raise AdviceError("unknown catalog id")
         _text(rec["recommendation"], "recommendation")
@@ -212,7 +256,7 @@ def validate_response_intrinsic(response: Any, allowed_catalog_ids: set[str]) ->
         if critique["recommendation_id"] not in recommendation_ids or critique["severity"] not in ("low", "medium", "high"):
             raise AdviceError("invalid critique reference or severity")
         _text(critique["critique"], "critique")
-        _text(critique["falsification"], "critique.falsification")
+        _falsification(critique["falsification"], "critique.falsification")
     for patch in response["patch_proposals"]:
         _exact(patch, {"path", "unified_diff", "rationale", "recommendation_id"}, "patch proposal")
         path = _owner_local_path(_text(patch["path"], "patch.path"), "patch.path")

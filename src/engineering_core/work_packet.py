@@ -171,7 +171,7 @@ def _validate_snapshot(value: Any, focus_paths: list[str]) -> dict[str, Any]:
 
 
 def _request_digest(request: dict[str, Any], plan: dict[str, Any], context: dict[str, Any], snapshot: dict[str, Any], revision: str) -> str:
-    required = {"schema", "authority", "plan", "allowed_catalog_ids", "evidence", "budgets", "safeguards", "prompt", "work", "request_sha256"}
+    required = {"schema", "authority", "plan", "allowed_catalog_ids", "evidence", "budgets", "safeguards", "prompt", "response_contract", "work", "request_sha256"}
     _exact(request, required, "work advice request")
     if request["schema"] != WORK_REQUEST_SCHEMA or request["authority"] != "advisory-only; owner review required; never execute or apply patches" or request["plan"] != plan:
         raise WorkPacketError("work advice request schema, authority, or plan binding is invalid")
