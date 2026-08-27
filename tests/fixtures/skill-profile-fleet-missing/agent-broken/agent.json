@@ -1,0 +1,6 @@
+{
+  "schema": "ai-society.agent/1",
+  "skills": {
+    "profile": "ec-does-not-exist"
+  }
+}

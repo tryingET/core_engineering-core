@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import importlib.util
 import json
 import subprocess
@@ -70,8 +71,15 @@ class ProjectionTests(unittest.TestCase):
                 f"skill exceeds budget: {path} ({size} bytes)",
             )
 
-    def test_profiles_reference_existing_skills_only(self):
-        profiles = json.loads((SKILLS_DIR / "profiles.json").read_text(encoding="utf-8"))
+    def profile_interface(self):
+        return json.loads((SKILLS_DIR / "profiles.json").read_text(encoding="utf-8"))
+
+    def test_profile_interface_schema_and_members(self):
+        document = self.profile_interface()
+        self.assertEqual(document["schema"], bsp.PROFILE_SCHEMA)
+        self.assertEqual(document["deprecated_aliases"], {})
+        self.assertEqual(bsp.validate_profile_interface(document), [])
+        profiles = document["profiles"]
         self.assertGreaterEqual(len(profiles), 20)
         for profile, members in profiles.items():
             self.assertIsInstance(members, list)
@@ -82,8 +90,17 @@ class ProjectionTests(unittest.TestCase):
                     f"profile {profile} references missing skill {member}",
                 )
 
+    def test_published_v1_profile_keys_are_preserved(self):
+        baseline = set(json.loads(
+            (ROOT / "tests" / "fixtures" / "skill-profile-v1-keys.json").read_text()
+        ))
+        current = set(self.profile_interface()["profiles"])
+        self.assertLessEqual(baseline, current)
+        self.assertIn("ec-defaults", current)
+        self.assertIn("ec-full", current)
+
     def test_lane_profile_includes_default_disciplines(self):
-        profiles = json.loads((SKILLS_DIR / "profiles.json").read_text(encoding="utf-8"))
+        profiles = self.profile_interface()["profiles"]
         self.assertIn("ec-py", profiles)
         for discipline in bsp.DEFAULT_DISCIPLINES:
             self.assertIn(
@@ -92,6 +109,37 @@ class ProjectionTests(unittest.TestCase):
             )
         self.assertIn("ec-lane-py", profiles["ec-py"])
         self.assertIn("ec-defaults", profiles)
+
+    def test_deprecated_alias_fixture_is_accepted_with_repo_profile_diagnostic(self):
+        document = copy.deepcopy(self.profile_interface())
+        document["deprecated_aliases"] = {"ec-python": "ec-py"}
+        fleet = ROOT / "tests" / "fixtures" / "skill-profile-fleet-alias"
+        problems, warnings = bsp.validate_fleet_references(fleet, document)
+        self.assertEqual(problems, [])
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("repo=", warnings[0])
+        self.assertIn("profile='ec-python'", warnings[0])
+        self.assertIn("use 'ec-py'", warnings[0])
+
+    def test_missing_profile_fails_closed_with_repo_profile_diagnostic(self):
+        fleet = ROOT / "tests" / "fixtures" / "skill-profile-fleet-missing"
+        problems, warnings = bsp.validate_fleet_references(fleet, self.profile_interface())
+        self.assertEqual(warnings, [])
+        self.assertEqual(len(problems), 1)
+        self.assertIn("repo=", problems[0])
+        self.assertIn("profile='ec-does-not-exist'", problems[0])
+        self.assertIn("unknown profile", problems[0])
+
+    def test_check_accepts_fleet_root_override(self):
+        fleet = ROOT / "tests" / "fixtures" / "skill-profile-fleet-valid"
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), "--check", "--fleet-root", str(fleet)],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f"fleet={fleet}", result.stdout)
+
 
 
 if __name__ == "__main__":

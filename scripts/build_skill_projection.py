@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -27,6 +28,12 @@ ROOT = Path(__file__).resolve().parents[1]
 LANES_DIR = ROOT / "lanes"
 DISCIPLINES_DIR = ROOT / "disciplines"
 OUT_DIR = ROOT / "skills"
+PROFILE_SCHEMA = "engineering-core.skill-profiles/1"
+FLEET_ROOT_ENV = "ENGINEERING_CORE_FLEET_ROOT"
+
+# Renaming a published profile requires adding old-key -> new-key here for one
+# engineering-core release. Aliases must point directly to canonical profiles.
+DEPRECATED_ALIASES: dict[str, str] = {}
 
 # Budget discipline: the v3/v3b pilots showed small high-signal guidance wins
 # and dumps lose. Cap projected skill bodies hard.
@@ -113,7 +120,9 @@ def discipline_id(filename: str) -> str:
     return filename.removesuffix(".md")
 
 
-def build_profiles(lane_skills: dict[str, str], discipline_skills: dict[str, str]) -> dict:
+def build_profiles(
+    lane_skills: dict[str, str], discipline_skills: dict[str, str]
+) -> dict[str, object]:
     profiles: dict[str, list[str]] = {}
     base_defaults = [discipline_skills[d] for d in DEFAULT_DISCIPLINES if d in discipline_skills]
     for lane, skill_name in lane_skills.items():
@@ -125,79 +134,190 @@ def build_profiles(lane_skills: dict[str, str], discipline_skills: dict[str, str
         profiles[f"ec-{lane}"] = sorted(set(members))
     profiles["ec-defaults"] = sorted(base_defaults)
     profiles["ec-full"] = sorted(set(lane_skills.values()) | set(discipline_skills.values()))
-    return profiles
+    return {
+        "schema": PROFILE_SCHEMA,
+        "profiles": profiles,
+        "deprecated_aliases": dict(sorted(DEPRECATED_ALIASES.items())),
+    }
 
 
-def generate() -> dict:
+def validate_profile_interface(document: object) -> list[str]:
+    problems: list[str] = []
+    if not isinstance(document, dict):
+        return ["profile interface must be an object"]
+    if document.get("schema") != PROFILE_SCHEMA:
+        problems.append(f"profile interface schema must be {PROFILE_SCHEMA!r}")
+    profiles = document.get("profiles")
+    aliases = document.get("deprecated_aliases")
+    if not isinstance(profiles, dict):
+        problems.append("profile interface profiles must be an object")
+        profiles = {}
+    if not isinstance(aliases, dict):
+        problems.append("profile interface deprecated_aliases must be an object")
+        aliases = {}
+    for profile, members in profiles.items():
+        if not isinstance(profile, str) or not profile:
+            problems.append("profile keys must be non-empty strings")
+            continue
+        if not isinstance(members, list) or not members or not all(
+            isinstance(member, str) and member for member in members
+        ):
+            problems.append(f"profile {profile!r} must contain non-empty skill names")
+        elif len(members) != len(set(members)):
+            problems.append(f"profile {profile!r} contains duplicate skills")
+    for alias, target in aliases.items():
+        if not isinstance(alias, str) or not alias or not isinstance(target, str) or not target:
+            problems.append("deprecated aliases and targets must be non-empty strings")
+            continue
+        if alias in profiles:
+            problems.append(f"deprecated alias {alias!r} collides with a canonical profile")
+        if target not in profiles:
+            problems.append(f"deprecated alias {alias!r} targets unknown profile {target!r}")
+    return problems
+
+
+def validate_fleet_references(
+    fleet_root: Path, document: object
+) -> tuple[list[str], list[str]]:
+    """Validate skills.profile in each immediate child agent.json, without writes."""
+    interface_problems = validate_profile_interface(document)
+    if interface_problems:
+        return ([f"profile-interface: {problem}" for problem in interface_problems], [])
+    assert isinstance(document, dict)
+    profiles = document["profiles"]
+    aliases = document["deprecated_aliases"]
+    assert isinstance(profiles, dict) and isinstance(aliases, dict)
+
+    if not fleet_root.is_dir():
+        return ([
+            f"fleet-profile: repo={fleet_root} profile=<unreadable>: "
+            "fleet root is not a directory"
+        ], [])
+    manifests = sorted(fleet_root.glob("*/agent.json"))
+    if not manifests:
+        return ([
+            f"fleet-profile: repo={fleet_root} profile=<missing>: no agent.json files found"
+        ], [])
+
+    problems: list[str] = []
+    warnings: list[str] = []
+    for manifest_path in manifests:
+        repo = manifest_path.parent
+        try:
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            problems.append(
+                f"fleet-profile: repo={repo} profile=<unreadable>: invalid agent.json: {exc}"
+            )
+            continue
+        skills = manifest.get("skills") if isinstance(manifest, dict) else None
+        profile = skills.get("profile") if isinstance(skills, dict) else None
+        if not isinstance(profile, str) or not profile:
+            problems.append(
+                f"fleet-profile: repo={repo} profile={profile!r}: "
+                "skills.profile must be a non-empty string"
+            )
+            continue
+        if profile in profiles:
+            continue
+        target = aliases.get(profile)
+        if isinstance(target, str) and target in profiles:
+            warnings.append(
+                f"fleet-profile: repo={repo} profile={profile!r}: "
+                f"deprecated alias; use {target!r}"
+            )
+            continue
+        problems.append(
+            f"fleet-profile: repo={repo} profile={profile!r}: unknown profile"
+        )
+    return problems, warnings
+
+
+def render_projection() -> tuple[dict[Path, bytes], dict[str, int]]:
     lane_skills: dict[str, str] = {}
     discipline_skills: dict[str, str] = {}
-    written: list[Path] = []
+    rendered: dict[Path, bytes] = {}
     for path in sorted(LANES_DIR.glob("*.md")):
         if path.name == "README.md":
             continue
         ident = lane_id(path.name)
         name, content = project_doc("lane", ident, path)
         lane_skills[ident] = name
-        dest = OUT_DIR / name / "SKILL.md"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(content, encoding="utf-8")
-        written.append(dest)
+        rendered[OUT_DIR / name / "SKILL.md"] = content.encode()
     for path in sorted(DISCIPLINES_DIR.glob("*.md")):
         if path.name == "README.md":
             continue
         ident = discipline_id(path.name)
         name, content = project_doc("discipline", ident, path)
         discipline_skills[ident] = name
-        dest = OUT_DIR / name / "SKILL.md"
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        dest.write_text(content, encoding="utf-8")
-        written.append(dest)
-    profiles = build_profiles(lane_skills, discipline_skills)
-    profiles_path = OUT_DIR / "profiles.json"
-    profiles_path.write_text(json.dumps(profiles, indent=2, sort_keys=True) + "\n", encoding="utf-8")
-    written.append(profiles_path)
-    return {
+        rendered[OUT_DIR / name / "SKILL.md"] = content.encode()
+    interface = build_profiles(lane_skills, discipline_skills)
+    rendered[OUT_DIR / "profiles.json"] = (
+        json.dumps(interface, indent=2, sort_keys=True) + "\n"
+    ).encode()
+    profiles = interface["profiles"]
+    assert isinstance(profiles, dict)
+    return rendered, {
         "lanes": len(lane_skills),
         "disciplines": len(discipline_skills),
         "skills": len(lane_skills) + len(discipline_skills),
         "profiles": len(profiles),
-        "files": written,
     }
 
 
-def check() -> int:
-    summary = generate()
-    dirty = [str(p.relative_to(ROOT)) for p in summary["files"] if p.read_bytes() != regenerate_bytes(p)]
-    # Deterministic by construction; verify on-disk files match a fresh build.
-    rebuilt = generate()
-    problems: list[str] = []
-    for p in rebuilt["files"]:
-        before = p.read_bytes()
-        generate()
-        if p.read_bytes() != before:
-            problems.append(f"nondeterministic output: {p.relative_to(ROOT)}")
+def generate() -> dict[str, object]:
+    rendered, summary = render_projection()
+    for path, payload in rendered.items():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(payload)
+    return {**summary, "files": list(rendered)}
+
+
+def check(fleet_root: Path | None = None) -> int:
+    rendered, summary = render_projection()
+    problems = [
+        f"stale projection: {path.relative_to(ROOT)}"
+        for path, expected in rendered.items()
+        if not path.is_file() or path.read_bytes() != expected
+    ]
+    second_render, _ = render_projection()
+    if rendered != second_render:
+        problems.append("nondeterministic projection output")
+
+    interface = json.loads(rendered[OUT_DIR / "profiles.json"])
+    problems.extend(f"profile-interface: {p}" for p in validate_profile_interface(interface))
+    warnings: list[str] = []
+    if fleet_root is not None:
+        fleet_problems, warnings = validate_fleet_references(fleet_root, interface)
+        problems.extend(fleet_problems)
+    for warning in warnings:
+        print(warning, file=sys.stderr)
     if problems:
         for problem in problems:
             print(problem, file=sys.stderr)
         return 2
+    fleet_note = f"; fleet={fleet_root}" if fleet_root is not None else ""
     print(
         f"engineering-core skill projection is current "
-        f"({rebuilt['skills']} skills, {rebuilt['profiles']} profiles)"
+        f"({summary['skills']} skills, {summary['profiles']} profiles{fleet_note})"
     )
     return 0
-
-
-def regenerate_bytes(path: Path) -> bytes:
-    generate()
-    return path.read_bytes()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--fleet-root",
+        type=Path,
+        default=Path(os.environ[FLEET_ROOT_ENV]) if os.environ.get(FLEET_ROOT_ENV) else None,
+        help=f"validate immediate child agent.json files (or set {FLEET_ROOT_ENV})",
+    )
     args = parser.parse_args()
+    if args.fleet_root is not None and not args.check:
+        parser.error("--fleet-root requires --check")
     if args.check:
-        raise SystemExit(check())
+        raise SystemExit(check(args.fleet_root))
     summary = generate()
     print(
         f"projected {summary['skills']} skills "
