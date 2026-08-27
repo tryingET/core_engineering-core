@@ -1,0 +1,18 @@
+{
+  "engineering_core": {
+    "catalog_command": "engineering-core catalog --pretty",
+    "deviations": [],
+    "disciplines": [
+      "validation",
+      "security-privacy",
+      "documentation"
+    ],
+    "lanes": [],
+    "lane_status": "no_language_lane",
+    "list_disciplines_command": "engineering-core list-disciplines",
+    "list_templates_command": "engineering-core list-templates",
+    "ref": "workspace-local-unpinned",
+    "schema_version": "1",
+    "tool": "engineering-core"
+  }
+}

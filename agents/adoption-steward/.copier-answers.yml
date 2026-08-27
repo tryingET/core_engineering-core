@@ -1,0 +1,11 @@
+_src_path: /home/tryinget/ai-society/softwareco/copier/tpl-agent-repo
+agent_owner_handle: '@agent-owner'
+company_name: Software Company
+company_slug: softwareco
+core_owner_handle: '@core-owner'
+enable_community_pack: false
+enable_release_pack: false
+enable_vouch_gate: false
+repo_slug: agent-adoption-steward
+
+

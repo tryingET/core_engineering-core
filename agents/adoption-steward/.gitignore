@@ -1,0 +1,31 @@
+# Bytecode / caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenvs
+.venv/
+venv/
+
+# OS/editor
+.DS_Store
+*.swp
+*.swo
+
+# Adoption journal (engineering-core init/migrate transactions; rollback source stays local)
+.engineering-core/
+
+# Secrets (never commit)
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+**/*.env
+.envrc
+auth.json
+**/auth.json
+op-service.env
+gitlab.env
