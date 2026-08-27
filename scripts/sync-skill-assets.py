@@ -19,10 +19,19 @@ def main() -> None:
                 "engineering-core skill projection differs; run scripts/sync-skill-assets.py"
             )
         print("engineering-core skill projection is current")
-        return
+    import subprocess as _sp
+    projection = _sp.run(
+        ["python3", str(ROOT / "scripts" / "build_skill_projection.py"), "--check"],
+        capture_output=False,
+    )
+    if projection.returncode != 0:
+        raise SystemExit("skill projection differs; run scripts/build_skill_projection.py")
+    return
     DESTINATION.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(SOURCE, DESTINATION)
     print(f"synced {DESTINATION.relative_to(ROOT)}")
+    import subprocess as _sp
+    _sp.run(["python3", str(ROOT / "scripts" / "build_skill_projection.py")], check=True)
 
 
 if __name__ == "__main__":

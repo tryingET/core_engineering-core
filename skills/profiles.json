@@ -1,0 +1,252 @@
+{
+  "ec-common-lisp": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-common-lisp"
+  ],
+  "ec-common-lisp.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-common-lisp",
+    "ec-lane-common-lisp.justfile"
+  ],
+  "ec-cpp": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-cpp"
+  ],
+  "ec-cpp.cuda": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-cpp",
+    "ec-lane-cpp.cuda"
+  ],
+  "ec-cpp.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-cpp",
+    "ec-lane-cpp.justfile"
+  ],
+  "ec-defaults": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation"
+  ],
+  "ec-elixir": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-elixir"
+  ],
+  "ec-elixir.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-elixir",
+    "ec-lane-elixir.justfile"
+  ],
+  "ec-full": [
+    "ec-discipline-accessibility",
+    "ec-discipline-ai-ml",
+    "ec-discipline-build-graph-acceleration",
+    "ec-discipline-data-governance",
+    "ec-discipline-dependency-governance",
+    "ec-discipline-design-patterns",
+    "ec-discipline-design-system",
+    "ec-discipline-documentation",
+    "ec-discipline-domain-modeling",
+    "ec-discipline-engineering-reasoning",
+    "ec-discipline-local-first-data",
+    "ec-discipline-observability",
+    "ec-discipline-performance",
+    "ec-discipline-release-package",
+    "ec-discipline-security-privacy",
+    "ec-discipline-service-api",
+    "ec-discipline-specification-and-dsls",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-common-lisp",
+    "ec-lane-common-lisp.justfile",
+    "ec-lane-cpp",
+    "ec-lane-cpp.cuda",
+    "ec-lane-cpp.justfile",
+    "ec-lane-elixir",
+    "ec-lane-elixir.justfile",
+    "ec-lane-go",
+    "ec-lane-go.justfile",
+    "ec-lane-pi-ts",
+    "ec-lane-pi-ts.justfile",
+    "ec-lane-pi-ts.ts-quality",
+    "ec-lane-py",
+    "ec-lane-py.justfile",
+    "ec-lane-rust",
+    "ec-lane-rust.build-graph",
+    "ec-lane-rust.justfile",
+    "ec-lane-ts",
+    "ec-lane-ts.evidence-safety",
+    "ec-lane-ts.frontend",
+    "ec-lane-ts.justfile",
+    "ec-lane-ts.ts-quality",
+    "ec-lane-ts.ultracite-pilot"
+  ],
+  "ec-go": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-go"
+  ],
+  "ec-go.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-go",
+    "ec-lane-go.justfile"
+  ],
+  "ec-pi-ts": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-pi-ts"
+  ],
+  "ec-pi-ts.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-pi-ts",
+    "ec-lane-pi-ts.justfile"
+  ],
+  "ec-pi-ts.ts-quality": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-pi-ts",
+    "ec-lane-pi-ts.ts-quality"
+  ],
+  "ec-py": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-py"
+  ],
+  "ec-py.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-py",
+    "ec-lane-py.justfile"
+  ],
+  "ec-rust": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-rust"
+  ],
+  "ec-rust.build-graph": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-rust",
+    "ec-lane-rust.build-graph"
+  ],
+  "ec-rust.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-rust",
+    "ec-lane-rust.justfile"
+  ],
+  "ec-ts": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-ts"
+  ],
+  "ec-ts.evidence-safety": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-ts",
+    "ec-lane-ts.evidence-safety"
+  ],
+  "ec-ts.frontend": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-ts",
+    "ec-lane-ts.frontend"
+  ],
+  "ec-ts.justfile": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-ts",
+    "ec-lane-ts.justfile"
+  ],
+  "ec-ts.ts-quality": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-ts",
+    "ec-lane-ts.ts-quality"
+  ],
+  "ec-ts.ultracite-pilot": [
+    "ec-discipline-dependency-governance",
+    "ec-discipline-documentation",
+    "ec-discipline-security-privacy",
+    "ec-discipline-testing",
+    "ec-discipline-validation",
+    "ec-lane-ts",
+    "ec-lane-ts.ultracite-pilot"
+  ]
+}
