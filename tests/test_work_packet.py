@@ -70,7 +70,7 @@ class WorkPacketTests(unittest.TestCase):
             prepare_work(self.repo, "owned/fixture", context, self.catalog)
         for unsafe in ("../escape", ":(glob)**", "-option"):
             context = self.context(); context["scope"]["focus_paths"] = [unsafe]
-            with self.assertRaisesRegex(WorkPacketError, "safe repository-relative"):
+            with self.assertRaisesRegex(WorkPacketError, "repository-relative"):
                 prepare_work(self.repo, "owned/fixture", context, self.catalog)
 
     def test_symlink_focus_is_rejected(self):

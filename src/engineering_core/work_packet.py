@@ -44,28 +44,69 @@ def _finite_json(value: Any, where: str) -> None:
         for item in value: _finite_json(item, where)
 
 
+def _observed_kind(value: Any) -> str:
+    if value is None: return "null"
+    if isinstance(value, bool): return "bool"
+    if isinstance(value, int): return "int"
+    if isinstance(value, float): return "float"
+    if isinstance(value, str): return "str"
+    if isinstance(value, list): return "array"
+    if isinstance(value, dict): return "object"
+    return type(value).__name__
+
+
 def _exact(value: Any, keys: set[str], where: str) -> None:
-    if not isinstance(value, dict) or set(value) != keys:
-        raise WorkPacketError(f"{where} must contain exactly: {', '.join(sorted(keys))}")
+    if not isinstance(value, dict):
+        raise WorkPacketError(
+            f"{where}: expected object with exactly {', '.join(sorted(keys))}; got {_observed_kind(value)}"
+        )
+    observed = set(value)
+    if observed != keys:
+        missing = sorted(keys - observed)
+        extra = sorted(observed - keys)
+        detail = []
+        if missing: detail.append(f"missing {', '.join(missing)}")
+        if extra: detail.append(f"unexpected {', '.join(extra)}")
+        raise WorkPacketError(
+            f"{where}: expected object with exactly {', '.join(sorted(keys))}; {'; '.join(detail)}"
+        )
 
 
 def _text(value: Any, where: str) -> str:
-    if not isinstance(value, str) or not value.strip() or len(value.encode("utf-8")) > 4096 or any(ord(char) < 32 for char in value):
-        raise WorkPacketError(f"{where} must be bounded text without controls")
+    if not isinstance(value, str):
+        raise WorkPacketError(
+            f"{where}: expected bounded text (str, 1-4096 utf-8 bytes, no control chars); got {_observed_kind(value)}"
+        )
+    if not value.strip():
+        raise WorkPacketError(f"{where}: expected bounded text; got blank/whitespace-only str")
+    if len(value.encode("utf-8")) > 4096:
+        raise WorkPacketError(f"{where}: expected bounded text; got {len(value.encode('utf-8'))} utf-8 bytes (max 4096)")
+    if any(ord(char) < 32 for char in value):
+        raise WorkPacketError(f"{where}: expected bounded text; got control characters")
     return value
 
 
 def _texts(value: Any, where: str, *, limit: int) -> list[str]:
-    if not isinstance(value, list) or len(value) > limit:
-        raise WorkPacketError(f"{where} must be an array with at most {limit} entries")
+    if not isinstance(value, list):
+        raise WorkPacketError(
+            f"{where}: expected array of bounded text with at most {limit} entries; got {_observed_kind(value)}"
+        )
+    if len(value) > limit:
+        raise WorkPacketError(f"{where}: expected array with at most {limit} entries; got {len(value)} entries")
     return [_text(item, f"{where} item") for item in value]
 
 
 def _relative_path(value: Any, where: str) -> str:
     text = _text(value, where)
     path = PurePosixPath(text)
-    if path.is_absolute() or text.startswith(("-", ":", "~")) or ".." in path.parts or text in (".", ""):
-        raise WorkPacketError(f"{where} must be a safe repository-relative path")
+    if path.is_absolute():
+        raise WorkPacketError(f"{where}: expected repository-relative path; got absolute path")
+    if text.startswith(("-", ":", "~")):
+        raise WorkPacketError(f"{where}: expected repository-relative path; got leading {text[0]!r}")
+    if ".." in path.parts:
+        raise WorkPacketError(f"{where}: expected repository-relative path; got '..' traversal segment")
+    if text in (".", ""):
+        raise WorkPacketError(f"{where}: expected repository-relative path; got {text!r}")
     return path.as_posix()
 
 
