@@ -1,0 +1,71 @@
+{
+  "$id": "https://github.com/tryingET/core_engineering-core/blob/main/contracts/standing-agent/provider-contract-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "authority_exclusions": {
+      "items": {
+        "type": "string"
+      },
+      "minItems": 7,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "compatibility": {
+      "type": "object"
+    },
+    "lifecycle": {
+      "type": "object"
+    },
+    "owned_namespace": {
+      "const": "engineering-core/ec-*"
+    },
+    "provider_id": {
+      "const": "engineering-core"
+    },
+    "provider_revision": {
+      "pattern": "^git-commit-sha1:[0-9a-f]{40}$"
+    },
+    "publication_invariants": {
+      "type": "object"
+    },
+    "resource_kinds": {
+      "items": {
+        "enum": [
+          "skill-tree",
+          "profile"
+        ]
+      },
+      "minItems": 2,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "rollback": {
+      "minLength": 20,
+      "type": "string"
+    },
+    "schema": {
+      "const": "ai-society.provider-contract/1"
+    },
+    "semantic_owner": {
+      "const": "tryingET/core_engineering-core"
+    },
+    "status": {
+      "const": "candidate_owner_acceptance_pending"
+    }
+  },
+  "required": [
+    "schema",
+    "status",
+    "provider_id",
+    "semantic_owner",
+    "provider_revision",
+    "owned_namespace",
+    "publication_invariants",
+    "authority_exclusions",
+    "compatibility",
+    "rollback"
+  ],
+  "title": "Engineering-core standing-agent provider contract",
+  "type": "object"
+}

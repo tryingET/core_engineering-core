@@ -1,0 +1,94 @@
+{
+  "payload": {
+    "authority_exclusions": [
+      "agent appointment",
+      "organizational delegation",
+      "release approval",
+      "run authorization",
+      "runtime observation",
+      "effect settlement",
+      "ownership transfer through import or snapshot"
+    ],
+    "compatibility": {
+      "alias": null,
+      "base_equivalent_to_current_profile": "ec-defaults",
+      "current_ec_defaults_unchanged": true,
+      "deprecation": null,
+      "new_profile_is_additive": true
+    },
+    "complete": true,
+    "profile_name": "ec-adoption-steward",
+    "prohibited_for_first_pilot": [
+      "engineering-core/ec-full",
+      "bare skill names",
+      "implicit profile inheritance",
+      "ambient global skill roots"
+    ],
+    "provider_id": "engineering-core",
+    "provider_revision": "git-commit-sha1:51fc387556d0873bee61fea18164d707554b6af9",
+    "qualified_profile_id": "engineering-core/ec-adoption-steward",
+    "schema": "engineering-core.profile-publication/1",
+    "skill_trees": [
+      {
+        "entrypoint_path": "SKILL.md",
+        "entrypoint_ref": "git-blob-sha1:f9041be0423ad87babb67c0dc57860e100fbe907",
+        "invocation_policy": {
+          "model_invocation": "disabled_unless_task_permit_explicitly_enables",
+          "preserve_on_materialization": true
+        },
+        "qualified_skill_id": "engineering-core/ec-discipline-dependency-governance",
+        "tree_ref": "git-tree-sha1:57ccf84d012030371e8d281981ad7452f84fc995"
+      },
+      {
+        "entrypoint_path": "SKILL.md",
+        "entrypoint_ref": "git-blob-sha1:dbcdb69acca36eb02d17444f589f678c576ee225",
+        "invocation_policy": {
+          "model_invocation": "disabled_unless_task_permit_explicitly_enables",
+          "preserve_on_materialization": true
+        },
+        "qualified_skill_id": "engineering-core/ec-discipline-documentation",
+        "tree_ref": "git-tree-sha1:3eaeab56c412c6dc553ce17103b09f98780af6a7"
+      },
+      {
+        "entrypoint_path": "SKILL.md",
+        "entrypoint_ref": "git-blob-sha1:dd6a4540a67a9ec691979cea246c323cbdc62731",
+        "invocation_policy": {
+          "model_invocation": "disabled_unless_task_permit_explicitly_enables",
+          "preserve_on_materialization": true
+        },
+        "qualified_skill_id": "engineering-core/ec-discipline-security-privacy",
+        "tree_ref": "git-tree-sha1:3982047a1d45b843dfcaa97f0f5e42a0d48d9635"
+      },
+      {
+        "entrypoint_path": "SKILL.md",
+        "entrypoint_ref": "git-blob-sha1:7838c6ee336f0a494c47aba58a16f3a13d28a202",
+        "invocation_policy": {
+          "model_invocation": "disabled_unless_task_permit_explicitly_enables",
+          "preserve_on_materialization": true
+        },
+        "qualified_skill_id": "engineering-core/ec-discipline-testing",
+        "tree_ref": "git-tree-sha1:5ac4bf87ff5ca13edf020d1c212b98f19fa0b77e"
+      },
+      {
+        "entrypoint_path": "SKILL.md",
+        "entrypoint_ref": "git-blob-sha1:793745d10a2194cb294f3d3eed6f65cc5427c6f3",
+        "invocation_policy": {
+          "model_invocation": "disabled_unless_task_permit_explicitly_enables",
+          "preserve_on_materialization": true
+        },
+        "qualified_skill_id": "engineering-core/ec-discipline-validation",
+        "tree_ref": "git-tree-sha1:caca74f79bd7e8746a091b4485fcb2fb84c31f19"
+      }
+    ],
+    "status": "candidate_owner_acceptance_pending",
+    "task_scoped_additions": {
+      "allowed": true,
+      "rule": "Only exact provider-qualified resources named by the accepted task-bound run permit may be added. Additions never mutate this profile publication."
+    }
+  },
+  "payload_ref": "sha256:69fccd9bd1b304f01d1ae629a08818d0386791f853d79b895c7ce4e5367c4875",
+  "schema": "engineering-core.signed-publication-envelope/1",
+  "signature": null,
+  "signature_semantics": "No signature is asserted. A future signature would attest this exact payload only; it would not appoint an agent or authorize a run.",
+  "status": "candidate_unsigned_owner_acceptance_pending"
+}

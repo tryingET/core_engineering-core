@@ -1,0 +1,44 @@
+{
+  "authority_exclusions": [
+    "agent appointment",
+    "organizational delegation",
+    "release approval",
+    "run authorization",
+    "runtime observation",
+    "effect settlement",
+    "ownership transfer through import or snapshot"
+  ],
+  "compatibility": {
+    "current_profiles_file": "skills/profiles.json",
+    "current_profiles_schema": "engineering-core.skill-profiles/1",
+    "ec_full_retained": true,
+    "fleet_default_unchanged": true,
+    "schema_1_consumers_retained": true
+  },
+  "lifecycle": {
+    "aliases_may_move_only_by_owner_record": true,
+    "deprecation_preserves_historical_retrieval": true,
+    "historical_does_not_mean_launch_eligible": true,
+    "published_revisions_are_immutable": true
+  },
+  "owned_namespace": "engineering-core/ec-*",
+  "provider_id": "engineering-core",
+  "provider_revision": "git-commit-sha1:51fc387556d0873bee61fea18164d707554b6af9",
+  "publication_invariants": {
+    "alias_is_not_identity": true,
+    "canonicalization_contract": "tryingET/core_tpl-template-repo:contracts/canonicalization-v1.md",
+    "complete_tree_required": true,
+    "exact_revision_required": true,
+    "invocation_policy_is_identity_bound": true,
+    "physical_path_is_not_portable_identity": true,
+    "provider_qualified_refs_required": true
+  },
+  "resource_kinds": [
+    "skill-tree",
+    "profile"
+  ],
+  "rollback": "Remove the additive standing-agent contract/profile publication and continue current skills/profiles.json resolution. No current alias or default is changed by this candidate.",
+  "schema": "ai-society.provider-contract/1",
+  "semantic_owner": "tryingET/core_engineering-core",
+  "status": "candidate_owner_acceptance_pending"
+}
