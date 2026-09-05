@@ -28,6 +28,11 @@ Engineering-core is a shared guidance source, not the runtime authority for ever
 | Ontology admission, ref resolution, validation, packing, and source-conformance receipts | `core/rocs-cli` | ROCS implements the operational contract; it does not own the meanings or establish adoption/currentness. |
 | Reusable prompts/procedures | Prompt Vault | Engineering-core docs should not become prompt registry truth. |
 | Harness instruction selection and hierarchical repository guidance | Pi plus repo-local `AGENTS.md` hierarchy | Engineering-core does not flatten or replace harness-selected instructions. |
+| Skill-authoring and evaluation methodology | `softwareco/contrib/procesio-cli/skills/agent-skill-engineer` | Current source owns the method; engineering-core references it without copying or installing it. |
+| Repo skills and recipient adoption | recipient repo maintainers | Qualify workflows, own trigger boundaries, exact accepted revision, integration, local regressions and withdrawal. No universal skill requirement. |
+| Learning signals and accepted knowledge | KES/source owners; AK knowledge where landed | Candidate capture is not promotion. Source promotion and recipient acceptance remain separate owner decisions. |
+| Skill activation, discovery, loading and use | selected host/runtime owner, including Pi | Files in Git or installation do not prove fresh-host discovery or observed use. |
+| Causal/effectiveness analysis | DSPx/Oracle or explicitly designated empirical owner | Independent evaluation and frozen baselines, not author self-grading or acceptance by popularity. |
 
 See `docs/evidence-semantics-boundaries.md` for the end-to-end integration contract.
 
@@ -76,3 +81,30 @@ Escalate a change when its primary question is outside guidance ownership:
 - to ontology-kernel for canonical shared meaning, aliases, relations, or term deprecation;
 - to rocs-cli for ontology source admission, resolution, validation, packing, or conformance mechanics;
 - to the Pi/repository instruction owners for hierarchical `AGENTS.md` behavior.
+
+## Repo-skill and learning handoffs
+
+The [adoption reconciliation](adoption.md#opt-in-repo-skills-and-kes-improvement)
+composes existing mechanisms. The following are actionable interface requests,
+not new assignments, grants of access, or claims that recipients have accepted work.
+AK5428 authorizes only the existing-doc design; successors require exact owner scope.
+
+| Receiving owner | Input and requested action | Return evidence / stop boundary |
+|---|---|---|
+| procesio-cli method owner | Refer to `skills/agent-skill-engineer` version/revision and a sanitized causal defect or method question; review only a genuine method gap. | Source-owned disposition and exact revision. COMPASS-C integrity evidence alone does not justify upstream edits or method installation. |
+| COMPASS-C / another opted-in recipient | Supply qualified workflow, source evidence, baseline, bounded proposal and independent review; choose applicability and accepted revision locally. | Owner disposition, native regression evidence, deviations and withdrawal condition. Decline/no skill is valid; no fleet population is inferred from the first consumer. |
+| KES source owner and Agent Kernel owner | Bind sanitized source/learning identity, applicability, causal attribution, accepted recipient revision and contradiction references through existing authorized knowledge/evidence surfaces. | Durable owner readback and explicit claim limits. A missing reference/adapter is a scoped design question, not permission for a new DB, automatic promotion or private-memory access. |
+| Pi / selected host owner | Given separately accepted recipient revision and authorized target, inspect trust/discovery configuration and design a bounded fresh-context selection/use observation. | Host version/config, exact loaded revision, actual selection/use and negative-route observations; report unknown or absent separately. No provider run, install or activation is authorized by this reconciliation. |
+| Empirical owner with recipient/evaluator | Given the intended behavior, preserved baseline successes/failures and development corpus, predeclare independent splits, fixed rubric, A/A noise and paired comparison protocol. | Prospective accepted protocol before execution; subsequent repairs, regressions, costs, uncertainty and failed evidence. Structural audit does not stand in for behavioral proof. |
+| Template / template-propagator owner | Review only an explicit recipient population and proposed opt-in source reference/default, including pin, local deviations, refresh and withdrawal behavior. Reuse the owner's current plan/review/propagation mechanics. | Owner dry-run/disposition and per-recipient acceptance if later authorized. Generation or propagation receipts do not prove learning, host activation or use; no blanket template copy. |
+| Design traceability owner (AK5425) | Consume source revision/evidence -> causal hypothesis -> bounded intervention -> fixed baseline/evaluation -> review -> recipient accepted revision, with separate host-use and contradiction references. | Preserve source meaning, reader intent, critique, application proposal, review and accepted knowledge as distinct linked claims. Missing/denied source access stays explicit; a traceability record never grants promotion or execution. |
+
+Source promotion, consumer adoption, host activation and measured use are separate
+relationships, not a new shared status ladder. Keep agent-personal, society, company,
+project, frame, wave and task applicability explicit without automatic access or
+inheritance; private human memory remains separate. Template generation is not
+learning propagation. Missing interfaces return to their source owner by reference.
+
+AK3351 is a historical parked SF13 gate scoped to explorer artifacts, not current
+repo-skill/fleet authority. This reconciliation neither revives that chain nor
+bypasses the separately deferred FCOS coordination intake (AK5420).

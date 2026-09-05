@@ -68,6 +68,37 @@ Evidence anchors: [v0.10.0 release record](../releases/2026-08-22-v0.10.0-local-
 - Prompt Vault retains reusable prompt and procedure authority.
 - The current AK direction state contains one active strategic frame for trustworthy, adoptable, evidence-bounded engineering guidance. No product-posture statement creates a task or implementation wave.
 
+## Repo-skill/KES first-consumer boundary (2026-09-05)
+
+AK5428 reconciles existing adoption/authority docs only. It adds no CLI, schema,
+catalog/scanner behavior, template rollout, provider execution or automatic KES
+promotion. Its [adoption design](../adoption.md#opt-in-repo-skills-and-kes-improvement)
+prefers opt-in recipient composition and executable enforcement over one mandatory
+universal skill per repo. The current method remains source-owned in procesio-cli;
+installing that method is not behavioral-improvement evidence.
+
+The first consumer is COMPASS-C AK5424, evidence **8326/8327**, at implementation
+`9726d109212d54cea252d5f340cf6494720ff7c2` and posture
+`56066fc06ae8358cfa81fe7700be28382bb68ddc`. Those records establish a provisional
+repo maintainer skill, eight author-visible development cases and a deterministic
+malformed-evaluation validator repair, with 93 tests/17 subtests and native
+check/CI/build/strict-audit results. They do not establish fresh-host discovery/use,
+A/A or A/B behavioral improvement, a KES runtime/promotion cycle, or fleet adoption.
+No such proof is inferred from the design review, source inspection or test count.
+
+The next proof remains separately owner-gated: a recipient accepts an exact
+revision with a fixed evaluation contract; KES/AK retain permitted source and
+acceptance references; a host owner observes discovery and actual use; an empirical
+owner establishes any effectiveness claim; contradiction/withdrawal remains
+traceable without erasing prior evidence. These are proof obligations and
+[handoff interfaces](../authority-map.md#repo-skill-and-learning-handoffs), not an
+activated task sequence. Existing owner-use packets remain derived projections;
+the historical canaries' zero real dispositions/receipts are not closed by this
+first-consumer evidence. Self-adoption still does not declare `closed_loop`.
+
+The four v1 pillars and their independent-owner proof gates below are unchanged.
+AK3351's parked explorer-only gate is not revived as repo-skill adoption authority.
+
 ## v1 maturity map
 
 | Pillar | Current v0.10 posture | v1.0 target posture | Main proof gap | Proof of closure |

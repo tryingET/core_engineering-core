@@ -61,6 +61,29 @@ Engineering-core combines four complementary surfaces:
 
 These surfaces should reinforce one another while remaining independently understandable and replaceable.
 
+## Recipient-owned learning and skill quality
+
+The intended improvement loop connects permitted KES/source evidence to causal
+attribution, the strongest bounded intervention, fixed baseline/regression evidence,
+independent review, recipient acceptance, observed discovery/use, and reversible
+contradiction handling. Repo skills serve qualified recurrent workflows; they are
+not a mandatory universal policy layer. Deterministic requirements belong in code
+or validators rather than accumulated instructions. Methodology remains with the
+skill-engineering source owner; engineering-core supplies adoption guidance and
+existing inert engineering membranes, not a competing learning or status database.
+
+This supports the larger foundry and LeseOS/MathOS ambition without making a grand
+foundry a prerequisite for useful repo-skill quality work or reducing that ambition
+to a disposable linear MVP. Source meaning, reader intent, critique, application
+proposals, review and accepted knowledge must remain distinct. Learning may inform
+another owner by reviewed reference; template generation does not carry approval,
+access or automatic activation. Source promotion, recipient adoption and measured
+use require separate evidence, including the ability to decline and withdraw.
+
+See [adoption](../adoption.md#opt-in-repo-skills-and-kes-improvement) and
+[owner handoffs](../authority-map.md#repo-skill-and-learning-handoffs) for the bounded
+reconciliation. They specify an intended composition, not a shipped automatic loop.
+
 ## Hard scope boundaries
 
 Engineering-core must not:
