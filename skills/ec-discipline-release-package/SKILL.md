@@ -54,6 +54,8 @@ A useful release note states:
 
 Do not fill changelogs with commit noise while hiding migration or compatibility facts.
 
+Derive release notes from the version's changelog entry instead of writing them twice, and rewrite repository-relative links to point at the release tag: release pages and package registries do not resolve them. A README that a registry renders needs absolute links and image URLs for the same reason.
+
 ## Artifact provenance
 
 Each release artifact should be traceable to source:
@@ -91,12 +93,26 @@ Before publishing:
 - verify install/import/run smoke from the built artifact, not only from the source tree
 - confirm registry namespace, ownership, 2FA/trusted publishing, and token handling
 - confirm version uniqueness and tag/release consistency
+- build each release once and publish those exact files to every channel (registry, release page, mirrors); record per-file digests and confirm they match across channels
+- clear the build output directory first, so a stale artifact from an earlier version is never the one smoke-tested or published
 
 Keep ecosystem-specific commands in lanes or repo-local release docs.
+
+## Release automation
+
+When CI publishes, the release decision is one explicit act (a pushed version tag or an approved run) and everything after it is mechanical:
+
+- check that the tag names the packaged version before building
+- give each job only the permission it needs: building reads the source, registry upload uses short-lived trusted-publishing identity in a protected environment restricted to release tags, creating the release writes repository contents; keep no long-lived registry tokens where trusted publishing exists
+- pin third-party CI actions to full commit digests, not movable tags
+- where the release host makes releases immutable (files and tag locked once published), create the release together with its files, checksums and notes in one step; publishing first and attaching files later fails, and the release can then only be corrected in its notes
+- order the channels so a failure leaves a state you can explain, and say in the release process which channel is authoritative when the second one fails
 
 ## Release authority
 
 A release artifact should have one authoritative release surface: tag, registry version, image digest, package metadata, or documented local release record. Avoid split-brain releases where README, changelog, package metadata, container tag, and generated docs disagree.
+
+Keep one version string everywhere consumers can read it: package metadata, the version the runtime reports, the newest changelog heading and the tag. Enforce it with a test and a release-time check rather than by review.
 
 Generated artifacts must be either included intentionally or regenerated deterministically by consumers. Do not make consumers guess whether checked-in generated files are source, projection, or proof output.
 
@@ -141,6 +157,8 @@ Release validation should match artifact risk:
 - migration dry run or fixture upgrade/downgrade where data is involved
 - security/privacy/dependency review for changed dependencies, generated artifacts, or new distribution channels
 - performance/eval evidence for release notes that make performance or AI/ML quality claims
+- the release validation on a clean runner before tagging; a suite that has only run on a maintainer's machine has not shown it is independent of that machine (see `testing`)
+- install from the registry after publishing; consumer-side quarantine settings (a minimum package age) can hide a fresh release, so relax them for that one package during verification instead of disabling them
 
 Use `validation`, `testing`, `dependency-governance`, `security-privacy`, `service-api`, `data-governance`, `domain-modeling`, `performance`, and `ai-ml` as applicable.
 
@@ -166,3 +184,7 @@ For package releases, remember that unpublishing may be impossible or harmful. P
 - Mutable container tags or model names are treated as stable artifact identity.
 - Package metadata, changelog, generated docs, and tag describe different releases.
 - Signing exists but verification is undocumented or impossible for consumers.
+- Files are attached to an already-published release on a host that makes releases immutable, leaving a release without its artifacts.
+- The registry and the release page carry different builds of the same version.
+- Release notes or a registry-rendered README keep repository-relative links that break outside the repository.
+- A stale artifact from an earlier build is the one that gets smoke-tested or published.

@@ -66,6 +66,16 @@ format = "ruff format ."
 - OpenAPI contract testing implementation: **schemathesis** when API schema behavior needs executable coverage
 - Text/config/html templating: **Jinja2** when the repo benefits from reusable template files or user-visible rendering surfaces
 - Prefer plain Python functions / f-strings for small local formatting tasks
+- Installed-wheel smoke tests that inject doubles into a subprocess interpreter load them through a `.pth` file in its site-packages, not `sitecustomize.py`: distribution Pythons (Debian, Ubuntu) ship their own `sitecustomize` earlier on `sys.path` and silently shadow it (see `disciplines/testing.md`, Isolation)
+
+### **Packaging & Release (PyPI)**
+
+Applies `disciplines/release-package.md`:
+
+- Build with `uv build --clear` so a stale wheel from an earlier version never sits beside the new one.
+- Publish from CI through PyPI trusted publishing (`pypa/gh-action-pypi-publish` in a job with only `id-token: write`, inside a protected environment restricted to release tags); no API tokens.
+- A `README.md` used as `readme` in `pyproject.toml` is rendered on PyPI: use absolute links and image URLs.
+- uv's `exclude-newer` quarantine hides a fresh upload; verify a new release with `uvx --exclude-newer-package <name>=<date> --from <name>==<version> <command>` rather than turning the quarantine off.
 
 ---
 

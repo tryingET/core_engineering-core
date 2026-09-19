@@ -47,6 +47,13 @@ Choose test forms by risk, not fashion. Lanes provide tools; this discipline def
 - Prefer generated data when invariants matter.
 - Version compatibility fixtures when migrations exist.
 
+## Isolation
+
+- Tests never read or change the operator's live state: running services and their sockets, desktop sessions, home-directory configuration, credentials, lock files.
+- Default every test to fail closed on that state, for example with an autouse fixture that removes service endpoints from the environment and points configuration roots at empty temporary paths. A test that needs one of them provides a fabricated one.
+- A suite that has only run on its author's machine has not shown it is isolated. Run it on a clean runner early, and treat what fails there as isolation bugs, not flakes.
+- When a test injects doubles into a spawned process, use a mechanism the host environment cannot shadow and assert that the doubles took effect: a silently missing double runs the real effect.
+
 ## Failure modes
 
 - test pyramid dogma that ignores product risk
@@ -55,3 +62,4 @@ Choose test forms by risk, not fashion. Lanes provide tools; this discipline def
 - mocks that assert implementation instead of behavior
 - property tests without clear invariant
 - BDD as ceremony rather than shared executable language
+- tests that pass only because the developer's machine provides a service, socket or configuration they silently use
