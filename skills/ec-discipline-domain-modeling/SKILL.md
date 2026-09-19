@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-domain-modeling
-description: [ec-discipline] Cross-language domain modeling discipline for vocabulary, invariants, boundaries, workflows, and anti-corruption layers. Load when: Work changes business/domain concepts, state transitions, permissions, workflow rules, aggregates, policies, or cross-boundary vocabulary.; A repo is accumulating anemic transport/database models, duplicated business rules, or ambiguous domain language.
+description: "[ec-discipline] Cross-language domain modeling discipline for vocabulary, invariants, boundaries, workflows, and anti-corruption layers. Load when: Work changes business/domain concepts, state transitions, permissions, workflow rules, aggregates, policies, or cross-boundary vocabulary.; A repo is accumulating anemic transport/database models, duplicated business rules, or ambiguous domain language."
 ---
 
 ---

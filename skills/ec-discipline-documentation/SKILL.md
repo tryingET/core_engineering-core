@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-documentation
-description: [ec-discipline] Cross-language documentation discipline for authority, front matter, generated projections, and update hygiene. Load when: Creating or changing docs, generated documentation projections, read-first surfaces, or docs validation rules.; Deciding whether documentation is authoritative, narrative, generated, or local override material.
+description: "[ec-discipline] Cross-language documentation discipline for authority, front matter, generated projections, and update hygiene. Load when: Creating or changing docs, generated documentation projections, read-first surfaces, or docs validation rules.; Deciding whether documentation is authoritative, narrative, generated, or local override material."
 ---
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: ec-lane-go
-description: [ec-lane] Go engineering lane for ecosystem-specific tooling, commands, and implementation defaults. Load when: Working in a repo or package whose selected engineering-core lane is go.; Choosing Go tooling, command surfaces, quality defaults, or ecosystem-specific validation.
+description: "[ec-lane] Go engineering lane for ecosystem-specific tooling, commands, and implementation defaults. Load when: Working in a repo or package whose selected engineering-core lane is go.; Choosing Go tooling, command surfaces, quality defaults, or ecosystem-specific validation."
 ---
 
 ---

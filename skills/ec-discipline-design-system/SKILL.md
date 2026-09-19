@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-design-system
-description: [ec-discipline] Cross-language design-system discipline for tokens, components, motion, assets, and product consistency. Load when: Work changes UI tokens, components, visual language, motion, assets, or reusable presentation contracts.; Reviewing whether frontend/native/docs surfaces remain visually coherent.
+description: "[ec-discipline] Cross-language design-system discipline for tokens, components, motion, assets, and product consistency. Load when: Work changes UI tokens, components, visual language, motion, assets, or reusable presentation contracts.; Reviewing whether frontend/native/docs surfaces remain visually coherent."
 ---
 
 ---

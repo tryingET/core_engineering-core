@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-build-graph-acceleration
-description: [ec-discipline] Discipline for evidence-gated adoption of build graph accelerators such as Buck2, Bazel, Pants, Nx, Turborepo, and remote cache/execution. Load when: A repo proposes Buck2, Bazel, Pants, Nx, Turborepo, remote cache, remote execution, or another secondary build graph.; Build times, test times, or CI times are becoming a material engineering bottleneck.; A repo needs to decide whether native package-manager builds remain sufficient.
+description: "[ec-discipline] Discipline for evidence-gated adoption of build graph accelerators such as Buck2, Bazel, Pants, Nx, Turborepo, and remote cache/execution. Load when: A repo proposes Buck2, Bazel, Pants, Nx, Turborepo, remote cache, remote execution, or another secondary build graph.; Build times, test times, or CI times are becoming a material engineering bottleneck.; A repo needs to decide whether native package-manager builds remain sufficient."
 ---
 
 ---

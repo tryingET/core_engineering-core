@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-local-first-data
-description: [ec-discipline] Cross-language local-first data discipline for persistence, migrations, sync, corruption, and authority. Load when: Work changes local state, browser storage, filesystem persistence, embedded databases, migrations, export/reset, or sync.; Reviewing privacy, corruption, or authority boundaries for locally stored user data.
+description: "[ec-discipline] Cross-language local-first data discipline for persistence, migrations, sync, corruption, and authority. Load when: Work changes local state, browser storage, filesystem persistence, embedded databases, migrations, export/reset, or sync.; Reviewing privacy, corruption, or authority boundaries for locally stored user data."
 ---
 
 ---

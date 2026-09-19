@@ -1,6 +1,6 @@
 ---
 name: ec-lane-cpp.cuda
-description: [ec-lane] C++ CUDA/GPU addendum for kernels, native extensions, profiling, and GPU benchmark evidence. Load when: A C++ repo builds, profiles, benchmarks, or validates CUDA/GPU code.; Work touches CUDA Toolkit usage, GPU kernels, PyTorch C++/CUDA extensions, PTX/SASS, or GPU benchmark evidence.
+description: "[ec-lane] C++ CUDA/GPU addendum for kernels, native extensions, profiling, and GPU benchmark evidence. Load when: A C++ repo builds, profiles, benchmarks, or validates CUDA/GPU code.; Work touches CUDA Toolkit usage, GPU kernels, PyTorch C++/CUDA extensions, PTX/SASS, or GPU benchmark evidence."
 ---
 
 ---

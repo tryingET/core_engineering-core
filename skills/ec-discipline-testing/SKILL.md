@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-testing
-description: [ec-discipline] Cross-language testing discipline for choosing test forms by risk and cost. Load when: Selecting unit, integration, property, contract, browser, E2E, snapshot, visual, or manual tests.; Reviewing whether a test suite matches the behavior and risk being changed.
+description: "[ec-discipline] Cross-language testing discipline for choosing test forms by risk and cost. Load when: Selecting unit, integration, property, contract, browser, E2E, snapshot, visual, or manual tests.; Reviewing whether a test suite matches the behavior and risk being changed."
 ---
 
 ---

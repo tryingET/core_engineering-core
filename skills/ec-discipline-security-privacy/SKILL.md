@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-security-privacy
-description: [ec-discipline] Cross-language security and privacy discipline for secrets, permissions, supply chain, devices, and user data. Load when: Work touches secrets, credentials, permissions, devices, local data, telemetry, privacy-sensitive data, or dependency risk.; Reviewing security/privacy posture before handoff or release.
+description: "[ec-discipline] Cross-language security and privacy discipline for secrets, permissions, supply chain, devices, and user data. Load when: Work touches secrets, credentials, permissions, devices, local data, telemetry, privacy-sensitive data, or dependency risk.; Reviewing security/privacy posture before handoff or release."
 ---
 
 ---

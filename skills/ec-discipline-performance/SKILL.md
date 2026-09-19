@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-performance
-description: [ec-discipline] Cross-language performance discipline for budgets, profiling, benchmark hygiene, regression gates, and evidence. Load when: Work makes or affects latency, throughput, frame-rate, memory, startup, build-time, GPU, cost, or scalability claims.; A repo adds benchmarks, profiles, performance budgets, regression gates, or optimization work.
+description: "[ec-discipline] Cross-language performance discipline for budgets, profiling, benchmark hygiene, regression gates, and evidence. Load when: Work makes or affects latency, throughput, frame-rate, memory, startup, build-time, GPU, cost, or scalability claims.; A repo adds benchmarks, profiles, performance budgets, regression gates, or optimization work."
 ---
 
 ---

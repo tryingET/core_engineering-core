@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-accessibility
-description: [ec-discipline] Cross-language accessibility invariants for UI, docs, CLI/TUI, native, and custom-rendered surfaces. Load when: Work changes user-facing interaction, semantics, focus, keyboard operation, reduced motion, or assistive-technology behavior.; Reviewing accessibility expectations independent of implementation language.
+description: "[ec-discipline] Cross-language accessibility invariants for UI, docs, CLI/TUI, native, and custom-rendered surfaces. Load when: Work changes user-facing interaction, semantics, focus, keyboard operation, reduced motion, or assistive-technology behavior.; Reviewing accessibility expectations independent of implementation language."
 ---
 
 ---

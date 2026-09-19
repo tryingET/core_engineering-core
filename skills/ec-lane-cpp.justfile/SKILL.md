@@ -1,6 +1,6 @@
 ---
 name: ec-lane-cpp.justfile
-description: [ec-lane] C++ lane standardized Justfile addendum. Load when: A repo using the C++ lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping.
+description: "[ec-lane] C++ lane standardized Justfile addendum. Load when: A repo using the C++ lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
 ---

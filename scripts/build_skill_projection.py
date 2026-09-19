@@ -80,8 +80,10 @@ def parse_front_matter(text: str) -> tuple[dict, str]:
 
 
 def skill_front_matter(name: str, description: str) -> str:
-    # Description must be one line for pi skill discovery; keep it dense.
-    return f"---\nname: {name}\ndescription: {description}\n---\n"
+    # JSON strings are YAML-compatible scalars. Quote/escape descriptions so
+    # `[ec-*]`, colons, quotes and newlines cannot change frontmatter structure.
+    # ASCII escapes also keep Unicode line separators on one physical line.
+    return f"---\nname: {name}\ndescription: {json.dumps(description)}\n---\n"
 
 
 def build_description(kind: str, ident: str, meta: dict) -> str:

@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-ai-ml
-description: [ec-discipline] Cross-language AI/ML discipline for model assets, inference boundaries, evals, provenance, safety claims, and reproducibility. Load when: A repo trains, evaluates, serves, embeds, downloads, packages, or calls ML/AI/LLM models.; Work changes datasets, prompts, model versions, inference runtime, browser ML, GPU acceleration, safety/privacy claims, or eval evidence.
+description: "[ec-discipline] Cross-language AI/ML discipline for model assets, inference boundaries, evals, provenance, safety claims, and reproducibility. Load when: A repo trains, evaluates, serves, embeds, downloads, packages, or calls ML/AI/LLM models.; Work changes datasets, prompts, model versions, inference runtime, browser ML, GPU acceleration, safety/privacy claims, or eval evidence."
 ---
 
 ---

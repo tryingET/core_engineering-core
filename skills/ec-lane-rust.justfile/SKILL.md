@@ -1,6 +1,6 @@
 ---
 name: ec-lane-rust.justfile
-description: [ec-lane] Rust lane standardized Justfile addendum. Load when: A repo using the Rust lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping.
+description: "[ec-lane] Rust lane standardized Justfile addendum. Load when: A repo using the Rust lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
 ---

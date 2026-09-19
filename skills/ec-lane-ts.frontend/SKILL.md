@@ -1,6 +1,6 @@
 ---
 name: ec-lane-ts.frontend
-description: [ec-lane] TypeScript frontend application addendum for browser apps and interactive user-facing UI. Load when: A TypeScript repo owns browser app, SPA, camera/media UI, local-first frontend data, or design-heavy frontend behavior.; Work changes frontend state, routing/forms, media/device lifecycle, Rive/motion, browser tests, or accessibility.
+description: "[ec-lane] TypeScript frontend application addendum for browser apps and interactive user-facing UI. Load when: A TypeScript repo owns browser app, SPA, camera/media UI, local-first frontend data, or design-heavy frontend behavior.; Work changes frontend state, routing/forms, media/device lifecycle, Rive/motion, browser tests, or accessibility."
 ---
 
 ---

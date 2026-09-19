@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-specification-and-dsls
-description: [ec-discipline] Discipline for finding implicit engineering DSLs and deciding when to formalize them. Load when: A repo has conventions, schemas, naming rules, generated files, policy files, or command surfaces that agents/operators must follow.; A hidden convention repeatedly causes review comments, onboarding tax, drift, or silent failures.; Deciding whether a convention should become documentation, schema, linter, generator, parser, or executable policy.
+description: "[ec-discipline] Discipline for finding implicit engineering DSLs and deciding when to formalize them. Load when: A repo has conventions, schemas, naming rules, generated files, policy files, or command surfaces that agents/operators must follow.; A hidden convention repeatedly causes review comments, onboarding tax, drift, or silent failures.; Deciding whether a convention should become documentation, schema, linter, generator, parser, or executable policy."
 ---
 
 ---

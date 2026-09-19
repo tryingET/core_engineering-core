@@ -1,6 +1,6 @@
 ---
 name: ec-lane-ts.justfile
-description: [ec-lane] TypeScript lane standardized Justfile addendum. Load when: A repo using the TypeScript lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping.
+description: "[ec-lane] TypeScript lane standardized Justfile addendum. Load when: A repo using the TypeScript lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
 ---

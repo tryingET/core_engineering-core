@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-service-api
-description: [ec-discipline] Cross-language service/API discipline for boundaries, contracts, operations, and rollback. Load when: A repo exposes or consumes HTTP, RPC, GraphQL, WebSocket, queue, event, or file/API contracts.; Work changes service boundaries, auth, schemas, errors, jobs, health/readiness, migrations, observability, deploys, or rollback.
+description: "[ec-discipline] Cross-language service/API discipline for boundaries, contracts, operations, and rollback. Load when: A repo exposes or consumes HTTP, RPC, GraphQL, WebSocket, queue, event, or file/API contracts.; Work changes service boundaries, auth, schemas, errors, jobs, health/readiness, migrations, observability, deploys, or rollback."
 ---
 
 ---

@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-observability
-description: [ec-discipline] Cross-language observability discipline for logs, metrics, traces, profiles, health, and runtime evidence. Load when: Work changes logging, metrics, traces, profiling, health checks, diagnostics, or runtime evidence collection.; Reviewing observability boundaries, telemetry posture, or secret-safe diagnostics.
+description: "[ec-discipline] Cross-language observability discipline for logs, metrics, traces, profiles, health, and runtime evidence. Load when: Work changes logging, metrics, traces, profiling, health checks, diagnostics, or runtime evidence collection.; Reviewing observability boundaries, telemetry posture, or secret-safe diagnostics."
 ---
 
 ---

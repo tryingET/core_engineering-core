@@ -60,7 +60,35 @@ class ProjectionTests(unittest.TestCase):
                 (line for line in header.splitlines() if line.startswith("description: ")), ""
             )
             self.assertTrue(description_line, f"missing description line: {path}")
-            self.assertIn("[ec-", description_line)
+            # The emitter promises a JSON string, a YAML-compatible scalar.
+            # Substring checks alone accepted invalid `[ec-lane] ...` YAML.
+            description = json.loads(description_line.removeprefix("description: "))
+            self.assertIsInstance(description, str)
+            self.assertIn("[ec-", description)
+            self.assertIn("Load when:", description)
+
+    def test_description_scalar_round_trips_yaml_sensitive_text(self):
+        descriptions = [
+            '[ec-discipline] Release: packages # not a comment',
+            'Quotes "double", \'single\', and C:\\packages\\release',
+            'First line\nname: injected\n---\nsecond line',
+            'Tabs\tand carriage returns\r remain description content',
+            'Unicode: Grüße → release \u2028 next \u2029 paragraph',
+            'true',
+            '*alias',
+            '{mapping: value}',
+        ]
+        for description in descriptions:
+            with self.subTest(description=description):
+                header = bsp.skill_front_matter("ec-discipline-release-package", description)
+                lines = header.splitlines()
+                self.assertEqual(len(lines), 4, "description escaped its scalar")
+                self.assertEqual(lines[0], "---")
+                self.assertEqual(lines[1], "name: ec-discipline-release-package")
+                self.assertEqual(lines[3], "---")
+                self.assertEqual(
+                    json.loads(lines[2].removeprefix("description: ")), description
+                )
 
     def test_body_budget_enforced(self):
         for path in sorted(SKILLS_DIR.glob("ec-*/SKILL.md")):

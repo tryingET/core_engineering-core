@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-design-patterns
-description: [ec-discipline] Cross-language design-pattern lexicon and selection discipline for recurring code, service, data, concurrency, and architecture shapes. Load when: Work chooses or reviews a named implementation/design pattern such as factory, actor, repository, saga, strategy, adapter, or state machine.; A repo needs pattern vocabulary hints without turning pattern names into architecture cargo cult.
+description: "[ec-discipline] Cross-language design-pattern lexicon and selection discipline for recurring code, service, data, concurrency, and architecture shapes. Load when: Work chooses or reviews a named implementation/design pattern such as factory, actor, repository, saga, strategy, adapter, or state machine.; A repo needs pattern vocabulary hints without turning pattern names into architecture cargo cult."
 ---
 
 ---

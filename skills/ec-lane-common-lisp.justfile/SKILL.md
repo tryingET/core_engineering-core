@@ -1,6 +1,6 @@
 ---
 name: ec-lane-common-lisp.justfile
-description: [ec-lane] Common Lisp lane standardized Justfile addendum. Load when: A repo using the Common Lisp lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping.
+description: "[ec-lane] Common Lisp lane standardized Justfile addendum. Load when: A repo using the Common Lisp lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
 ---

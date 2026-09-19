@@ -1,6 +1,6 @@
 ---
 name: ec-lane-rust.build-graph
-description: [ec-lane] Rust build-graph acceleration addendum for evidence-gated Buck2/Bazel/Pants/remote-cache adoption. Load when: A Rust repo has measured build/test-time pain and is evaluating Buck2, Bazel, Pants, remote cache, or remote execution.; Work changes Rust build graph acceleration, secondary build metadata, or Cargo-to-build-graph parity.
+description: "[ec-lane] Rust build-graph acceleration addendum for evidence-gated Buck2/Bazel/Pants/remote-cache adoption. Load when: A Rust repo has measured build/test-time pain and is evaluating Buck2, Bazel, Pants, remote cache, or remote execution.; Work changes Rust build graph acceleration, secondary build metadata, or Cargo-to-build-graph parity."
 ---
 
 ---

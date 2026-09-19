@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-dependency-governance
-description: [ec-discipline] Cross-language dependency addition, pinning, review, upgrade, and removal discipline. Load when: Adding, upgrading, replacing, or removing dependencies or toolchains.; Reviewing dependency risk, reproducibility, provenance, or cleanup posture.
+description: "[ec-discipline] Cross-language dependency addition, pinning, review, upgrade, and removal discipline. Load when: Adding, upgrading, replacing, or removing dependencies or toolchains.; Reviewing dependency risk, reproducibility, provenance, or cleanup posture."
 ---
 
 ---

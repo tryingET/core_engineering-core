@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-engineering-reasoning
-description: [ec-discipline] Lightweight router for choosing engineering reasoning modes without turning engineering-core into a prompt library. Load when: An engineering task needs a reasoning style such as deduction, abduction, induction, adversarial review, or many-of-the-greats.; A repo-local engineering decision needs to cite a cognitive method without copying prompt templates.
+description: "[ec-discipline] Lightweight router for choosing engineering reasoning modes without turning engineering-core into a prompt library. Load when: An engineering task needs a reasoning style such as deduction, abduction, induction, adversarial review, or many-of-the-greats.; A repo-local engineering decision needs to cite a cognitive method without copying prompt templates."
 ---
 
 ---

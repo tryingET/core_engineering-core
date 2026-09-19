@@ -1,6 +1,6 @@
 ---
 name: ec-lane-go.justfile
-description: [ec-lane] Go lane standardized Justfile addendum. Load when: A repo using the Go lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping.
+description: "[ec-lane] Go lane standardized Justfile addendum. Load when: A repo using the Go lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
 ---

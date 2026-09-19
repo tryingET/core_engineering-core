@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-data-governance
-description: [ec-discipline] Cross-language data governance discipline for authority, schema, lineage, lifecycle, quality, privacy, and migration. Load when: Work changes data models, schemas, identifiers, canonical stores, projections, imports/exports, retention, lineage, backups, or analytics feeds.; A repo needs to decide what data is authoritative, derived, cached, migrated, retained, deleted, or safe to use for product/AI/analytics claims.
+description: "[ec-discipline] Cross-language data governance discipline for authority, schema, lineage, lifecycle, quality, privacy, and migration. Load when: Work changes data models, schemas, identifiers, canonical stores, projections, imports/exports, retention, lineage, backups, or analytics feeds.; A repo needs to decide what data is authoritative, derived, cached, migrated, retained, deleted, or safe to use for product/AI/analytics claims."
 ---
 
 ---

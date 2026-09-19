@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-release-package
-description: [ec-discipline] Cross-language release and package discipline for versions, changelogs, artifact provenance, publishing, compatibility, and rollback. Load when: A repo publishes packages, binaries, containers, templates, docs bundles, extension packages, model assets, or service release artifacts.; Work changes versioning, changelogs, artifact provenance, publishing, signing/checksums, compatibility, migration releases, deprecation, or rollback.
+description: "[ec-discipline] Cross-language release and package discipline for versions, changelogs, artifact provenance, publishing, compatibility, and rollback. Load when: A repo publishes packages, binaries, containers, templates, docs bundles, extension packages, model assets, or service release artifacts.; Work changes versioning, changelogs, artifact provenance, publishing, signing/checksums, compatibility, migration releases, deprecation, or rollback."
 ---
 
 ---

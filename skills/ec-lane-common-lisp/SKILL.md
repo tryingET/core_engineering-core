@@ -1,6 +1,6 @@
 ---
 name: ec-lane-common-lisp
-description: [ec-lane] Common Lisp engineering lane for language extension, REPL-driven development, ASDF systems, dependencies, testing, and validation. Load when: Working in a repo or package whose selected engineering-core lane is common-lisp.; Choosing Common Lisp implementations, ASDF structure, dependency workflows, testing, or validation.
+description: "[ec-lane] Common Lisp engineering lane for language extension, REPL-driven development, ASDF systems, dependencies, testing, and validation. Load when: Working in a repo or package whose selected engineering-core lane is common-lisp.; Choosing Common Lisp implementations, ASDF structure, dependency workflows, testing, or validation."
 ---
 
 ---

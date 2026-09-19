@@ -1,6 +1,6 @@
 ---
 name: ec-lane-ts.ultracite-pilot
-description: [ec-lane] Evidence-gated TypeScript pilot for evaluating Ultracite without changing the lane default prematurely. Load when: A TypeScript repo is comparing its current quality toolchain with Ultracite.; A greenfield or brownfield cohort needs comparable lint/format adoption evidence.
+description: "[ec-lane] Evidence-gated TypeScript pilot for evaluating Ultracite without changing the lane default prematurely. Load when: A TypeScript repo is comparing its current quality toolchain with Ultracite.; A greenfield or brownfield cohort needs comparable lint/format adoption evidence."
 ---
 
 ---

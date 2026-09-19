@@ -1,6 +1,6 @@
 ---
 name: ec-lane-py.justfile
-description: [ec-lane] Python lane standardized Justfile addendum. Load when: A repo using the Python lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping.
+description: "[ec-lane] Python lane standardized Justfile addendum. Load when: A repo using the Python lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
 ---

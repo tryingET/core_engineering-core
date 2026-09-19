@@ -1,6 +1,6 @@
 ---
 name: ec-discipline-validation
-description: [ec-discipline] Cross-language validation tier and evidence discipline for command surfaces and handoff gates. Load when: Choosing validation commands, tiers, evidence, or handoff gates for a repo or task.; Reconciling Justfile/package-script/CI surfaces with expected validation tiers.
+description: "[ec-discipline] Cross-language validation tier and evidence discipline for command surfaces and handoff gates. Load when: Choosing validation commands, tiers, evidence, or handoff gates for a repo or task.; Reconciling Justfile/package-script/CI surfaces with expected validation tiers."
 ---
 
 ---

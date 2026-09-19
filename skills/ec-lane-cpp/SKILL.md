@@ -1,6 +1,6 @@
 ---
 name: ec-lane-cpp
-description: [ec-lane] C++ engineering lane for ecosystem-specific tooling, commands, and implementation defaults. Load when: Working in a repo or package whose selected engineering-core lane is cpp.; Choosing C++ tooling, command surfaces, quality defaults, or ecosystem-specific validation.
+description: "[ec-lane] C++ engineering lane for ecosystem-specific tooling, commands, and implementation defaults. Load when: Working in a repo or package whose selected engineering-core lane is cpp.; Choosing C++ tooling, command surfaces, quality defaults, or ecosystem-specific validation."
 ---
 
 ---
