@@ -51,7 +51,9 @@ Collect timings before proposing a tool:
 ```bash
 cargo clean
 time cargo build --workspace
+cargo clean
 time cargo test --workspace --no-run
+cargo clean
 time cargo check --workspace
 ```
 

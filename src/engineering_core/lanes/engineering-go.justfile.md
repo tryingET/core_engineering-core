@@ -23,7 +23,7 @@ Prefer existing repo-local scripts when they already own the validation or relea
   - prefer: `just --list`
 - `just dev`
   - include only when the repo has a meaningful long-running service/watch loop
-  - common examples: `go run ./cmd/...` or an existing repo-local dev script
+  - common examples: `go run ./cmd/<name>` (a `./cmd/...` pattern fails once there is more than one command) or an existing repo-local dev script
 - `just test`
   - prefer: `go test ./...`
 - `just check`
@@ -34,16 +34,16 @@ Prefer existing repo-local scripts when they already own the validation or relea
   - or the repo's explicit release/build entrypoint when it exists
 - `just lint`
   - prefer the repo's existing lint wrapper when present
-  - common fallback: `golangci-lint run`
+  - common fallback: `golangci-lint run ./...` with golangci-lint installed at the lane's pinned version (`go install …@v2.13.2`) and a checked-in `.golangci.yml`
 - `just fmt`
-  - prefer: `gofmt -w .`
+  - prefer: `go fmt ./...` (skips `testdata/` and `vendor/`; `gofmt -w .` rewrites intentionally malformed `testdata/` files)
   - or the repo's existing formatting wrapper
 - `just ci`
   - prefer the repo's canonical full local validation/CI wrapper when present
-  - fallback: run the repo's documented full validation sequence via thin delegation
+  - fallback: run the lane's **Quality gates** in order (toolchain, fmt check, vet, test, build, `go mod tidy -diff && go mod verify`, lint)
 - `just doctor`
   - prefer an existing repo-local environment/runtime sanity command when present
-  - fallback: a lightweight Go toolchain check such as `go version`
+  - fallback: the lane's `toolchain` gate (`go version` and `golangci-lint version` match the pins)
 
 ## Optional repo-loop-validation-v1 mappings
 

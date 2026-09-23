@@ -19,7 +19,7 @@ The philosophy remains: **Everything is a file.** The state of your project is d
 | **5. Data Layer** | **PostgreSQL** • **SQLAlchemy 2.x** (with async support) • **Alembic** (for schema migrations). |
 | **6. Cache / Job Queue** | **Valkey**: The community-driven, open-source successor to Redis. Used for both caching and as a message broker for Celery. |
 | **7. Async Task Processing** | **Celery**: The battle-tested framework for running background tasks, using the Valkey broker. |
-| **8. Code Quality** | **`Ruff`** (for linting & formatting) • **`ty`** (for strict type checking). Both are configured directly in `pyproject.toml`. |
+| **8. Code Quality** | **`Ruff`** (for linting & formatting) • **`ty`** (for type checking; ty has no strict mode, so the lane sets every rule to `error` and fails on warnings). Both are pinned dev dependencies configured in `pyproject.toml` (below). |
 | **9. Testing Suite** | **pytest** • **Hypothesis** (for property-based testing) • **pytest-bdd** (for Gherkin/BDD workflows when executable scenarios are useful) • **schemathesis** (for OpenAPI contract testing). |
 | **10. Observability** | **OpenTelemetry SDK**: Integrated directly into FastAPI for traces and metrics. Exports to an **OTel Collector** for processing and forwarding. |
 | **11. Deployment** | **Docker**: Using multi-stage builds with `uv sync` for creating minimal, secure, and rapidly built images. Deployed to modern platforms like **Fly.io** or **Cloud Run**. |
@@ -44,17 +44,71 @@ Load disciplines when the concern applies:
 - `release-package` for packages/wheels/containers, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority, generated outputs, and front matter.
 
-### **Project Scripts (`pyproject.toml`)**
+### **Project configuration and quality gates (`pyproject.toml`)**
 
-Define Python-native tasks in `pyproject.toml` so they are discoverable and runnable with `uv`. When a repo adopts the cross-language `just` command surface, keep `Justfile` recipes as thin aliases over these Python-native commands or existing repo scripts.
+uv has no task runner. Don't add a `[tool.uv.scripts]` table: uv rejects it (`Failed to parse pyproject.toml during settings discovery … unknown field scripts`) and then ignores **every other** project-level `[tool.uv]` setting, including a project `exclude-newer` quarantine; `uv run lint` fails with `Failed to spawn: lint` and `uv run test` silently runs `/usr/bin/test`. Put tasks in the `Justfile` (thin recipes over the commands below) and reserve `[project.scripts]` for real console entry points. The user-level quarantine in `~/.config/uv/uv.toml` is unaffected.
 
+**pyproject.toml:**
 ```toml
-[tool.uv.scripts]
-dev = "granian src.hello_svc.asgi:app --reload"
-test = "pytest"
-lint = "ruff check ."
-format = "ruff format ."
+[project]
+name = "example-service"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest==9.1.1", "ruff==0.16.8", "ty==0.0.81"]
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+required-version = ">=0.12.0"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+
+[tool.ty.environment]
+python-version = "3.13"
+
+[tool.ty.rules]
+all = "error"
+
+[tool.ty.terminal]
+error-on-warning = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--strict-config"]
 ```
+
+Rename the project. `--strict-config` makes pytest fail on unknown config keys, and `error-on-warning` makes ty fail on unknown rules, so a mistyped setting can't be silently ignored.
+
+**.python-version:**
+```text
+3.13
+```
+
+**Quality gates:**
+```bash
+# toolchain
+uv run --locked python --version | grep -F 'Python 3.13.'
+# lint
+uv run --locked ruff check .
+# fmt
+uv run --locked ruff format --check .
+# typecheck
+uv run --locked ty check
+# test
+uv run --locked python -m pytest
+```
+
+`--locked` fails when `uv.lock` is out of date instead of re-resolving. `ruff format .` is the fixer; the gate is `ruff format --check .`. `scripts/lane-conformance.py py` runs these gates on a fixture project at every engineering-core release.
 
 ---
 
@@ -90,15 +144,15 @@ This is the complete lifecycle, from project creation to daily work.
 *   **Manage Project Dependencies:**
     *   Add a production dependency: `uv add fastapi`
     *   Add a development-only dependency: `uv add --dev pytest`
-    *   Remove a dependency: `uv remove pytest`
+    *   Remove a dependency: `uv remove fastapi`; remove a development dependency: `uv remove --dev pytest`
 *   **Synchronize Environment from Lockfile:** (Installs all dependencies from `uv.lock`)
     `uv sync`
 *   **Update All Dependencies in Lockfile:**
     `uv sync --upgrade`
-*   **Run Project Scripts:** (The primary way to interact with your project)
-    *   Start the dev server: `uv run dev`
-    *   Run tests: `uv run test`
-    *   Run quality checks: `uv run lint && uv run format`
+*   **Run the project:** (uv has no task runner; call tools directly or through the `Justfile`)
+    *   Start the dev server (FastAPI on Granian): install with `uv add fastapi 'granian[reload]'`, run `uv run granian --interface asgi --reload example_service.asgi:app`. `--reload` needs the `granian[reload]` extra, and `--interface asgi` is required because Granian defaults to RSGI.
+    *   Run tests: `uv run python -m pytest`
+    *   Run the quality gates: the **Quality gates** block above
 *   **Ad-Hoc Script Management:** (For utility scripts without polluting the main environment)
     *   Add dependencies to a script: `uv add --script scripts/my_script.py 'pandas' 'polars'`
     *   Run a script with its managed dependencies: `uv run --script scripts/my_script.py`
@@ -128,10 +182,10 @@ The correct way to run tests with `uv` and `pytest`:
 
 **IMPORTANT**: Do NOT use:
 - ❌ `pytest tests/` (not in global Python)
-- ❌ `uv run -m pytest coordination.tests.module` (module paths don't work)
+- ❌ `uv run python -m pytest coordination.tests.test_module` (pytest takes file paths, not dotted module paths, under any runner; use the file path or `--pyargs coordination.tests.test_module`)
 - ❌ `python -m pytest` (wrong Python environment)
 
-**Always use**: `uv run python -m pytest <file_path>`
+**Use**: `uv run python -m pytest <file_path>` (`uv run pytest` and `uv run -m pytest` are equivalent)
 
 **Common Test Dependencies**:
 ```bash

@@ -12,13 +12,13 @@ Use this lane when Rust is the requested implementation language or when reliabi
 
 ## Core toolchain and defaults
 
-- **Toolchain / package manager:** `rustup` + stable Rust + `cargo`
+- **Toolchain / package manager:** `rustup` + stable Rust pinned in `rust-toolchain.toml` + `cargo`
 - **Edition baseline:** Rust 2024 when available in repo policy; otherwise latest stable supported edition
 - **Web/API:** Axum for HTTP services; Clap for CLIs
 - **Data:** PostgreSQL • SQLx (compile-time checked SQL) or Diesel when schema-first ORM ergonomics matter
 - **Async/runtime:** Tokio
 - **Validation / contracts:** Serde + schemars where JSON schema/contracts matter
-- **Code quality:** `rustfmt` • `clippy` • `cargo deny` for supply chain checks
+- **Code quality:** `rustfmt` • `clippy` • `cargo deny check` for supply chain checks (needs `deny.toml` and `package.license`)
 - **Testing:** `cargo test` • `cargo nextest` for larger suites • `proptest` for property testing • `cucumber-rs` when executable BDD scenarios are worth the maintenance cost
 - **Template/rendering:** `minijinja` for Jinja-style text/config templating • `askama` when compile-time checked templates are worth the extra structure
 - **Observability:** `tracing` + OpenTelemetry exporters
@@ -46,12 +46,65 @@ Load disciplines when the concern applies:
 
 ## Command baseline
 
-- Install/update toolchain: `rustup update`
-- Format: `cargo fmt --all`
-- Lint: `cargo clippy --all-targets --all-features -- -D warnings`
-- Test: `cargo test --all-features`
-- Fast test runner (optional): `cargo nextest run --all-features`
-- Build release artifact: `cargo build --release`
+- Toolchain: pin it in `rust-toolchain.toml` (below); rustup installs and selects it automatically. Without a pin, a machine whose rustup default is nightly silently runs every command on nightly.
+- Format (fixer): `cargo fmt --all`; gate: `cargo fmt --all --check`
+- Lint: `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`
+- Test: `cargo test --workspace --all-features --locked`
+- Fast test runner (optional): `cargo nextest run --workspace --all-features --locked`. nextest doesn't run doctests; pair it with `cargo test --workspace --doc --locked`.
+- Supply chain: `cargo deny check` (bootstrap a config with `cargo deny init`, or start from the `deny.toml` below)
+- Build release artifact: `cargo build --workspace --release --locked`
+
+Use `--workspace` on every cargo command. In a workspace whose root is also a package, cargo commands without it cover only the root package, so a member's failing test or lint passes silently. Use `--locked` so gates never re-resolve `Cargo.lock`.
+
+**rust-toolchain.toml:**
+```toml
+[toolchain]
+channel = "1.98.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
+```
+
+**deny.toml:**
+```toml
+[graph]
+all-features = true
+
+[licenses]
+allow = ["MIT", "Apache-2.0"]
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+```
+
+Widen `licenses.allow` deliberately; `cargo deny check` fails on any crate (including your own) whose license isn't listed.
+
+**Tool install:**
+```bash
+cargo install --locked cargo-deny@0.20.2
+```
+
+**Quality gates:**
+```bash
+# toolchain
+rustc --version | grep -F 'rustc 1.98.0' && cargo deny --version | grep -Fx 'cargo-deny 0.20.2'
+# fmt
+cargo fmt --all --check
+# lint
+cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
+# test
+cargo test --workspace --all-features --locked
+# supply-chain
+cargo deny check
+# build
+cargo build --workspace --release --locked
+```
+
+`scripts/lane-conformance.py rust` runs these gates on a fixture workspace (a root package plus a member) at every engineering-core release.
 
 ## Testing guidance
 
@@ -82,12 +135,15 @@ cargo +nightly generate-lockfile -Z unstable-options --publish-time "$cutoff"
 
 This is a workflow convention, not a stable Cargo config key.
 
+Nightly also has a config-based age gate: `[registry] global-min-publish-age = "7 days"` in `.cargo/config.toml`, honored only with `-Z min-publish-age` (for example `cargo +nightly generate-lockfile -Z min-publish-age`). Stable cargo prints `warning: ignoring registry.global-min-publish-age` and resolves without the gate, so don't rely on that key under a stable toolchain.
+
 ## Project skeleton
 
 - `Cargo.toml`
 - `src/main.rs` or `src/lib.rs`
 - `tests/`
-- optional: `clippy.toml`, `.cargo/config.toml`, `deny.toml`
+- `rust-toolchain.toml`, `deny.toml`
+- optional: `clippy.toml`, `.cargo/config.toml`
 
 ## Quality gate architecture
 

@@ -15,21 +15,23 @@ Use this addendum with `disciplines/validation.md` and the repo's applicable sta
 ## Mapping rule
 
 Standardize the outer `just` command names while keeping the implementation thin and Python/uv-native.
-Prefer existing repo-local scripts and `pyproject.toml` script surfaces when they already define the canonical workflow.
+Prefer existing repo-local scripts when they already define the canonical workflow. uv has no task runner, so recipes call tools directly (`uv run …`).
 
 ## Recommended target mappings
 
 - `just help`
   - prefer: `just --list`
 - `just dev`
-  - prefer the repo's canonical long-running development command, such as `uv run dev`
+  - prefer the repo's canonical long-running development command, such as `uv run granian --interface asgi --reload <package>.asgi:app`
   - omit if the repo has no meaningful dev/watch surface
 - `just test`
   - prefer: `uv run python -m pytest tests/`
   - or the repo's existing truthful test wrapper/script
 - `just check`
   - prefer the repo's fast validation gate when present
-  - common fallback: a thin wrapper over lint + typecheck or the repo's default quality check command
+  - common fallback: `uv run --locked ruff check . && uv run --locked ruff format --check . && uv run ty check`
+- `just typecheck`
+  - prefer: `uv run ty check`
 - `just build`
   - include when the repo has a meaningful package/build artifact contract
   - prefer the repo's existing build/package command
@@ -41,10 +43,10 @@ Prefer existing repo-local scripts and `pyproject.toml` script surfaces when the
   - or the repo's existing formatter wrapper
 - `just ci`
   - prefer the repo's canonical full local validation/CI wrapper when present
-  - fallback: run the repo's documented full validation sequence through thin delegation
+  - fallback: run the lane's **Quality gates** in order (toolchain, lint, `ruff format --check`, typecheck, test)
 - `just doctor`
   - prefer an existing repo-local environment/runtime sanity command when present
-  - fallback: a small uv/Python sanity check such as `uv --version && python --version`
+  - fallback: `uv --version && uv run python --version` (a bare `python --version` reports the system interpreter, not the project's pinned one)
 
 ## Optional repo-loop-validation-v1 mappings
 

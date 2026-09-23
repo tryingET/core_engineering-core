@@ -131,8 +131,8 @@ class LaneConformanceReleaseWiringFeature(unittest.TestCase):
     def test_scenario_release_verify_runs_the_harness(self) -> None:
         # Given the release proof command list
         text = (REPO_ROOT / "scripts" / "release-local.py").read_text(encoding="utf-8")
-        # Then it runs the ts lane conformance harness
-        self.assertIn('"scripts/lane-conformance.py", "ts"', text)
+        # Then it runs the conformance harness for every registered lane
+        self.assertIn('"scripts/lane-conformance.py", "--all"', text)
 
     def test_scenario_every_workflow_running_verify_installs_bun(self) -> None:
         for workflow in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml")):

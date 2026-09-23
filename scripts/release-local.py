@@ -131,7 +131,7 @@ def verify(version: str) -> None:
         [sys.executable, "scripts/dogfood-capabilities.py"],
         [sys.executable, "scripts/dogfood-evidence-reconcile.py"],
         [sys.executable, "scripts/dogfood-owner-use.py"],
-        [sys.executable, "scripts/lane-conformance.py", "ts"],
+        [sys.executable, "scripts/lane-conformance.py", "--all"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
         ["uv", "run", "engineering-core", "list"],
         ["uv", "run", "engineering-core", "list-disciplines"],

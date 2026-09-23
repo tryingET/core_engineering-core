@@ -22,23 +22,23 @@ Prefer existing repo-local scripts when they already own validation or CI behavi
 - `just help`
   - prefer: `just --list`
 - `just test`
-  - prefer: `cargo test --all-features`
+  - prefer: `cargo test --workspace --all-features --locked`
   - if the repo already standardizes a quieter wrapper, delegate to that wrapper instead
 - `just check`
   - prefer existing fast repo gate when present
   - fallback: `cargo check --workspace`
 - `just build`
-  - prefer: `cargo build --release`
+  - prefer: `cargo build --workspace --release --locked`
 - `just lint`
-  - prefer: `cargo clippy --all-targets --all-features -- -D warnings`
+  - prefer: `cargo clippy --workspace --all-targets --all-features --locked -- -D warnings`
 - `just fmt`
-  - prefer: `cargo fmt --all`
+  - prefer: `cargo fmt --all` (fixer; `ci` must use `cargo fmt --all --check`, which fails instead of rewriting)
 - `just ci`
   - prefer existing full repo-local validation/CI wrapper when present
-  - fallback: run formatting/lint/test/build in the repo's documented order
+  - fallback: run the lane's **Quality gates** in order (toolchain, `cargo fmt --all --check`, lint, test, `cargo deny check`, build)
 - `just doctor`
   - prefer existing repo-local environment/runtime sanity command when present
-  - fallback: a small Rust toolchain sanity check such as `rustup show active-toolchain && cargo --version`
+  - fallback: the lane's `toolchain` gate (`rustc --version` and `cargo deny --version` match the pins)
 - `just dev`
   - include only when the repo has a meaningful long-running dev/watch surface
   - common Rust examples: `cargo run`, `cargo watch -x run`, or a repo-local dev script
