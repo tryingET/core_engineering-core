@@ -28,7 +28,7 @@ not general web backends.
 
 - Install deps: `npm install`
 - Validate structure/docs/policies: `npm run check`
-- Typecheck (when the repo carries a TypeScript compile contract): prefer `tsgo --noEmit`; keep `tsc --noEmit` available as fallback when `tsgo` is not yet viable
+- Typecheck (when the repo carries a TypeScript compile contract): `tsc --noEmit` from an exactly pinned `typescript@7` (the native compiler)
 - Release preflight (full): `npm run release:check`
 - Release preflight (artifact-only): `npm run release:check:quick`
 - Local extension smoke (direct): `echo "/<command> --help" | pi -e ./extensions/<command>.ts -p`
@@ -70,8 +70,12 @@ Load disciplines when the concern applies:
 
 ## Typecheck policy
 
-- For repos with a real TypeScript compile boundary, prefer `tsgo --noEmit` as the primary typecheck command.
-- Keep `tsc --noEmit` as a compatibility fallback during rollout or incident recovery.
+- For repos with a real TypeScript compile boundary, typecheck with `tsc --noEmit` from an exactly pinned `typescript@7`. TypeScript 7 ships the native (Go) compiler as `tsc`; the `tsgo` binary from `@typescript/native-preview` was its preview name, and that channel stopped publishing on 2026-07-07. Repos still using `tsgo` should replace `@typescript/native-preview` with `typescript@7` and switch their scripts to `tsc`.
+- Don't keep a second compiler as a fallback; to recover from a compiler regression, roll back the `typescript` pin.
+- TypeScript 7 only, no fallback. TypeScript 7 doesn't ship the classic compiler API (`import ts from "typescript"` exposes only `version`; its new API is under `typescript/unstable/*`). So:
+  - **Dev tooling must run on TypeScript 7.** Don't adopt a tool that needs the classic API, and don't keep TypeScript 6 around for it; replace the tool. The TypeScript 7-compatible defaults: Biome for lint instead of typescript-eslint, and `tsc --declaration --emitDeclarationOnly` (with `rootDir` set explicitly, which TypeScript 7 requires) for `.d.ts` output instead of api-extractor or tsup's dts build. Common classic-API tools to replace: typescript-eslint, ts-morph, typedoc, api-extractor, ts-node, ts-jest.
+  - **Runtime use of the compiler API is a product dependency, never under the name `typescript`.** When a package's own product calls the compiler API (for example an in-memory type gate), declare that library under its explicit package name (`@typescript/typescript6` today, `typescript/unstable/*` once stable), so `typescript` always means the TypeScript 7 typechecker. Record the dependency in `docs/engineering.local.md`.
+  - Tools run from their own install, such as `ts-quality`, keep their own `typescript` and don't affect the repo's typecheck.
 - Repos that intentionally ship without `tsconfig.json` should document that choice in `docs/engineering.local.md` instead of pretending to follow a compile-time lane they do not implement.
 
 ## Engineering lane contract surface

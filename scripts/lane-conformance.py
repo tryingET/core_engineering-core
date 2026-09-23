@@ -30,9 +30,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-GATE_SCRIPTS = ("typecheck", "typecheck:fallback", "check")
-BINARY_PACKAGES = {"biome": "@biomejs/biome", "tsgo": "@typescript/native-preview", "tsc": "typescript"}
-TOOLCHAIN_PACKAGES = ("@biomejs/biome", "@typescript/native-preview", "typescript", "@types/bun")
+GATE_SCRIPTS = ("typecheck", "check")
+BINARY_PACKAGES = {"biome": "@biomejs/biome", "tsc": "typescript"}
+TOOLCHAIN_PACKAGES = ("@biomejs/biome", "typescript", "@types/bun")
 CONFIG_BLOCKS = ("bunfig.toml", "biome.json", "tsconfig.json")
 EXPECT = re.compile(r"^// expect: (\S+) (\S+)$", re.MULTILINE)
 # Any rule diagnostic, including info severity: an exit-0 gate that still advises

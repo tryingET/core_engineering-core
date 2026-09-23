@@ -235,7 +235,7 @@ Treat Biome as the default TypeScript quality surface, not a reason to add unrel
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Path Aliases (resolved relative to this file; tsgo/TS 7 rejects baseUrl)
+    // Path Aliases (resolved relative to this file; TypeScript 7 rejects baseUrl)
     "paths": {
       "@/*": ["./src/*"],
       "@/test/*": ["./test/*"]
@@ -293,11 +293,10 @@ This is the complete lifecycle, from project creation to daily work.
     "test": "bun test",
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
-    "typecheck": "tsgo --noEmit",
-    "typecheck:fallback": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "biome check --write .",
     "format": "biome format --write .",
-    "check": "biome check . && tsgo --noEmit",
+    "check": "biome check . && tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
@@ -318,8 +317,7 @@ This is the complete lifecycle, from project creation to daily work.
   "devDependencies": {
     "@types/bun": "1.3.12",
     "@biomejs/biome": "2.5.14",
-    "@typescript/native-preview": "7.0.0-dev.20260707.2",
-    "typescript": "6.0.3",
+    "typescript": "7.0.2",
     "drizzle-kit": "^0.23.0",
     "fast-check": "^3.19.0",
     "vitest": "^2.0.0"
@@ -329,9 +327,15 @@ This is the complete lifecycle, from project creation to daily work.
 
 This package example is service-oriented. Frontend apps should use `engineering-ts.frontend.md`; service/API examples below are optional recipes, not baseline dependencies for every TypeScript repo.
 
-Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery. Keep the fallback while native TypeScript tooling is staged/recoverable. The fallback needs its own `typescript` devDependency; `tsgo` doesn't provide `tsc`.
+Typecheck with `typescript@7`: TypeScript 7 ships the native (Go) compiler as the ordinary `tsc` binary, so `tsc --noEmit` is the fast path. The `tsgo` binary from `@typescript/native-preview` was the preview name for the same compiler, and that channel stopped publishing on 2026-07-07. Don't add a second compiler as a "fallback": to recover from a compiler regression, roll back the `typescript` pin.
 
-The quality toolchain (`@biomejs/biome`, `@typescript/native-preview`, `typescript`, `@types/bun`) is pinned exactly, matching `bunfig.toml`'s `exact = true`. `scripts/lane-conformance.py ts` installs these pins and runs `typecheck`, `typecheck:fallback`, and `check` against this doc's own config blocks at every engineering-core release. Bump a pin with `--update-lock`, then rerun the harness.
+TypeScript 7 only, no fallback. TypeScript 7 doesn't ship the classic compiler API (`import ts from "typescript"` exposes only `version`; its new API is under `typescript/unstable/*`). So:
+
+- **Dev tooling must run on TypeScript 7.** Don't adopt a tool that needs the classic API, and don't keep TypeScript 6 around for it; replace the tool. The TypeScript 7-compatible defaults: Biome for lint instead of typescript-eslint, and `tsc --declaration --emitDeclarationOnly` (with `rootDir` set explicitly, which TypeScript 7 requires) for `.d.ts` output instead of api-extractor or tsup's dts build. Common classic-API tools to replace: typescript-eslint, ts-morph, typedoc, api-extractor, ts-node, ts-jest.
+- **Runtime use of the compiler API is a product dependency, never under the name `typescript`.** When a package's own product calls the compiler API (for example an in-memory type gate), declare that library under its explicit package name (`@typescript/typescript6` today, `typescript/unstable/*` once stable), so `typescript` always means the TypeScript 7 typechecker. Record the dependency in `docs/engineering.local.md`.
+- Tools run from their own install, such as `ts-quality`, keep their own `typescript` and don't affect the repo's typecheck.
+
+The quality toolchain (`@biomejs/biome`, `typescript`, `@types/bun`) is pinned exactly, matching `bunfig.toml`'s `exact = true`. `scripts/lane-conformance.py ts` installs these pins and runs `typecheck` and `check` against this doc's own config blocks at every engineering-core release. Bump a pin with `--update-lock`, then rerun the harness.
 
 ---
 
@@ -644,7 +648,7 @@ Use `disciplines/observability.md`, `disciplines/validation.md`, and `discipline
 - **SLI latency**: p95 `< 100ms` on key synchronous API paths
 - **Availability**: `99.9%`
 - **Error budget policy**: freeze feature deploys if budget < 25% until recovered
-- **Type coverage**: compile/typecheck coverage enforced by `tsgo --noEmit` or accepted fallback
+- **Type coverage**: compile/typecheck coverage enforced by `tsc --noEmit` (`typescript@7`)
 - **Test coverage**: minimum 80% line coverage only when the repo accepts coverage as a gate
 
 ---

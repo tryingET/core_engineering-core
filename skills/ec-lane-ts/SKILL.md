@@ -240,7 +240,7 @@ Treat Biome as the default TypeScript quality surface, not a reason to add unrel
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Path Aliases (resolved relative to this file; tsgo/TS 7 rejects baseUrl)
+    // Path Aliases (resolved relative to this file; TypeScript 7 rejects baseUrl)
     "paths": {
       "@/*": ["./src/*"],
       "@/test/*": ["./test/*"]
@@ -297,6 +297,6 @@ This is the complete lifecycle, from project creation to daily work.
     "start": "bun run src/index.ts",
     "test": "bun test",
     "test:watch": "bun test --watch",
-    "test
+    "t
 
 [projected skill truncated; read the full doc in engineering-core]

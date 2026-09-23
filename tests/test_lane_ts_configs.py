@@ -58,7 +58,7 @@ class TsLaneConfigFeature(unittest.TestCase):
         self.assertEqual(self.lane_package["devDependencies"]["@biomejs/biome"], schema_version)
 
     def test_scenario_tsconfig_is_accepted_by_native_typescript(self) -> None:
-        # When tsgo (TypeScript 7) reads the lane tsconfig
+        # When TypeScript 7's native tsc reads the lane tsconfig
         # Then no removed option (baseUrl, TS5102) is present
         self.assertNotIn("baseUrl", self.tsconfig["compilerOptions"])
 
@@ -82,6 +82,39 @@ class TsLaneConfigFeature(unittest.TestCase):
         # And every toolchain package is pinned to an exact version
         for package in self.harness.TOOLCHAIN_PACKAGES:
             self.assertRegex(dev.get(package, "missing"), r"^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$", package)
+
+    def test_scenario_typecheck_uses_stable_native_typescript(self) -> None:
+        # Given TypeScript 7 ships the native (Go) compiler as `tsc` and the
+        # @typescript/native-preview (`tsgo`) channel stopped publishing
+        dev = self.lane_package["devDependencies"]
+        scripts = self.lane_package["scripts"]
+        # Then the lane typechecks with typescript@7's tsc
+        self.assertRegex(dev.get("typescript", "missing"), r"^7\.\d+\.\d+$")
+        self.assertEqual(scripts["typecheck"], "tsc --noEmit")
+        self.assertIn("tsc --noEmit", scripts["check"])
+        # And carries no preview-era tooling or dual-compiler fallback
+        self.assertNotIn("@typescript/native-preview", dev)
+        self.assertNotIn("typecheck:fallback", scripts)
+        # (the doc may still explain that tsgo was the preview name; it must not run it)
+        self.assertNotIn("tsgo --noEmit", self.lane.doc.read_text(encoding="utf-8"))
+
+    def test_scenario_pi_ts_lane_names_the_same_typechecker(self) -> None:
+        # Given the pi-ts lane shares the TypeScript typecheck policy
+        text = (self.lane.doc.parent / "engineering-pi-ts.md").read_text(encoding="utf-8")
+        # Then it names typescript@7's tsc and never runs the retired tsgo preview
+        self.assertNotIn("tsgo --noEmit", text)
+        self.assertIn("`tsc --noEmit` from an exactly pinned `typescript@7`", text)
+
+    def test_scenario_typescript_lanes_have_no_typescript6_fallback(self) -> None:
+        for name in ("engineering-ts.md", "engineering-pi-ts.md"):
+            text = (self.lane.doc.parent / name).read_text(encoding="utf-8")
+            # When a dev tool only supports the classic (TypeScript 6) compiler API
+            # Then the lane replaces the tool instead of routing it to TypeScript 6
+            self.assertIn("TypeScript 7 only, no fallback", text, name)
+            self.assertNotIn("tsc6", text, name)
+            self.assertNotRegex(text, r"use it through `@typescript/typescript6`", name)
+            # And runtime use of the compiler API never takes the `typescript` name
+            self.assertIn("never under the name `typescript`", text, name)
 
     def test_scenario_committed_lock_matches_lane_pins(self) -> None:
         # Given the committed conformance lock
