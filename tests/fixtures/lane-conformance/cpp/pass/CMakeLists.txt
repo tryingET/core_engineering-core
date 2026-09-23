@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.25)
+project(demo LANGUAGES CXX)
+
+file(GLOB demo_sources CONFIGURE_DEPENDS src/*.cpp)
+add_library(demo ${demo_sources})
+target_include_directories(demo PUBLIC include)
+
+enable_testing()
+file(GLOB demo_tests CONFIGURE_DEPENDS tests/*_test.cpp)
+foreach(test_source IN LISTS demo_tests)
+  get_filename_component(test_name ${test_source} NAME_WE)
+  add_executable(${test_name} ${test_source})
+  target_link_libraries(${test_name} PRIVATE demo)
+  add_test(NAME ${test_name} COMMAND ${test_name})
+endforeach()

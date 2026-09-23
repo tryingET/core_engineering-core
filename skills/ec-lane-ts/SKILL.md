@@ -117,12 +117,6 @@ exact = true
 # Deterministic installs
 frozenLockfile = true
 
-[test]
-# Test configuration
-root = "./src"
-coverage = true
-coverageThreshold = 0.8
-
 [run]
 # Keep CI/review contexts explicit; enable autoInstall only in a repo-local override
 # when convenience is worth the supply-chain tradeoff.
@@ -134,6 +128,18 @@ autoInstall = false
 [install]
 minimumReleaseAge = 604800  # 7 days
 ```
+
+`bun test` finds `*.test.ts` files anywhere outside `node_modules`. Don't set `[test] root`: `root = "./src"` silently skips tests in `test/`, which this lane's tsconfig includes.
+
+Coverage is a gate only when the repo accepts it. Opt in with:
+
+```toml
+[test]
+coverage = true
+coverageThreshold = { lines = 0.8, functions = 0.8 }
+```
+
+Set both keys explicitly (they're plural). A misspelled key such as `line` is silently ignored and disables the threshold, and a failing threshold exits 1 without a message; the coverage table shows which column fell short.
 
 Use this when you want Bun to avoid resolving npm packages published in the last 7 days. This affects new resolution, not already-pinned lockfile entries.
 
@@ -277,26 +283,6 @@ This is the complete lifecycle, from project creation to daily work.
 *   **Run Scripts:** (Defined in package.json)
     *   Start dev server: `bun run dev`
     *   Run tests: `bun test`
-    *   Type check: `bun run typecheck`
-    *   Lint and format: `bun run check`
-*   **Direct Execution:** (No build step needed)
-    `bun run src/index.ts`
-*   **Bundle for Production:**
-    `bun build src/index.ts --outdir=dist --minify`
-
----
-
-### **Package.json Scripts**
-
-```json
-{
-  "name": "orgmem-ts",
-  "type": "module",
-  "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "start": "bun run src/index.ts",
-    "test": "bun test",
-    "test:watch": "bun test --watch",
-    "t
+    *   Type chec
 
 [projected skill truncated; read the full doc in engineering-core]

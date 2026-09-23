@@ -1,0 +1,35 @@
+name: Lane toolchains
+description: >-
+  Installs the toolchains scripts/lane-conformance.py --all needs, at the versions the lane docs pin
+  (tests/test_lane_ts_configs.py fails if they drift). Tools a lane pins in its own **Tool install**
+  block (cargo-deny, golangci-lint, cmake/ninja/clang wheels, just) are installed by the harness
+  itself and cached here.
+runs:
+  using: composite
+  steps:
+    - uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: "1.3.12"
+    - uses: actions/setup-go@v5
+      with:
+        go-version: "1.27.1"
+        cache: false
+    - uses: erlef/setup-beam@v1
+      with:
+        otp-version: "29.0.5"
+        elixir-version: "1.20.2"
+    - name: Install SBCL (pinned binary, checksum-verified)
+      shell: bash
+      run: |
+        set -euo pipefail
+        archive="$RUNNER_TEMP/sbcl.tar.bz2"
+        curl -sSfL -o "$archive" https://downloads.sourceforge.net/project/sbcl/sbcl/2.6.8/sbcl-2.6.8-x86-64-linux-binary.tar.bz2
+        echo "5391773774b94554a015db9f992370d06937fb6f0cdb0b2142281aebef9e96c1  $archive" | sha256sum -c -
+        tar -xjf "$archive" -C "$RUNNER_TEMP"
+        (cd "$RUNNER_TEMP/sbcl-2.6.8-x86-64-linux" && INSTALL_ROOT="$HOME/.local/sbcl" sh install.sh >/dev/null)
+        echo "$HOME/.local/sbcl/bin" >> "$GITHUB_PATH"
+        echo "SBCL_HOME=$HOME/.local/sbcl/lib/sbcl" >> "$GITHUB_ENV"
+    - uses: actions/cache@v4
+      with:
+        path: ~/.cache/engineering-core/lane-tools
+        key: lane-tools-${{ runner.os }}-${{ hashFiles('src/engineering_core/lanes/*.md') }}

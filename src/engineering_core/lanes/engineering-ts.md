@@ -112,12 +112,6 @@ exact = true
 # Deterministic installs
 frozenLockfile = true
 
-[test]
-# Test configuration
-root = "./src"
-coverage = true
-coverageThreshold = 0.8
-
 [run]
 # Keep CI/review contexts explicit; enable autoInstall only in a repo-local override
 # when convenience is worth the supply-chain tradeoff.
@@ -129,6 +123,18 @@ autoInstall = false
 [install]
 minimumReleaseAge = 604800  # 7 days
 ```
+
+`bun test` finds `*.test.ts` files anywhere outside `node_modules`. Don't set `[test] root`: `root = "./src"` silently skips tests in `test/`, which this lane's tsconfig includes.
+
+Coverage is a gate only when the repo accepts it. Opt in with:
+
+```toml
+[test]
+coverage = true
+coverageThreshold = { lines = 0.8, functions = 0.8 }
+```
+
+Set both keys explicitly (they're plural). A misspelled key such as `line` is silently ignored and disables the threshold, and a failing threshold exits 1 without a message; the coverage table shows which column fell short.
 
 Use this when you want Bun to avoid resolving npm packages published in the last 7 days. This affects new resolution, not already-pinned lockfile entries.
 
@@ -300,7 +306,7 @@ This is the complete lifecycle, from project creation to daily work.
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/db/migrate.ts",
     "db:studio": "drizzle-kit studio",
-    "build": "bun build src/index.ts --outdir=dist --minify --sourcemap",
+    "build": "bun build src/index.ts --outdir=dist --minify --sourcemap --target=bun",
     "clean": "rm -rf dist coverage .turbo"
   },
   "dependencies": {
@@ -541,12 +547,12 @@ export const userRepository = {
 **Dockerfile:**
 ```dockerfile
 # Bun official image
-FROM oven/bun:1 AS base
+FROM oven/bun:1.3.12 AS base
 WORKDIR /app
 
 # Install dependencies
 FROM base AS deps
-COPY package.json bun.lockb ./
+COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # Build application
@@ -555,26 +561,31 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN bun run typecheck
 RUN bun test
-RUN bun build src/index.ts --outdir=dist --minify
+RUN bun build src/index.ts --outdir=dist --minify --target=bun
 
-# Production image
-FROM oven/bun:1-slim AS runner
+# Production image: the bundle is self-contained, so no node_modules
+FROM oven/bun:1.3.12-slim AS runner
 WORKDIR /app
 
-# Non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 bunjs
+# The official image ships a non-root `bun` user (uid 1000) and no addgroup/adduser
+COPY --from=builder --chown=bun:bun /app/dist ./dist
 
-# Copy built application
-COPY --from=builder --chown=bunjs:nodejs /app/dist ./dist
-COPY --from=deps --chown=bunjs:nodejs /app/node_modules ./node_modules
-
-USER bunjs
+USER bun
 EXPOSE 3000
 ENV NODE_ENV=production
 
 CMD ["bun", "run", "dist/index.js"]
 ```
+
+**.dockerignore:**
+```text
+node_modules
+dist
+coverage
+.git
+```
+
+Build with `--target=bun`. `bun build` defaults to `--target=browser`, which silently replaces Node builtins such as `node:fs` with empty objects: the build exits 0 and the bundle crashes at runtime. The `.dockerignore` keeps `COPY . .` from overwriting the image's `node_modules` with the host's. `scripts/lane-conformance.py ts` builds this Dockerfile and runs the image at every engineering-core release.
 
 ---
 
@@ -596,9 +607,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.3.12"
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
@@ -610,12 +621,7 @@ jobs:
         run: bun run check
 
       - name: Run tests
-        run: bun test --coverage
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage/lcov.info
+        run: bun test
 
   build:
     needs: quality
@@ -625,9 +631,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: oven-sh/setup-bun@v1
+      - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version: "1.3.12"
 
       - name: Build Docker image
         run: docker build -t app:latest .

@@ -16,6 +16,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 HARNESS_PATH = REPO_ROOT / "scripts" / "lane-conformance.py"
+TOOLCHAIN_ACTION = "uses: ./.github/actions/lane-toolchains"
 
 
 def load_harness():
@@ -116,6 +117,29 @@ class TsLaneConfigFeature(unittest.TestCase):
             # And runtime use of the compiler API never takes the `typescript` name
             self.assertIn("never under the name `typescript`", text, name)
 
+    def test_scenario_bun_test_sees_every_test_and_coverage_is_opt_in(self) -> None:
+        bunfig = self.harness.tomllib.loads(self.files["bunfig.toml"])
+        # `root = "./src"` silently skips tests in test/, which the lane's tsconfig includes
+        self.assertNotIn("root", bunfig.get("test", {}))
+        # a baseline threshold fails passing suites without a message; coverage is a repo opt-in
+        self.assertNotIn("coverageThreshold", bunfig.get("test", {}))
+        self.assertIn("test", self.harness.GATE_SCRIPTS)
+        text = self.lane.doc.read_text(encoding="utf-8")
+        self.assertIn("coverageThreshold = { lines = 0.8, functions = 0.8 }", text)
+
+    def test_scenario_dockerfile_and_ci_use_the_pinned_bun(self) -> None:
+        blocks = self.harness.labeled_blocks(self.lane.doc.read_text(encoding="utf-8"))
+        dockerfile = blocks["Dockerfile"]
+        # Bun 1.2+ writes a text bun.lock; bun.lockb no longer exists
+        self.assertNotIn("bun.lockb", dockerfile)
+        self.assertIn("COPY package.json bun.lock ./", dockerfile)
+        pins = set(re.findall(r"FROM oven/bun:(\S+?)(?:-slim)? AS", dockerfile))
+        workflow = blocks[".github/workflows/ci.yml"]
+        self.assertNotIn("bun-version: latest", workflow)
+        ci_pins = set(re.findall(r'bun-version: "([^"]+)"', workflow))
+        self.assertEqual(len(pins), 1, pins)
+        self.assertEqual(pins, ci_pins)
+
     def test_scenario_committed_lock_matches_lane_pins(self) -> None:
         # Given the committed conformance lock
         lock_text = (self.lane.fixture / "bun.lock").read_text(encoding="utf-8")
@@ -134,15 +158,34 @@ class LaneConformanceReleaseWiringFeature(unittest.TestCase):
         # Then it runs the conformance harness for every registered lane
         self.assertIn('"scripts/lane-conformance.py", "--all"', text)
 
-    def test_scenario_every_workflow_running_verify_installs_bun(self) -> None:
+    def test_scenario_every_workflow_running_verify_installs_lane_toolchains(self) -> None:
         for workflow in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml")):
             text = workflow.read_text(encoding="utf-8")
             # When a workflow job runs the release proof
             for job in re.split(r"\n  (?=[\w-]+:\n)", text):
                 if "release-local.py verify" in job:
-                    # Then that job installs Bun first
-                    self.assertIn("oven-sh/setup-bun@", job, f"{workflow.name} runs verify without bun")
-                    self.assertLess(job.index("oven-sh/setup-bun@"), job.index("release-local.py verify"))
+                    # Then that job installs every lane toolchain first
+                    self.assertIn(TOOLCHAIN_ACTION, job, f"{workflow.name} runs verify without lane toolchains")
+                    self.assertLess(job.index(TOOLCHAIN_ACTION), job.index("release-local.py verify"))
+
+    def test_scenario_ci_toolchain_pins_equal_the_lane_docs(self) -> None:
+        harness = load_harness()
+        action = (REPO_ROOT / ".github" / "actions" / "lane-toolchains" / "action.yml").read_text(encoding="utf-8")
+        lanes = harness.LANES_DIR
+
+        def block(doc: str, label: str) -> str:
+            return harness.labeled_blocks((lanes / doc).read_text(encoding="utf-8"))[label]
+
+        bun = re.search(r"FROM oven/bun:(\S+) AS base", block("engineering-ts.md", "Dockerfile")).group(1)
+        go = re.search(r"^toolchain go(\S+)$", block("engineering-go.md", "go.mod"), re.M).group(1)
+        versions = dict(line.split() for line in block("engineering-elixir.md", ".tool-versions").splitlines() if line.strip())
+        sbcl = re.search(r"'SBCL (\S+)'", block("engineering-common-lisp.md", "Quality gates")).group(1)
+        # Then CI installs exactly what the lanes pin
+        self.assertIn(f'bun-version: "{bun}"', action)
+        self.assertIn(f'go-version: "{go}"', action)
+        self.assertIn(f'otp-version: "{versions["erlang"]}"', action)
+        self.assertIn(f'elixir-version: "{versions["elixir"].split("-otp-")[0]}"', action)
+        self.assertIn(f"sbcl-{sbcl}-x86-64-linux-binary.tar.bz2", action)
 
 
 if __name__ == "__main__":

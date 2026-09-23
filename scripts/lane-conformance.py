@@ -34,7 +34,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 
-GATE_SCRIPTS = ("typecheck", "check")
+GATE_SCRIPTS = ("typecheck", "check", "test")
 BINARY_PACKAGES = {"biome": "@biomejs/biome", "tsc": "typescript"}
 TOOLCHAIN_PACKAGES = ("@biomejs/biome", "typescript", "@types/bun")
 CONFIG_BLOCKS = ("bunfig.toml", "biome.json", "tsconfig.json")
@@ -124,6 +124,7 @@ def write_labeled_files(doc_text: str, work: Path, names: tuple[str, ...]) -> No
     if missing:
         raise LaneContractError(f"lane doc lacks config blocks: {', '.join(missing)}")
     for name in names:
+        (work / name).parent.mkdir(parents=True, exist_ok=True)
         (work / name).write_text(blocks[name], encoding="utf-8")
 
 
@@ -220,7 +221,16 @@ def write_project(lane: Lane, work: Path, doc_text: str, *, with_bunfig: bool) -
 
 def prepare_ts(lane: Lane, work: Path, doc_text: str) -> None:
     write_project(lane, work, doc_text, with_bunfig=True)
+    write_labeled_files(doc_text, work, ("Dockerfile", ".dockerignore"))
     shutil.copy(lane.fixture / "bun.lock", work / "bun.lock")
+
+
+def docker_gate(lane_id: str, run_args: str = "") -> tuple[str, tuple[str, ...]]:
+    """Build the lane's Dockerfile for real and run the image: `docker build --check` misses
+    missing COPY sources and failing RUN steps (it only lints and resolves base images)."""
+    image = f"lane-conformance-{lane_id}:gate"
+    command = f"docker build -q -t {image} . >/dev/null && docker run --rm {image} {run_args}".rstrip()
+    return ("dockerfile", ("bash", "-o", "pipefail", "-c", command))
 
 
 def install_ts(lane: Lane, work: Path) -> subprocess.CompletedProcess[str]:
@@ -352,6 +362,40 @@ def refresh_py_lock(lane: Lane) -> None:
 
 
 LANES_DIR = ROOT / "src" / "engineering_core" / "lanes"
+
+
+def prepare_cpp(lane: Lane, work: Path, doc_text: str) -> None:
+    write_labeled_files(doc_text, work, ("CMakePresets.json", ".clang-format", ".clang-tidy"))
+    # The Justfile addendum's reference Justfile is copied verbatim too, so it is executed.
+    addendum = (LANES_DIR / "engineering-cpp.justfile.md").read_text(encoding="utf-8")
+    write_labeled_files(addendum, work, ("Justfile",))
+    # The fmt gate lists sources through git.
+    run(["git", "init", "-q"], work)
+
+
+def prepare_elixir(lane: Lane, work: Path, doc_text: str) -> None:
+    write_labeled_files(doc_text, work, ("mix.exs", ".tool-versions", "Dockerfile"))
+    shutil.copy(lane.fixture / "mix.lock", work / "mix.lock")
+
+
+def refresh_elixir_lock(lane: Lane) -> None:
+    with tempfile.TemporaryDirectory(prefix="lane-conformance-elixir-lock-") as tmp:
+        work = Path(tmp)
+        write_labeled_files(lane.doc.read_text(encoding="utf-8"), work, ("mix.exs",))
+        proc = run(["mix", "deps.get"], work)
+        if proc.returncode != 0:
+            raise SystemExit(proc.stdout + proc.stderr)
+        shutil.copy(work / "mix.lock", lane.fixture / "mix.lock")
+    print(f"updated {(lane.fixture / 'mix.lock').relative_to(ROOT)}")
+
+
+def elixir_gates(doc_text: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    # `docker build --check` lints the Dockerfile and resolves its base-image tags.
+    return (*quality_gates(doc_text), docker_gate("elixir", "bin/my_app eval 'IO.puts(:release_ok)'"))
+
+
+def cpp_gates(doc_text: str) -> tuple[tuple[str, tuple[str, ...]], ...]:
+    return (*quality_gates(doc_text), ("justfile-ci", ("bash", "-o", "pipefail", "-c", "just ci")))
 FIXTURES = ROOT / "tests" / "fixtures" / "lane-conformance"
 # Toolchain notes and ignored-config warnings on an otherwise passing run are defects.
 WARNING_LINE = re.compile(r"^warning:", re.MULTILINE)
@@ -361,14 +405,47 @@ LANES: dict[str, Lane] = {
         lane_id="ts",
         doc=ROOT / "src" / "engineering_core" / "lanes" / "engineering-ts.md",
         fixture=ROOT / "tests" / "fixtures" / "lane-conformance" / "ts",
-        tools=("bun",),
+        tools=("bun", "docker"),
         prepare=prepare_ts,
         install=install_ts,
         refresh_lock=refresh_ts_lock,
-        gates=tuple((script, ("bun", "run", script)) for script in GATE_SCRIPTS),
+        gates=(*((script, ("bun", "run", script)) for script in GATE_SCRIPTS), docker_gate("ts")),
         probe_suffix=".ts",
         probe_dir="src",
         clean=LINT_DIAGNOSTIC,
+    ),
+    "common-lisp": Lane(
+        lane_id="common-lisp",
+        doc=LANES_DIR / "engineering-common-lisp.md",
+        fixture=FIXTURES / "common-lisp",
+        tools=("sbcl",),
+        prepare=prepare_from_blocks("my-system.asd", "scripts/check.lisp", "scripts/test.lisp"),
+        gates=quality_gates,
+        probe_suffix=".lisp",
+        probe_dir="src",
+    ),
+    "cpp": Lane(
+        lane_id="cpp",
+        doc=LANES_DIR / "engineering-cpp.md",
+        fixture=FIXTURES / "cpp",
+        tools=("uv", "git", "c++", "python3"),
+        prepare=prepare_cpp,
+        gates=cpp_gates,
+        probe_suffix=".cpp",
+        probe_dir="src",
+    ),
+    "elixir": Lane(
+        lane_id="elixir",
+        doc=LANES_DIR / "engineering-elixir.md",
+        fixture=FIXTURES / "elixir",
+        tools=("mix", "elixir", "docker"),
+        prepare=prepare_elixir,
+        refresh_lock=refresh_elixir_lock,
+        gates=elixir_gates,
+        probe_suffix=".ex",
+        probe_dir="lib",
+        # OTP boot warnings ("=... WARNING MSG====") are defects in the release image too.
+        clean=re.compile(r"^warning:|WARNING MSG", re.MULTILINE),
     ),
     "go": Lane(
         lane_id="go",

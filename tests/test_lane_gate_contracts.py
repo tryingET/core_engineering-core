@@ -194,5 +194,133 @@ class PyLaneFeature(unittest.TestCase):
         self.assertIn("uv run ty check", self.justfile)
 
 
+class CppLaneFeature(unittest.TestCase):
+    """Feature: a repo following the cpp lane gets pinned tools, wired sanitizers, and a Justfile that can pass."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.doc = lane_text("engineering-cpp.md")
+        cls.addendum = lane_text("engineering-cpp.justfile.md")
+        cls.blocks = HARNESS.labeled_blocks(cls.doc)
+        cls.gates = dict(HARNESS.quality_gates(cls.doc))
+        cls.presets = HARNESS.json.loads(cls.blocks.get("CMakePresets.json", "{}"))
+        cls.justfile = HARNESS.labeled_blocks(cls.addendum).get("Justfile", "")
+
+    def command(self, gate: str) -> str:
+        self.assertIn(gate, self.gates, f"missing gate {gate}")
+        return self.gates[gate][-1]
+
+    def test_scenario_lane_declares_executable_gates(self) -> None:
+        for gate in ("toolchain", "build-test", "sanitizers", "fmt", "tidy"):
+            self.command(gate)
+
+    def test_scenario_tools_are_pinned_and_verified(self) -> None:
+        install = self.blocks.get("Tool install", "")
+        for tool in ("cmake", "ninja", "clang-format", "clang-tidy"):
+            pin = re.search(rf"\b{tool}==(\d+\.\d+\.\d+)", install)
+            self.assertIsNotNone(pin, f"Tool install must pin {tool}")
+            self.assertIn(pin.group(1), self.command("toolchain").replace("\\", ""), tool)
+
+    def test_scenario_presets_make_warnings_tests_and_sanitizers_bite(self) -> None:
+        configure = {p["name"]: p for p in self.presets["configurePresets"]}
+        self.assertEqual(configure["ci"]["cacheVariables"]["CMAKE_COMPILE_WARNING_AS_ERROR"], "ON")
+        self.assertIn("-fsanitize=address,undefined", configure["asan"]["cacheVariables"]["CMAKE_CXX_FLAGS"])
+        for test in self.presets["testPresets"]:
+            # ctest exits 0 when it finds no tests unless told otherwise
+            self.assertEqual(test["execution"]["noTestsAction"], "error", test["name"])
+        self.assertIn("WarningsAsErrors", self.blocks.get(".clang-tidy", ""))
+
+    def test_scenario_format_check_never_reads_stdin(self) -> None:
+        # With no matching files, `clang-format --dry-run` reads stdin (hang or silent pass)
+        self.assertRegex(self.command("fmt"), r'\[ -z "\$files" \] \|\|')
+
+    def test_scenario_reference_justfile_is_runnable(self) -> None:
+        self.assertTrue(self.justfile, "addendum needs a **Justfile:** block")
+        # just passes `$$` through to bash, where it expands to the shell PID
+        self.assertNotIn("$$", self.justfile)
+        # a lint recipe that echoes instead of failing is a silent pass
+        self.assertNotIn("relying on compiler warnings", self.justfile)
+        self.assertIn("--preset", self.justfile)
+
+
+class ElixirLaneFeature(unittest.TestCase):
+    """Feature: a repo following the elixir lane can run its own `mix ci` and ship with an image that exists."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.doc = lane_text("engineering-elixir.md")
+        cls.blocks = HARNESS.labeled_blocks(cls.doc)
+        cls.gates = dict(HARNESS.quality_gates(cls.doc))
+        cls.mix = cls.blocks.get("mix.exs", "")
+
+    def command(self, gate: str) -> str:
+        self.assertIn(gate, self.gates, f"missing gate {gate}")
+        return self.gates[gate][-1]
+
+    def test_scenario_lane_declares_executable_gates(self) -> None:
+        for gate in ("toolchain", "deps", "fmt", "compile", "lint", "typecheck", "test", "ci"):
+            self.command(gate)
+        self.assertIn("--check-locked", self.command("deps"))
+        self.assertIn("--warnings-as-errors", self.command("compile"))
+
+    def test_scenario_ci_alias_runs_tests_in_the_test_env(self) -> None:
+        # Without preferred_envs, `mix ci` aborts: "mix test" is running in the "dev" environment
+        self.assertIn("defmodule", self.mix)
+        self.assertRegex(self.mix, r"preferred_envs: \[ci: :test\]")
+
+    def test_scenario_toolchain_pins_agree(self) -> None:
+        versions = dict(line.split() for line in self.blocks.get(".tool-versions", "").splitlines() if line.strip())
+        elixir = versions["elixir"].split("-otp-")[0]
+        otp_major = versions["erlang"].split(".")[0]
+        self.assertIn(f"Elixir {elixir} (compiled with Erlang/OTP {otp_major})", self.command("toolchain"))
+        dockerfile = self.blocks.get("Dockerfile", "")
+        self.assertIn(f"hexpm/elixir:{elixir}-erlang-{versions['erlang']}-", dockerfile)
+
+    def test_scenario_docker_stages_share_one_debian_snapshot(self) -> None:
+        dockerfile = self.blocks.get("Dockerfile", "")
+        build = re.search(r"^FROM hexpm/elixir:\S+-debian-(\w+)-(\d{8}) AS build$", dockerfile, re.M)
+        self.assertIsNotNone(build, "builder must pin a dated Debian image")
+        self.assertIn(f"FROM debian:{build.group(1)}-{build.group(2)}-slim AS runner", dockerfile)
+        self.assertIn("ENV MIX_ENV=prod", dockerfile)
+
+    def test_scenario_snippets_use_current_apis(self) -> None:
+        self.assertNotIn("Repo.transaction()", self.doc)
+        self.assertIn("mix phx.gen.release --docker", self.doc)
+
+
+class CommonLispLaneFeature(unittest.TestCase):
+    """Feature: a repo following the common-lisp lane has gates that can actually fail."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.doc = lane_text("engineering-common-lisp.md")
+        cls.blocks = HARNESS.labeled_blocks(cls.doc)
+        cls.gates = dict(HARNESS.quality_gates(cls.doc))
+
+    def command(self, gate: str) -> str:
+        self.assertIn(gate, self.gates, f"missing gate {gate}")
+        return self.gates[gate][-1]
+
+    def test_scenario_lane_declares_executable_gates(self) -> None:
+        for gate in ("toolchain", "check", "test"):
+            self.command(gate)
+
+    def test_scenario_test_op_signals_failure(self) -> None:
+        # asdf:test-system exits 0 on failing tests unless perform test-op signals an error
+        asd = self.blocks.get("my-system.asd", "")
+        self.assertRegex(asd, r"\(error \"my-system tests failed\"\)")
+
+    def test_scenario_load_check_fails_on_deferred_warnings(self) -> None:
+        # SBCL defers undefined-variable/function warnings past ASDF's failure hook
+        check = self.blocks.get("scripts/check.lisp", "")
+        self.assertIn("handler-bind", check)
+        self.assertIn(":ignore-inherited-configuration", check)
+        self.assertIn(":force", check)
+
+    def test_scenario_gates_never_reuse_cached_fasls(self) -> None:
+        for gate in ("check", "test"):
+            self.assertIn('XDG_CACHE_HOME="$(mktemp -d)"', self.command(gate), gate)
+
+
 if __name__ == "__main__":
     unittest.main()

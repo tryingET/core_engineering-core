@@ -27,19 +27,19 @@ Prefer existing repo-local scripts, CMake presets, and CI wrappers when they alr
 - `just help`
   - prefer: `just --list`
 - `just doctor`
-  - check local toolchain availability without installing anything globally
+  - print the pinned tool and compiler versions without installing anything globally
 - `just fmt`
   - prefer: `clang-format -i` over tracked C/C++/CUDA files
 - `just lint`
-  - prefer: repo-local lint wrapper, otherwise `run-clang-tidy.py -p {{build_dir}}` when configured
+  - prefer: repo-local lint wrapper, otherwise `run-clang-tidy.py -p build-ci -quiet` with a checked-in `.clang-tidy`
 - `just test`
-  - prefer: `ctest --test-dir {{build_dir}} --output-on-failure`
+  - prefer: `ctest --preset ci` (the preset errors when no tests are found)
 - `just build`
-  - prefer: `cmake --build {{build_dir}} --parallel`
+  - prefer: `cmake --preset ci && cmake --build --preset ci`
 - `just check`
-  - prefer: configure + format check + lint + test
+  - prefer: format check + lint + test
 - `just ci`
-  - prefer the repo's canonical full local validation/CI wrapper when present
+  - prefer the repo's canonical full local validation/CI wrapper when present; otherwise `check` plus the sanitizer workflow
 - optional `just bench`
   - include only when the repo has benchmark targets or benchmark-labeled CTest tests
 - optional `just run`
@@ -49,73 +49,49 @@ Prefer existing repo-local scripts, CMake presets, and CI wrappers when they alr
 
 ## Reference implementation sketch
 
-Use this as a starting point, not a mandatory copy. Repos with CMake presets or existing scripts should delegate to those instead.
+Use this as a starting point, not a mandatory copy. It delegates to the lane's `CMakePresets.json` and pinned tools; repos with other presets or existing scripts should delegate to those instead. Note that `just` passes `$$` through to the shell unchanged (bash expands it to the process ID), so recipes use a single `$`.
 
+**Justfile:**
 ```just
 set shell := ["bash", "-eu", "-o", "pipefail", "-c"]
 
-build_dir := env_var_or_default("BUILD_DIR", "build")
-build_type := env_var_or_default("CMAKE_BUILD_TYPE", "RelWithDebInfo")
-generator := env_var_or_default("CMAKE_GENERATOR", "Ninja")
-cmake_args := env_var_or_default("CMAKE_ARGS", "")
-ctest_args := env_var_or_default("CTEST_ARGS", "--output-on-failure")
+sources := "git ls-files --cached --others --exclude-standard '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.cu' '*.cuh'"
 
 help:
     @just --list
 
 doctor:
-    @command -v cmake
-    @command -v ninja || true
-    @(${CXX:-c++} --version || c++ --version)
-    @command -v clang-format || true
-    @command -v clang-tidy || true
+    cmake --version
+    ninja --version
+    clang-format --version
+    clang-tidy --version
+    ${CXX:-c++} --version
 
-configure:
-    cmake -S . -B "{{build_dir}}" -G "{{generator}}" \
-      -DCMAKE_BUILD_TYPE="{{build_type}}" \
-      -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-      {{cmake_args}}
-
-build: configure
-    cmake --build "{{build_dir}}" --parallel
+build:
+    cmake --preset ci
+    cmake --build --preset ci
 
 test: build
-    ctest --test-dir "{{build_dir}}" {{ctest_args}}
+    ctest --preset ci
+
+sanitize:
+    cmake --workflow --preset asan
 
 fmt:
-    files="$$(git ls-files '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.cu' '*.cuh' 2>/dev/null || true)"; \
-    if [ -n "$$files" ]; then clang-format -i $$files; fi
+    files="$({{sources}})"; [ -z "$files" ] || clang-format -i $files
 
 fmt-check:
-    files="$$(git ls-files '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.cu' '*.cuh' 2>/dev/null || true)"; \
-    if [ -n "$$files" ]; then clang-format --dry-run --Werror $$files; fi
+    files="$({{sources}})"; [ -z "$files" ] || clang-format --dry-run --Werror $files
 
-lint: configure
-    if command -v run-clang-tidy.py >/dev/null 2>&1; then \
-      run-clang-tidy.py -p "{{build_dir}}"; \
-    elif command -v clang-tidy >/dev/null 2>&1 && [ -f "{{build_dir}}/compile_commands.json" ]; then \
-      echo "clang-tidy found; add a repo-local source selection or run-clang-tidy.py wrapper"; \
-    else \
-      echo "no clang-tidy wrapper configured; relying on compiler warnings"; \
-    fi
+lint: build
+    run-clang-tidy.py -p build-ci -quiet
 
 check: fmt-check lint test
 
-ci: check
-
-bench: build
-    if cmake --build "{{build_dir}}" --target help | grep -q '^\.\.\. bench$$'; then \
-      cmake --build "{{build_dir}}" --target bench; \
-    else \
-      ctest --test-dir "{{build_dir}}" -L benchmark --output-on-failure || \
-        echo "no benchmark target or benchmark-labeled tests configured"; \
-    fi
-
-run: build
-    echo "delegate this target to the repo's canonical executable/service command"
+ci: check sanitize
 
 clean:
-    rm -rf "{{build_dir}}"
+    rm -rf build-ci build-asan
 ```
 
 ## Optional repo-loop-validation-v1 mappings

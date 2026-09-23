@@ -59,14 +59,14 @@ Load disciplines when the concern applies:
 
 - Pin the minimum supported compiler versions in repo docs or toolchain files when downstream compatibility matters.
 - Use warning levels intentionally, for example `-Wall -Wextra -Wpedantic` plus targeted warnings the repo can keep green.
-- Treat `-Werror` as a CI/release setting, not necessarily the default for every contributor platform.
+- Treat `-Werror` as a CI/release setting, not necessarily the default for every contributor platform: the `ci` preset below sets `CMAKE_COMPILE_WARNING_AS_ERROR` (CMake 3.24+) so contributors can still configure without it.
 - Prefer `RelWithDebInfo` for performance work so optimized binaries still carry symbols.
 - For ABI-sensitive libraries, document C++ standard library expectations, symbol visibility, and whether exceptions/RTTI are enabled.
 
 ## Formatting / linting
 
 - `clang-format` is the formatting source of truth. Do not rely on editor-only formatting.
-- `clang-tidy` should run from the compile database: `run-clang-tidy.py -p build` or a repo-local wrapper.
+- `clang-tidy` runs from the compile database: `run-clang-tidy.py -p build-ci` (the name of the pinned PyPI wheel's script; some distributions ship it as `run-clang-tidy`) or a repo-local wrapper. It needs a checked-in `.clang-tidy`: clang-tidy 20+ defaults to diagnostics-only checks, and `run-clang-tidy` then exits 1 with `No checks enabled`.
 - Keep generated/vendor files excluded from format and lint checks.
 - Prefer incremental adoption of `clang-tidy`: start with bug-prone, performance, modernize, and clang-analyzer families that the repo can keep stable.
 
@@ -138,29 +138,121 @@ bench/                       # optional benchmarks
 docs/engineering.local.md     # repo-local lane deltas
 policy/engineering-lane.json       # optional lane pin/contract
 .clang-format
-.clang-tidy                  # optional, only when kept green
+.clang-tidy                  # checks the repo keeps green
 Justfile                     # optional standardized wrapper
 ```
 
 ## Validation commands
 
-Use repo-local wrappers first when they exist. Common CMake/Ninja fallback:
+Use repo-local wrappers first when they exist. The lane's default surface is CMake presets plus pinned tools. The build tools (CMake, Ninja, clang-format, clang-tidy) are pinned as PyPI wheels so every machine formats and lints identically; clang-format output changes between majors. The compiler comes from the platform (GCC or Clang with C++20 support).
 
+**Tool install:**
 ```bash
-build_dir="${BUILD_DIR:-build}"
-cmake -S . -B "$build_dir" -G Ninja \
-  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-cmake --build "$build_dir" --parallel
-ctest --test-dir "$build_dir" --output-on-failure
+uv tool install cmake==4.4.3
+uv tool install ninja==1.13.2
+uv tool install clang-format==22.1.8
+uv tool install clang-tidy==22.1.8
+uv tool install rust-just==1.58.0
 ```
 
-Optional quality checks when configured:
-
-```bash
-clang-format --dry-run --Werror $(git ls-files '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.cu' '*.cuh')
-run-clang-tidy.py -p build
+**CMakePresets.json:**
+```json
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "ci",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ci",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": "ci",
+      "binaryDir": "${sourceDir}/build-asan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,undefined",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=address,undefined"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "ci", "configurePreset": "ci" },
+    { "name": "asan", "configurePreset": "asan" }
+  ],
+  "testPresets": [
+    {
+      "name": "ci",
+      "configurePreset": "ci",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "ci",
+      "steps": [
+        { "type": "configure", "name": "ci" },
+        { "type": "build", "name": "ci" },
+        { "type": "test", "name": "ci" }
+      ]
+    },
+    {
+      "name": "asan",
+      "steps": [
+        { "type": "configure", "name": "asan" },
+        { "type": "build", "name": "asan" },
+        { "type": "test", "name": "asan" }
+      ]
+    }
+  ]
+}
 ```
+
+`noTestsAction: error` matters: plain `ctest` exits 0 when it finds no tests. The flags assume GCC or Clang; add an MSVC preset only when Windows is a real target.
+
+**.clang-format:**
+```yaml
+BasedOnStyle: LLVM
+```
+
+**.clang-tidy:**
+```yaml
+Checks: '-*,bugprone-*,performance-*,modernize-*,clang-analyzer-*,-modernize-use-trailing-return-type'
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*/include/.*'
+```
+
+**Quality gates:**
+```bash
+# toolchain
+cmake --version | grep -F 'cmake version 4.4.3' && ninja --version | grep -E '^1\.13\.2([^0-9]|$)' && clang-format --version | grep -F 'version 22.1.8' && clang-tidy --version | grep -F 'version 22.1.8'
+# build-test
+cmake --workflow --preset ci
+# sanitizers
+cmake --workflow --preset asan
+# fmt
+files="$(git ls-files --cached --others --exclude-standard '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.cu' '*.cuh')"; [ -z "$files" ] || clang-format --dry-run --Werror $files
+# tidy
+cmake --preset ci >/dev/null && run-clang-tidy.py -p build-ci -quiet
+```
+
+`run-clang-tidy.py` checks only the files in the last configured `compile_commands.json`, so the tidy gate reconfigures first; otherwise a source added since the last configure is skipped silently. Guard the format file list: with no matching files, `clang-format --dry-run` reads stdin and either hangs or passes silently. Keep `build-*/` in `.gitignore` so generated CMake sources stay out of the format check. `scripts/lane-conformance.py cpp` runs these gates, plus the Justfile addendum's `just ci`, on a fixture project at every engineering-core release.
 
 ## Contract surface for repo adoption
 

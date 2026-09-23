@@ -1,5 +1,5 @@
 ---
-summary: "Many-of-the-Greats adjudication for keeping executable lane configs true: why the ts lane shipped four silent defects and what the conformance harness proves."
+summary: "Many-of-the-Greats adjudication for keeping executable lane configs true: why the lanes shipped silent false-pass defects and what the per-lane conformance harness proves."
 read_when:
   - "Changing lane config blocks (biome.json, tsconfig.json, bunfig.toml, package.json scripts) or the lane conformance harness."
   - "Deciding whether a lane config claim is gated at release, checked offline, or left to dependency updates."
@@ -93,3 +93,36 @@ TypeScript 7.0.2 (stable, 2026-07-08) ships a native `tsc`, and `@typescript/nat
 **Resolved by AK #5916 (operator-approved 2026-09-23):** both the ts and pi-ts lanes now typecheck with `tsc --noEmit` from exactly pinned `typescript@7` (`7.0.2`). `@typescript/native-preview` and the dual-compiler `typecheck:fallback` are gone; recovering from a compiler regression means rolling back the pin. On a 400-file test project: TS 7 `tsc` 84 ms, the last `tsgo` preview 109 ms, TS 6 `tsc` 452 ms. TypeScript 7 drops the classic compiler API. An initial draft routed dev tools that still need it to `@typescript/typescript6`; the operator ruled "no fallback", so both lanes now say: TypeScript 7 only; dev tools needing the classic API are replaced, not kept on TS 6 (Biome instead of typescript-eslint; `tsc --declaration --emitDeclarationOnly` with an explicit `rootDir` for `.d.ts` output, verified on 7.0.2). Runtime product use of the compiler API is a declared library dependency under its explicit package name, never `typescript`. Impact scan across the workspace's ts/pi-ts lane repos found no classic-API dev tools. Twelve packages still pin `@typescript/native-preview` (11 in pi-extensions plus replay-fabric) and must migrate to `typescript@7`. `pi-typescript-tool` imports the classic API at runtime under the name `typescript` (6.0.3), so it must move that dependency to an explicit name. `ts-quality` pins its own `typescript` and doesn't affect consumer typechecks. Harness: 6/6 scenarios pass. The stale lockfile was rejected (`lockfile is frozen`) until it was refreshed.
 
 - Third-order effect: the same defect class almost certainly exists in other lanes (py/ruff/pyright, rust, pi-ts). The harness is keyed by lane so they can be added one at a time; that's a follow-up, not part of #5908.
+
+## Extension to every lane (AK #5917)
+
+Five independent audits executed every checkable claim in the py, go, rust, cpp, elixir, and common-lisp lanes (and the ts lane's remaining blocks) against real tools. The key findings were re-verified before acting on them. The pattern held everywhere: gates that pass on failures and config that tools silently ignore.
+
+| Lane | Silent defects found (all verified) |
+|---|---|
+| py | `[tool.uv.scripts]` isn't a uv feature: uv fails to parse it and drops every other project `[tool.uv]` setting (with a project `exclude-newer`, ruff locked at 0.16.8 instead of 0.1.9); `uv run test` runs `/usr/bin/test`; no ruff/ty pins or config; `ruff format` rewrites instead of failing |
+| go | `go fmt ./...` exits 0 on unformatted code; `go mod verify` passes with a missing `go.sum`; `go run ./cmd/...` fails with >1 command; `gofmt -w .` rewrites `testdata/` |
+| rust | clippy/test/build without `--workspace` skip members of a root-package workspace (a failing member passes); `cargo fmt --all` rewrites; no toolchain pin (a nightly rustup default silently applies); nextest skips doctests |
+| cpp | the reference Justfile's `$$` expands to the shell PID, so `fmt-check`, `check`, and `ci` never passed; `lint` echoed instead of failing; ctest exits 0 with no tests; `run-clang-tidy` only checks files in the last configured compile database |
+| elixir | `mix ci` aborts (`mix test` in the dev env); the alias snippet fails the lane's own format check; the Docker base tag doesn't exist; the release runs with latin1 name encoding and without `libsctp1` |
+| common-lisp | `asdf:test-system` exits 0 on failing tests; SBCL defers undefined-variable/function warnings past ASDF's failure hook, so the load gate exits 0 on them |
+| ts (remaining blocks) | `root = "./src"` silently skips tests in `test/`; a baseline coverage threshold fails passing suites without a message (and a misspelled key disables it); the Dockerfile copied `bun.lockb` (Bun writes `bun.lock`), used `addgroup` (absent from the image), and bundled with the default browser target, which replaces `node:fs` with an empty object (build exits 0, runtime crash) |
+
+Consumer impact scan: no workspace repo had copied `[tool.uv.scripts]` or the `$$` Justfile, and the user-level `~/.config/uv/uv.toml` quarantine is unaffected by the py defect. The fixes are preventive.
+
+Design, following the Mode 3 ruling:
+
+- Each lane declares a machine-parsed `**Quality gates:**` block. The harness runs each gate with `bash -o pipefail -c`, exactly as a reader would paste it. Config the lane prescribes lives in labeled blocks the harness writes verbatim, so the doc stays the single executed source.
+- Tool pins live in a `**Tool install:**` block, run once per content hash into `~/.cache/engineering-core/lane-tools` (`GOBIN`, `CARGO_INSTALL_ROOT`, uv tool dirs) and put first on `PATH`. Lockfile-pinned ecosystems (ts, py, elixir) install from committed fixture locks.
+- Every gate has a must-fail probe (a file dropped into the fixture, or a directory overlay), and every fix has a mutation run proving the harness fails when the fix is reverted.
+- Pass runs must also be diagnostic-free: `warning:` lines (and OTP `WARNING MSG` boot reports) fail them, because ignored-config warnings are how this defect class shows itself.
+- Dockerfiles are built for real and the image is run: `docker build --check` passed a Dockerfile whose `COPY` source didn't exist.
+- CI installs base toolchains through one composite action (`.github/actions/lane-toolchains`); offline scenarios fail if its pins drift from the lane docs.
+
+Refutations recorded during implementation:
+
+- The harness itself had three hermeticity bugs, each caught by a failing scenario before it could hide a lane defect: copying probes with preserved mtimes let cargo trust a stale fingerprint; running under `uv run` leaked engineering-core's `VIRTUAL_ENV` into every gate; and directory probes that overwrote doc-derived files leaked into later probes.
+- `docker build --check` was assumed to prove a Dockerfile; it only lints and resolves base images.
+- A probe using `node:os` didn't catch the browser-target bundle, because Bun polyfills `node:os`. The fixture uses `node:fs`, which it stubs.
+
+Accepted residuals: the CUDA addendum, Buck2/Bazel guidance, Phoenix/Ecto flows, trusted publishing, and pnpm's `minimumReleaseAge` can't be executed here and stay prose-only. The pi-ts lane and the frontend addendum carry no copyable config. The C++ compiler comes from the platform and is checked through the build, not pinned.

@@ -22,7 +22,7 @@ Use this lane when Common Lisp is the requested implementation language. Prefer 
 - **Portable utilities:** use UIOP before adding a dependency for process, path, environment, or portability helpers that it already supplies.
 - **Dependency availability:** Quicklisp is a common ecosystem distribution, but ambient Quicklisp state is not a reproducible project dependency contract.
 - **Reproducible dependency workflow:** use Qlot when the repo needs checked-in project-local dependency resolution. CLPM is a valid alternative when deliberately selected and documented.
-- **Testing:** expose the canonical suite through `asdf:test-system`. Follow an established repo framework; FiveAM, Parachute, and Rove are valid choices, but no framework is mandatory across all Common Lisp repos.
+- **Testing:** expose the canonical suite through `asdf:test-system`, whose `perform test-op` must signal an error when tests fail (ASDF ignores test results, so `asdf:test-system` otherwise exits 0 on failures). Follow an established repo framework; FiveAM, Parachute, and Rove are valid choices, but no framework is mandatory across all Common Lisp repos.
 
 ## Language extension is a first-class design option
 
@@ -119,7 +119,7 @@ Recommended conventions:
 Common Lisp has no universal formatter or linter baseline comparable to `gofmt` or `cargo fmt`.
 
 - Treat compiler notes, warnings, and style warnings according to an explicit repo policy; do not silently discard them.
-- Use a deterministic non-interactive load/compile command as the minimum quality gate.
+- Use a deterministic non-interactive load/compile check as the minimum quality gate, and make it fail on warnings itself: SBCL defers undefined-variable and undefined-function warnings to the end of the compilation unit, so a plain `asdf:load-system` exits 0 on them. The lane's `scripts/check.lisp` below fails on every warning, style warnings included; relax that only through a recorded repo policy.
 - If the repo chooses a formatter, linter, or static analyzer, pin it and expose separate check and write modes through repo-local wrappers.
 - Avoid broad optimization declarations. Measure first, then localize type and optimization declarations to proven hot paths.
 - Use conditions and restarts intentionally at recoverable boundaries; do not convert every failure into an unstructured catch-all.
@@ -128,29 +128,26 @@ Common Lisp has no universal formatter or linter baseline comparable to `gofmt` 
 
 System names and `.asd` paths are repo-specific. Replace `my-system` and `my-system.asd` below with the repository's declarations, or delegate to its checked-in wrapper. Explicitly loading the repo-owned `.asd` file makes the project system discoverable; it does not by itself isolate transitive dependencies from inherited ASDF configuration.
 
-```bash
-# Toolchain sanity
-sbcl --version
+**my-system.asd:**
+```lisp
+(defsystem "my-system"
+  :version "0.1.0"
+  :pathname "src/"
+  :components ((:file "package")
+               (:file "main" :depends-on ("package")))
+  :in-order-to ((test-op (test-op "my-system/tests"))))
 
-# Non-interactive repo-system load/compile check
-sbcl --noinform --non-interactive --disable-debugger --no-sysinit --no-userinit \
-  --eval '(require :asdf)' \
-  --eval '(asdf:load-asd (truename "my-system.asd"))' \
-  --eval '(asdf:load-system "my-system")'
-
-# Canonical test operation
-sbcl --noinform --non-interactive --disable-debugger --no-sysinit --no-userinit \
-  --eval '(require :asdf)' \
-  --eval '(asdf:load-asd (truename "my-system.asd"))' \
-  --eval '(asdf:test-system "my-system")'
+(defsystem "my-system/tests"
+  :depends-on ("my-system")
+  :pathname "t/"
+  :components ((:file "tests"))
+  :perform (test-op (o c)
+             (unless (uiop:symbol-call :my-system/tests :run-tests)
+               (error "my-system tests failed"))))
 ```
 
-When Qlot owns dependencies, invoke the same SBCL operations through `qlot exec` or a checked-in script. Prefer a script once isolation, source-registry/output configuration, quoting, bootstrap, warning policy, or multiple implementations make raw shell commands hard to review.
+`run-tests` returns true only when every test passed; adapt it to the chosen framework (FiveAM, Parachute, and Rove all report a result you can return).
 
-## Testing guidance
-
-- Unit and integration tests: run through `asdf:test-system`, regardless of the underlying framework.
-- Targeted tests: use the framework's documented selector through a repo wrapper; keep `just test` or the canonical CI command as the full-suite surface.
-- Property testing: add 
+**scripts/check.lisp:*
 
 [projected skill truncated; read the full doc in engineering-core]

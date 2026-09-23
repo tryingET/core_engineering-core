@@ -71,7 +71,7 @@ end
 Ecto.Multi.new()
 |> Ecto.Multi.insert(:user, User.changeset(%User{}, attrs))
 |> Ecto.Multi.insert(:audit_log, AuditLog.changeset(%AuditLog{}, %{event: "user_created"}))
-|> Repo.transaction()
+|> Repo.transact()
 
 # 4. Add telemetry at meaningful workflow edges
 :telemetry.execute(
@@ -94,34 +94,90 @@ Ecto.Multi.new()
 
 ---
 
-### **Project Aliases (`mix.exs`)**
+### **Project Aliases and Quality Gates (`mix.exs`)**
 
-Define common workflows as aliases so contributors and CI both use the same commands.
+Define common workflows as aliases so contributors and CI both use the same commands. `def cli` sets the environment an alias runs in: without `preferred_envs: [ci: :test]`, `mix ci` aborts with `"mix test" is running in the "dev" environment`. Keep `mix.exs` itself `mix format`-clean, or the alias fails its own format check.
 
+**mix.exs:**
 ```elixir
-def project do
-  [
-    app: :my_app,
-    version: "0.1.0",
-    elixir: "~> 1.17",
-    start_permanent: Mix.env() == :prod,
-    aliases: aliases(),
-    deps: deps()
-  ]
-end
+defmodule MyApp.MixProject do
+  use Mix.Project
 
-defp aliases do
-  [
-    setup: ["deps.get", "ecto.setup"],
-    "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
-    "ecto.reset": ["ecto.drop", "ecto.setup"],
-    quality: ["format --check-formatted", "credo --strict", "dialyzer"],
-    ci: ["deps.get", "compile --warnings-as-errors", "test", "format --check-formatted", "credo --strict"]
-  ]
+  def project do
+    [
+      app: :my_app,
+      version: "0.1.0",
+      elixir: "~> 1.17",
+      start_permanent: Mix.env() == :prod,
+      aliases: aliases(),
+      deps: deps()
+    ]
+  end
+
+  def cli do
+    [preferred_envs: [ci: :test]]
+  end
+
+  def application do
+    [
+      extra_applications: [:logger],
+      mod: {MyApp.Application, []}
+    ]
+  end
+
+  defp deps do
+    [
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp aliases do
+    [
+      quality: ["format --check-formatted", "credo --strict", "dialyzer"],
+      ci: [
+        "deps.get --check-locked",
+        "compile --warnings-as-errors",
+        "format --check-formatted",
+        "credo --strict",
+        "test"
+      ]
+    ]
+  end
 end
 ```
 
-For Phoenix projects with assets, extend `setup` / `ci` with asset install and build commands instead of inventing a parallel task runner.
+Commit `mix.lock`; `--check-locked` fails when it would change. Phoenix/Ecto apps: `mix phx.new` generates `setup` and `ecto.*` aliases (they fail in apps without Ecto) and a `precommit` alias with its own `preferred_envs`; keep those, add `{:sobelow, "~> 0.13", only: [:dev, :test], runtime: false}`, and extend `ci` with `sobelow` and the asset build instead of inventing a parallel task runner.
+
+**.tool-versions:**
+```text
+elixir 1.20.2-otp-29
+erlang 29.0.5
+```
+
+mise/asdf read `.tool-versions`, and CI's `erlef/setup-beam` can read it with `version-file: .tool-versions`. The Docker image below uses the same Elixir and OTP (it's the newest Elixir 1.20.2 image; hexpm publishes no 1.20.2 image on OTP 29.0.6).
+
+**Quality gates:**
+```bash
+# toolchain
+elixir --version | grep -F 'Elixir 1.20.2 (compiled with Erlang/OTP 29)'
+# deps
+mix deps.get --check-locked
+# fmt
+mix format --check-formatted
+# compile
+MIX_ENV=test mix compile --warnings-as-errors
+# lint
+mix credo --strict
+# typecheck
+mix dialyzer
+# test
+mix test
+# ci
+mix ci
+```
+
+`scripts/lane-conformance.py elixir` runs these gates, plus `docker build --check` on the Dockerfile below, on a fixture app at every engineering-core release.
 
 ---
 
@@ -221,61 +277,6 @@ The correct way to run tests in Elixir:
 - Prefer **Oban** for reliable async work before reaching for Redis-backed job systems.
 - Prefer **Req** at HTTP boundaries; wrap third-party integrations behind behaviours.
 - Prefer **umbrella apps** only when bounded subsystems truly have separate ownership or lifecycle. Do not split into umbrellas just to look “enterprisey.”
-- Prefer **runtime config** (`config/runtime.exs`) for deploy-time values and keep compile-time config minimal.
-
----
-
-### **Deployment with Docker + Releases**
-
-**Dockerfile:**
-```dockerfile
-FROM hexpm/elixir:1.17.3-erlang-27.2-debian-bookworm-20241007 AS build
-
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential git \
-  && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-RUN mix local.hex --force && mix local.rebar --force
-
-COPY mix.exs mix.lock ./
-COPY config config
-RUN mix deps.get --only prod
-RUN mix deps.compile
-
-COPY lib lib
-COPY priv priv
-COPY assets assets
-RUN MIX_ENV=prod mix compile
-RUN MIX_ENV=prod mix release
-
-FROM debian:bookworm-slim AS runner
-RUN apt-get update && apt-get install -y --no-install-recommends openssl libstdc++6 ncurses-bin \
-  && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-COPY --from=build /app/_build/prod/rel/my_app ./
-
-ENV HOME=/app
-CMD ["bin/my_app", "start"]
-```
-
-Default production shape:
-- build release once
-- inject runtime config via env vars / secrets manager
-- run database migrations as an explicit deploy step
-- ship logs/metrics/traces to central observability, not local files only
-
----
-
-### **Service SLO seed**
-
-Use `disciplines/observability.md` for runtime evidence and SLO discipline. Example seed for Elixir service repos after repo-local acceptance:
-
-- **SLI latency**: p95 `< 150ms` on key synchronous API paths
-- **Availability**: `99.9%`
-- **Error budget policy**: freeze feature deploys if budget < 25% until service health recovers
-- **Queue health**: Oban queue latency and retry depth must be visible and alertable
-- **Warnings policy**: treat compiler + Credo + Dialyzer warnings as backlog items at minimum, and as merge blockers for critica
+- Prefer **runtime config** (`config/runtime.exs`) for deploy-time values and keep compile-tim
 
 [projected skill truncated; read the full doc in engineering-core]

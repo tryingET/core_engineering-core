@@ -54,7 +54,7 @@ uv run engineering-core scan-adoption \
 uv build
 ```
 
-Run `uv run python scripts/lane-conformance.py ts` (needs Bun) when changing config blocks in the ts lane; `ENGINEERING_CORE_LANE_CONFORMANCE=1` also enables its unittest scenarios. After changing a pinned tool version, run it with `--update-lock` first.
+Run `uv run python scripts/lane-conformance.py <lane>` when changing a lane's config blocks, **Quality gates**, or **Tool install** block, and `--all` before a release (release verify runs `--all`). It needs each lane's base toolchain (bun, docker, cargo/rustup, go, uv, a C++ compiler, mix/elixir, sbcl — CI installs them via `.github/actions/lane-toolchains`, whose pins tests enforce against the lane docs); lane-pinned tools are installed into `~/.cache/engineering-core/lane-tools`. After changing a pinned version for ts, py, or elixir, run `--update-lock` first. `ENGINEERING_CORE_LANE_CONFORMANCE=1` also enables the unittest scenarios.
 
 Run `uv run python scripts/release-local.py verify` for release-affecting changes. It executes the deterministic dogfood harnesses, complete unit suite, CLI checks, and artifact inspection used by the release proof.
 

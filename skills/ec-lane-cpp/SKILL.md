@@ -64,14 +64,14 @@ Load disciplines when the concern applies:
 
 - Pin the minimum supported compiler versions in repo docs or toolchain files when downstream compatibility matters.
 - Use warning levels intentionally, for example `-Wall -Wextra -Wpedantic` plus targeted warnings the repo can keep green.
-- Treat `-Werror` as a CI/release setting, not necessarily the default for every contributor platform.
+- Treat `-Werror` as a CI/release setting, not necessarily the default for every contributor platform: the `ci` preset below sets `CMAKE_COMPILE_WARNING_AS_ERROR` (CMake 3.24+) so contributors can still configure without it.
 - Prefer `RelWithDebInfo` for performance work so optimized binaries still carry symbols.
 - For ABI-sensitive libraries, document C++ standard library expectations, symbol visibility, and whether exceptions/RTTI are enabled.
 
 ## Formatting / linting
 
 - `clang-format` is the formatting source of truth. Do not rely on editor-only formatting.
-- `clang-tidy` should run from the compile database: `run-clang-tidy.py -p build` or a repo-local wrapper.
+- `clang-tidy` runs from the compile database: `run-clang-tidy.py -p build-ci` (the name of the pinned PyPI wheel's script; some distributions ship it as `run-clang-tidy`) or a repo-local wrapper. It needs a checked-in `.clang-tidy`: clang-tidy 20+ defaults to diagnostics-only checks, and `run-clang-tidy` then exits 1 with `No checks enabled`.
 - Keep generated/vendor files excluded from format and lint checks.
 - Prefer incremental adoption of `clang-tidy`: start with bug-prone, performance, modernize, and clang-analyzer families that the repo can keep stable.
 
@@ -143,76 +143,88 @@ bench/                       # optional benchmarks
 docs/engineering.local.md     # repo-local lane deltas
 policy/engineering-lane.json       # optional lane pin/contract
 .clang-format
-.clang-tidy                  # optional, only when kept green
+.clang-tidy                  # checks the repo keeps green
 Justfile                     # optional standardized wrapper
 ```
 
 ## Validation commands
 
-Use repo-local wrappers first when they exist. Common CMake/Ninja fallback:
+Use repo-local wrappers first when they exist. The lane's default surface is CMake presets plus pinned tools. The build tools (CMake, Ninja, clang-format, clang-tidy) are pinned as PyPI wheels so every machine formats and lints identically; clang-format output changes between majors. The compiler comes from the platform (GCC or Clang with C++20 support).
 
+**Tool install:**
 ```bash
-build_dir="${BUILD_DIR:-build}"
-cmake -S . -B "$build_dir" -G Ninja \
-  -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-cmake --build "$build_dir" --parallel
-ctest --test-dir "$build_dir" --output-on-failure
+uv tool install cmake==4.4.3
+uv tool install ninja==1.13.2
+uv tool install clang-format==22.1.8
+uv tool install clang-tidy==22.1.8
+uv tool install rust-just==1.58.0
 ```
 
-Optional quality checks when configured:
+**CMakePresets.json:**
+```json
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "ci",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ci",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic",
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "asan",
+      "inherits": "ci",
+      "binaryDir": "${sourceDir}/build-asan",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all",
+        "CMAKE_EXE_LINKER_FLAGS": "-fsanitize=address,undefined",
+        "CMAKE_SHARED_LINKER_FLAGS": "-fsanitize=address,undefined"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "ci", "configurePreset": "ci" },
+    { "name": "asan", "configurePreset": "asan" }
+  ],
+  "testPresets": [
+    {
+      "name": "ci",
+      "configurePreset": "ci",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    },
+    {
+      "name": "asan",
+      "configurePreset": "asan",
+      "output": { "outputOnFailure": true },
+      "execution": { "noTestsAction": "error" }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "ci",
+      "steps": [
+        { "type": "configure", "name": "ci" },
+        { "type": "build", "name": "ci" },
+        { "type": "test", "name": "ci" }
+      ]
+    },
+    {
+      "name": "asan",
+      "steps": [
+        { "type": "configure", "name": "asan" },
+        { "type": "build", "name": "asan" },
+        { "type": "test", "name": "asan" }
+      ]
+    }
 
-```bash
-clang-format --dry-run --Werror $(git ls-files '*.c' '*.cc' '*.cpp' '*.cxx' '*.h' '*.hh' '*.hpp' '*.cu' '*.cuh')
-run-clang-tidy.py -p build
-```
 
-## Contract surface for repo adoption
-
-When a repo adopts this lane, prefer an explicit contract surface:
-
-- `docs/engineering.local.md` records repo-specific deltas and tool versions.
-- `policy/engineering-lane.json` pins the lane ID (`cpp`) and the upstream `engineering-core` version or retrieval command.
-- `Justfile` exposes standard local commands without replacing clearer repo-local scripts.
-- CI invokes the same validation commands documented for local contributors.
-
-## When to load the CUDA addendum
-
-Load `engineering-cpp.cuda.md` when any of the following apply:
-
-- the repo builds `.cu` files or depends on CUDA Toolkit components
-- native kernels, GPU memory management, PTX/SASS inspection, or Nsight profiling are in scope
-- PyTorch C++/CUDA extensions or custom operators are being built
-- benchmark evidence is GPU-specific
-- architecture targeting such as `sm_90` or `sm_120` must be documented
-
-Do not load the CUDA addendum for ordinary C++ services, CLIs, libraries, or Python extensions that do not compile or launch GPU code.
-
-## When not to use C++/CUDA
-
-- Use Python/TypeScript/Go/Rust lanes when native C++ performance or ABI control is not the bottleneck.
-- Do not use CUDA just because a workstation has a GPU; first show a hotspot, a reference implementation, and an integration path.
-- Do not write custom kernels when an established library call already proves correct and fast enough.
-- Do not accept standalone kernel benchmark claims as downstream runtime integration evidence.
-- Do not introduce GPU dependencies into production services without deployment, driver/toolkit, observability, and rollback plans.
-
-## Conditionally loaded addenda
-
-### Justfile addendum
-
-Read the lane-specific Justfile addendum only when:
-- `Justfile` is missing
-- the standardized targets are absent or drifting
-- you are explicitly establishing or reconciling the repo-local `Justfile`
-
-Otherwise, do not load the addendum by default.
-
-Companion doc:
-- `engineering-cpp.justfile.md`
-
-### CUDA / GPU addendum
-
-Read the CUDA/GPU addendum only when the repo actually builds, profiles, benchmarks, or validates CUDA/GPU code.
-
-Companion doc:
-- `engineering-cpp.cuda.md`
+[projected skill truncated; read the full doc in engineering-core]
