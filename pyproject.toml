@@ -15,4 +15,4 @@ requires = ["uv_build>=0.8.4,<0.9.0"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-source-include = ["scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py", "scripts/dogfood-owner-use.py"]
+source-include = ["scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py", "scripts/dogfood-owner-use.py", "scripts/lane-conformance.py", "tests/fixtures/lane-conformance/**"]

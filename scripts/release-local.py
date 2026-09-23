@@ -131,6 +131,7 @@ def verify(version: str) -> None:
         [sys.executable, "scripts/dogfood-capabilities.py"],
         [sys.executable, "scripts/dogfood-evidence-reconcile.py"],
         [sys.executable, "scripts/dogfood-owner-use.py"],
+        [sys.executable, "scripts/lane-conformance.py", "ts"],
         [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-v"],
         ["uv", "run", "engineering-core", "list"],
         ["uv", "run", "engineering-core", "list-disciplines"],
@@ -198,7 +199,7 @@ def verify(version: str) -> None:
         raise SystemExit("wheel is missing required package files")
     if any(not any(name.endswith(item) for name in sdist_names) for item in required):
         raise SystemExit("sdist is missing required package files")
-    for harness in ("scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py", "scripts/dogfood-owner-use.py"):
+    for harness in ("scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py", "scripts/dogfood-owner-use.py", "scripts/lane-conformance.py", "tests/fixtures/lane-conformance/ts/bun.lock"):
         if not any(name.endswith(harness) for name in sdist_names):
             raise SystemExit(f"sdist is missing reproducible harness: {harness}")
     print(json.dumps({"action": "verify", "version": version, "tag": f"v{version}", "status": "ok", "artifacts_inspected": [wheel.name, sdist.name]}, indent=2))

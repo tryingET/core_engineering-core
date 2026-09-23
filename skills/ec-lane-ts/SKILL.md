@@ -106,11 +106,11 @@ Load disciplines when the concern applies:
 - `release-package` for npm/packages, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority, generated projections, and read triggers.
 
-### **Project Configuration (`bun.toml` / `bunfig.toml` + `biome.json`)**
+### **Project Configuration (`bunfig.toml` + `biome.json`)**
 
-**bun.toml:**
+**bunfig.toml:**
 ```toml
-# Bun configuration
+# Bun configuration (Bun reads bunfig.toml only; a bun.toml file is silently ignored)
 [install]
 # Always use exact versions
 exact = true
@@ -140,14 +140,12 @@ Use this when you want Bun to avoid resolving npm packages published in the last
 **biome.json:**
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "suspicious": {
         "noExplicitAny": "error",
         "noImplicitAnyLet": "error",
@@ -165,6 +163,7 @@ Use this when you want Bun to avoid resolving npm packages published in the last
         "useExhaustiveDependencies": "error"
       },
       "complexity": {
+        "useLiteralKeys": "off",
         "noBannedTypes": "error",
         "noStaticOnlyClass": "error",
         "noThisInStatic": "error"
@@ -193,10 +192,14 @@ Use this when you want Bun to avoid resolving npm packages published in the last
     }
   },
   "files": {
-    "ignore": ["node_modules", "dist", ".turbo", "coverage"]
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.turbo", "!**/coverage"]
   }
 }
 ```
+
+This config targets Biome 2.x; keep `$schema` equal to the exact pinned `@biomejs/biome` version. Repos still on Biome 1.9.x can run `biome migrate --write` after bumping, which rewrites `organizeImports` to `assist` and `files.ignore` to `files.includes`.
+
+`complexity/useLiteralKeys` is off on purpose. The tsconfig below sets `noPropertyAccessFromIndexSignature`, which requires `obj["key"]` for index-signature types (for example `process.env["X"]`), while `useLiteralKeys` demands `obj.key`. The two can't both pass on the same line. The TypeScript option wins because it marks dynamic lookups the type system can't check; the Biome rule is only style.
 
 ### Biome as the TypeScript quality-tool realization
 
@@ -237,8 +240,7 @@ Treat Biome as the default TypeScript quality surface, not a reason to add unrel
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Path Aliases
-    "baseUrl": ".",
+    // Path Aliases (resolved relative to this file; tsgo/TS 7 rejects baseUrl)
     "paths": {
       "@/*": ["./src/*"],
       "@/test/*": ["./test/*"]
@@ -295,30 +297,6 @@ This is the complete lifecycle, from project creation to daily work.
     "start": "bun run src/index.ts",
     "test": "bun test",
     "test:watch": "bun test --watch",
-    "test:coverage": "bun test --coverage",
-    "typecheck": "tsgo --noEmit",
-    "typecheck:fallback": "tsc --noEmit",
-    "lint": "biome check --write .",
-    "format": "biome format --write .",
-    "check": "biome check . && tsgo --noEmit",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "bun run src/db/migrate.ts",
-    "db:studio": "drizzle-kit studio",
-    "build": "bun build src/index.ts --outdir=dist --minify --sourcemap",
-    "clean": "rm -rf dist coverage .turbo"
-  },
-  "dependencies": {
-    "hono": "^4.0.0",
-    "zod": "^3.23.0",
-    "drizzle-orm": "^0.32.0",
-    "postgres": "^3.4.0",
-    "@hono/zod-validator": "^0.2.0",
-    "@hono/zod-openapi": "^0.14.0",
-    "bullmq": "^5.0.0",
-    "@opentelemetry/sdk-node": "^0.49.0",
-    "@opentelemetry/auto-instrumentations-node": "^0.44.0"
-  },
-  "devDependencies": {
-    "@t
+    "test
 
 [projected skill truncated; read the full doc in engineering-core]

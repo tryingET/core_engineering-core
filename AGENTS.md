@@ -54,6 +54,8 @@ uv run engineering-core scan-adoption \
 uv build
 ```
 
+Run `uv run python scripts/lane-conformance.py ts` (needs Bun) when changing config blocks in the ts lane; `ENGINEERING_CORE_LANE_CONFORMANCE=1` also enables its unittest scenarios. After changing a pinned tool version, run it with `--update-lock` first.
+
 Run `uv run python scripts/release-local.py verify` for release-affecting changes. It executes the deterministic dogfood harnesses, complete unit suite, CLI checks, and artifact inspection used by the release proof.
 
 `dist/` is generated proof output from `uv build`; do not commit wheels or source distributions unless release policy changes explicitly.

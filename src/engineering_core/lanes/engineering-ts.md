@@ -101,11 +101,11 @@ Load disciplines when the concern applies:
 - `release-package` for npm/packages, changelogs, artifact provenance, compatibility, and rollback.
 - `documentation` for docs authority, generated projections, and read triggers.
 
-### **Project Configuration (`bun.toml` / `bunfig.toml` + `biome.json`)**
+### **Project Configuration (`bunfig.toml` + `biome.json`)**
 
-**bun.toml:**
+**bunfig.toml:**
 ```toml
-# Bun configuration
+# Bun configuration (Bun reads bunfig.toml only; a bun.toml file is silently ignored)
 [install]
 # Always use exact versions
 exact = true
@@ -135,14 +135,12 @@ Use this when you want Bun to avoid resolving npm packages published in the last
 **biome.json:**
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
+  "$schema": "https://biomejs.dev/schemas/2.5.14/schema.json",
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "preset": "recommended",
       "suspicious": {
         "noExplicitAny": "error",
         "noImplicitAnyLet": "error",
@@ -160,6 +158,7 @@ Use this when you want Bun to avoid resolving npm packages published in the last
         "useExhaustiveDependencies": "error"
       },
       "complexity": {
+        "useLiteralKeys": "off",
         "noBannedTypes": "error",
         "noStaticOnlyClass": "error",
         "noThisInStatic": "error"
@@ -188,10 +187,14 @@ Use this when you want Bun to avoid resolving npm packages published in the last
     }
   },
   "files": {
-    "ignore": ["node_modules", "dist", ".turbo", "coverage"]
+    "includes": ["**", "!**/node_modules", "!**/dist", "!**/.turbo", "!**/coverage"]
   }
 }
 ```
+
+This config targets Biome 2.x; keep `$schema` equal to the exact pinned `@biomejs/biome` version. Repos still on Biome 1.9.x can run `biome migrate --write` after bumping, which rewrites `organizeImports` to `assist` and `files.ignore` to `files.includes`.
+
+`complexity/useLiteralKeys` is off on purpose. The tsconfig below sets `noPropertyAccessFromIndexSignature`, which requires `obj["key"]` for index-signature types (for example `process.env["X"]`), while `useLiteralKeys` demands `obj.key`. The two can't both pass on the same line. The TypeScript option wins because it marks dynamic lookups the type system can't check; the Biome rule is only style.
 
 ### Biome as the TypeScript quality-tool realization
 
@@ -232,8 +235,7 @@ Treat Biome as the default TypeScript quality surface, not a reason to add unrel
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
-    // Path Aliases
-    "baseUrl": ".",
+    // Path Aliases (resolved relative to this file; tsgo/TS 7 rejects baseUrl)
     "paths": {
       "@/*": ["./src/*"],
       "@/test/*": ["./test/*"]
@@ -314,9 +316,10 @@ This is the complete lifecycle, from project creation to daily work.
     "@opentelemetry/auto-instrumentations-node": "^0.44.0"
   },
   "devDependencies": {
-    "@types/bun": "latest",
-    "@biomejs/biome": "^1.9.3",
-    "@typescript/native-preview": "latest",
+    "@types/bun": "1.3.12",
+    "@biomejs/biome": "2.5.14",
+    "@typescript/native-preview": "7.0.0-dev.20260707.2",
+    "typescript": "6.0.3",
     "drizzle-kit": "^0.23.0",
     "fast-check": "^3.19.0",
     "vitest": "^2.0.0"
@@ -326,7 +329,9 @@ This is the complete lifecycle, from project creation to daily work.
 
 This package example is service-oriented. Frontend apps should use `engineering-ts.frontend.md`; service/API examples below are optional recipes, not baseline dependencies for every TypeScript repo.
 
-Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery. Keep the fallback while native TypeScript tooling is staged/recoverable.
+Phase-3 rollout default: `typecheck` uses `tsgo --noEmit` and `typecheck:fallback` keeps `tsc --noEmit` available for temporary incident recovery. Keep the fallback while native TypeScript tooling is staged/recoverable. The fallback needs its own `typescript` devDependency; `tsgo` doesn't provide `tsc`.
+
+The quality toolchain (`@biomejs/biome`, `@typescript/native-preview`, `typescript`, `@types/bun`) is pinned exactly, matching `bunfig.toml`'s `exact = true`. `scripts/lane-conformance.py ts` installs these pins and runs `typecheck`, `typecheck:fallback`, and `check` against this doc's own config blocks at every engineering-core release. Bump a pin with `--update-lock`, then rerun the harness.
 
 ---
 
