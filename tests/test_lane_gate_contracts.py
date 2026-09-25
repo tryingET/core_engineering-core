@@ -8,11 +8,21 @@
 from __future__ import annotations
 
 import re
+import sys
 import unittest
 
 from test_lane_ts_configs import load_harness
 
 HARNESS = load_harness()
+# tomllib is stdlib from 3.11; the package supports 3.10. The executable proof of these
+# configs (scripts/lane-conformance.py, release verify) runs on 3.13 either way.
+NEEDS_TOMLLIB = unittest.skipIf(sys.version_info < (3, 11), "tomllib needs Python 3.11+")
+
+
+def parse_toml(text: str) -> dict:
+    import tomllib
+
+    return tomllib.loads(text)
 LANES_DIR = HARNESS.ROOT / "src" / "engineering_core" / "lanes"
 
 
@@ -148,19 +158,19 @@ class PyLaneFeature(unittest.TestCase):
         cls.justfile = lane_text("engineering-py.justfile.md")
         cls.blocks = HARNESS.labeled_blocks(cls.doc)
         cls.gates = dict(HARNESS.quality_gates(cls.doc))
-        cls.pyproject = HARNESS.tomllib.loads(cls.blocks.get("pyproject.toml", ""))
 
     def command(self, gate: str) -> str:
         self.assertIn(gate, self.gates, f"missing gate {gate}")
         return self.gates[gate][-1]
 
+    @NEEDS_TOMLLIB
     def test_scenario_lane_never_prescribes_config_uv_rejects(self) -> None:
         # Given uv has no task runner: [tool.uv.scripts] fails to parse and drops
         # every other project-level [tool.uv] setting
         # (prose may warn about it; no TOML block may prescribe it)
         for block in re.findall(r"```toml\n(.*?)```", self.doc + self.justfile, re.S):
             self.assertNotIn("[tool.uv.scripts]", block)
-        self.assertNotIn("scripts", self.pyproject.get("tool", {}).get("uv", {}))
+        self.assertNotIn("scripts", parse_toml(self.blocks.get("pyproject.toml", "")).get("tool", {}).get("uv", {}))
         # And the tasks it defined never existed: they may appear only in the warning paragraph
         warning = re.search(r"uv has no task runner\. Don't add.*?\n\n", self.doc, re.S)
         self.assertIsNotNone(warning, "the lane must warn that uv has no task runner")
@@ -181,13 +191,15 @@ class PyLaneFeature(unittest.TestCase):
         self.assertIn("uv lock --check", config)
         self.assertIn("^warning:", config)
         # And the package-age quarantine travels with the project, not only ~/.config/uv
-        self.assertEqual(self.pyproject["tool"]["uv"]["exclude-newer"], "7 days")
+        self.assertIn('exclude-newer = "7 days"', self.blocks.get("pyproject.toml", ""))
 
+    @NEEDS_TOMLLIB
     def test_scenario_quality_tools_are_pinned_and_configured(self) -> None:
-        dev = self.pyproject["dependency-groups"]["dev"]
+        pyproject = parse_toml(self.blocks.get("pyproject.toml", ""))
+        dev = pyproject["dependency-groups"]["dev"]
         for tool in ("ruff", "ty", "pytest"):
             self.assertTrue(any(re.fullmatch(rf"{tool}==\d+\.\d+\.\d+", spec) for spec in dev), tool)
-        tool = self.pyproject["tool"]
+        tool = pyproject["tool"]
         self.assertIn("select", tool["ruff"]["lint"])
         # ty has no strict mode; the lane's strictness is explicit
         self.assertEqual(tool["ty"]["rules"]["all"], "error")

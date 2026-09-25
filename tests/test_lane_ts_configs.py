@@ -117,8 +117,11 @@ class TsLaneConfigFeature(unittest.TestCase):
             # And runtime use of the compiler API never takes the `typescript` name
             self.assertIn("never under the name `typescript`", text, name)
 
+    @unittest.skipIf(sys.version_info < (3, 11), "tomllib needs Python 3.11+")
     def test_scenario_bun_test_sees_every_test_and_coverage_is_opt_in(self) -> None:
-        bunfig = self.harness.tomllib.loads(self.files["bunfig.toml"])
+        import tomllib
+
+        bunfig = tomllib.loads(self.files["bunfig.toml"])
         # `root = "./src"` silently skips tests in test/, which the lane's tsconfig includes
         self.assertNotIn("root", bunfig.get("test", {}))
         # a baseline threshold fails passing suites without a message; coverage is a repo opt-in
