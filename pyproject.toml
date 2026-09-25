@@ -3,7 +3,7 @@ name = "engineering-core"
 version = "0.10.0"
 description = "Shared engineering lanes, cross-language disciplines, and CLI for consistent project workflows."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.13"
 license = { text = "MIT" }
 authors = [{ name = "lightningralf" }]
 
@@ -13,6 +13,11 @@ engineering-core = "engineering_core.cli:main"
 [build-system]
 requires = ["uv_build>=0.8.4,<0.9.0"]
 build-backend = "uv_build"
+
+[tool.uv]
+# Project-level quarantine: the lock is identical with or without a user-level
+# ~/.config/uv/uv.toml, so CI and local `uv sync --locked` agree (AK #5775).
+exclude-newer = "7 days"
 
 [tool.uv.build-backend]
 source-include = ["scripts/dogfood-closed-loop.py", "scripts/dogfood-capabilities.py", "scripts/dogfood-evidence-reconcile.py", "scripts/dogfood-owner-use.py", "scripts/lane-conformance.py", "tests/fixtures/lane-conformance/**"]

@@ -24,7 +24,7 @@ Prefer the narrowest authority surface that solves the repeated problem. A usefu
 
 ## Development setup
 
-The project supports Python 3.10 through 3.13 and uses `uv` for locked environments and builds.
+The project supports Python 3.13 and newer (CI tests 3.13 and 3.14) and uses `uv` for locked environments and builds.
 
 ```bash
 uv sync --locked

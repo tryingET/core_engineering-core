@@ -8,21 +8,12 @@
 from __future__ import annotations
 
 import re
-import sys
+import tomllib
 import unittest
 
 from test_lane_ts_configs import load_harness
 
 HARNESS = load_harness()
-# tomllib is stdlib from 3.11; the package supports 3.10. The executable proof of these
-# configs (scripts/lane-conformance.py, release verify) runs on 3.13 either way.
-NEEDS_TOMLLIB = unittest.skipIf(sys.version_info < (3, 11), "tomllib needs Python 3.11+")
-
-
-def parse_toml(text: str) -> dict:
-    import tomllib
-
-    return tomllib.loads(text)
 LANES_DIR = HARNESS.ROOT / "src" / "engineering_core" / "lanes"
 
 
@@ -163,14 +154,13 @@ class PyLaneFeature(unittest.TestCase):
         self.assertIn(gate, self.gates, f"missing gate {gate}")
         return self.gates[gate][-1]
 
-    @NEEDS_TOMLLIB
     def test_scenario_lane_never_prescribes_config_uv_rejects(self) -> None:
         # Given uv has no task runner: [tool.uv.scripts] fails to parse and drops
         # every other project-level [tool.uv] setting
         # (prose may warn about it; no TOML block may prescribe it)
         for block in re.findall(r"```toml\n(.*?)```", self.doc + self.justfile, re.S):
             self.assertNotIn("[tool.uv.scripts]", block)
-        self.assertNotIn("scripts", parse_toml(self.blocks.get("pyproject.toml", "")).get("tool", {}).get("uv", {}))
+        self.assertNotIn("scripts", tomllib.loads(self.blocks.get("pyproject.toml", "")).get("tool", {}).get("uv", {}))
         # And the tasks it defined never existed: they may appear only in the warning paragraph
         warning = re.search(r"uv has no task runner\. Don't add.*?\n\n", self.doc, re.S)
         self.assertIsNotNone(warning, "the lane must warn that uv has no task runner")
@@ -193,9 +183,8 @@ class PyLaneFeature(unittest.TestCase):
         # And the package-age quarantine travels with the project, not only ~/.config/uv
         self.assertIn('exclude-newer = "7 days"', self.blocks.get("pyproject.toml", ""))
 
-    @NEEDS_TOMLLIB
     def test_scenario_quality_tools_are_pinned_and_configured(self) -> None:
-        pyproject = parse_toml(self.blocks.get("pyproject.toml", ""))
+        pyproject = tomllib.loads(self.blocks.get("pyproject.toml", ""))
         dev = pyproject["dependency-groups"]["dev"]
         for tool in ("ruff", "ty", "pytest"):
             self.assertTrue(any(re.fullmatch(rf"{tool}==\d+\.\d+\.\d+", spec) for spec in dev), tool)
