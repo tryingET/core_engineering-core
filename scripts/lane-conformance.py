@@ -256,8 +256,14 @@ def use_sources(lane: Lane, work: Path, probe: Path | None) -> None:
     if probe.is_dir():
         shutil.copytree(
             probe, work, dirs_exist_ok=True, copy_function=shutil.copy,
-            ignore=shutil.ignore_patterns(PROBE_EXPECT_FILE),
+            ignore=shutil.ignore_patterns(PROBE_EXPECT_FILE, "*.append"),
         )
+        # `<file>.append` extends the prepared (doc-derived) file instead of replacing it,
+        # so a probe can be "the lane's own config plus one defect" without copying the doc.
+        for extra in probe.rglob("*.append"):
+            target = work / extra.relative_to(probe).with_suffix("")
+            with target.open("a", encoding="utf-8") as handle:
+                handle.write(extra.read_text(encoding="utf-8"))
     else:
         (work / lane.probe_dir).mkdir(parents=True, exist_ok=True)
         shutil.copy(probe, work / lane.probe_dir / probe.name)

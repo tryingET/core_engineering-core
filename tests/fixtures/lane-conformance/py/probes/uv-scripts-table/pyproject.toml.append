@@ -1,0 +1,3 @@
+
+[tool.uv.scripts]
+lint = "ruff check ."

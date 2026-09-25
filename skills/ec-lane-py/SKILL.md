@@ -70,6 +70,7 @@ build-backend = "uv_build"
 
 [tool.uv]
 required-version = ">=0.12.0"
+exclude-newer = "7 days"
 
 [tool.ruff]
 line-length = 100
@@ -92,7 +93,9 @@ testpaths = ["tests"]
 addopts = ["--strict-markers", "--strict-config"]
 ```
 
-Rename the project. `--strict-config` makes pytest fail on unknown config keys, and `error-on-warning` makes ty fail on unknown rules, so a mistyped setting can't be silently ignored.
+Rename the project. Every tool here must fail on config it doesn't understand, never warn and carry on: ruff exits 2 on unknown keys, `--strict-config` makes pytest fail on them, and `error-on-warning` makes ty fail on unknown rules. uv only warns about a `pyproject.toml` it can't parse (and then ignores all project `[tool.uv]` settings) and has no strict mode, so the `config` gate below fails on any warning from `uv lock --check`.
+
+`exclude-newer = "7 days"` puts the package-age quarantine in the project, so it also applies in CI and on machines without a user-level `~/.config/uv/uv.toml`. The lock records the span (`exclude-newer-span = "P7D"`), not a date, so a committed lock doesn't go stale as days pass.
 
 **.python-version:**
 ```text
@@ -103,6 +106,8 @@ Rename the project. `--strict-config` makes pytest fail on unknown config keys, 
 ```bash
 # toolchain
 uv run --locked python --version | grep -F 'Python 3.13.'
+# config
+out="$(uv lock --check 2>&1)" || { printf '%s\n' "$out"; exit 1; }; printf '%s\n' "$out"; ! grep -q '^warning:' <<<"$out"
 # lint
 uv run --locked ruff check .
 # fmt
@@ -207,26 +212,6 @@ uv add --dev pytest-mock      # For mocking
 
 Use `disciplines/observability.md` for runtime evidence and SLO discipline. Example seed for Python API services after repo-local acceptance:
 
-- SLI latency: p95 `< 200ms` on key `/api/*` paths
-- Availability: `99.9%`
-- Error budget policy: freeze feature deploys if budget < 25% until back above threshold
-
----
-
-#### **Fit with 6E → CLARITY**
-- **Edges** = APIs/events/files—drive **COMPLEXITY points** and test scope.
-- **Constraints** (MUST/MUST‑NOT) codified in contracts + CI gates.
-- **Traceability**: decision cards + OpenTelemetry traces provide explainability.
-
-## Conditionally loaded addenda
-
-### Justfile addendum
-
-Read the lane-specific Justfile addendum only when:
-- `Justfile` is missing
-- the standardized targets are absent or drifting
-- you are explicitly establishing or reconciling the repo-local `Justfile`
-
-Otherwise, do not load t
+- SLI latency: p95 `< 200
 
 [projected skill truncated; read the full doc in engineering-core]

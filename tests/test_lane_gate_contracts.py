@@ -174,6 +174,15 @@ class PyLaneFeature(unittest.TestCase):
         self.assertIn("ruff format --check", self.command("fmt"))
         self.assertIn("ty check", self.command("typecheck"))
 
+    def test_scenario_uv_config_problems_fail_instead_of_warning(self) -> None:
+        # uv only warns about config it can't parse (and then ignores all project [tool.uv]
+        # settings); it has no strict mode, so a gate must turn that warning into a failure
+        config = self.command("config")
+        self.assertIn("uv lock --check", config)
+        self.assertIn("^warning:", config)
+        # And the package-age quarantine travels with the project, not only ~/.config/uv
+        self.assertEqual(self.pyproject["tool"]["uv"]["exclude-newer"], "7 days")
+
     def test_scenario_quality_tools_are_pinned_and_configured(self) -> None:
         dev = self.pyproject["dependency-groups"]["dev"]
         for tool in ("ruff", "ty", "pytest"):
