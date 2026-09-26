@@ -7,6 +7,33 @@ type: "release-history"
 
 # Changelog
 
+## [0.11.0] - 2026-09-26
+
+### Breaking
+
+- Python 3.13+ is required (was 3.10+). CI tests 3.13 and 3.14.
+- The 15 lane-addendum skills use Agent Skills spec names: dots become hyphens (`ec-lane-ts.justfile` -> `ec-lane-ts-justfile`). The matching dotted profile names remain as `deprecated_aliases` for 0.11.x (AK5774).
+- ts and pi-ts lanes: TypeScript 7 only. Typecheck with `tsc --noEmit` from exactly pinned `typescript@7`; `@typescript/native-preview` (`tsgo`) and the dual-compiler `typecheck:fallback` are removed, and dev tools needing the classic compiler API are replaced rather than kept on TypeScript 6 (AK5916).
+
+### Fixed
+
+- Every lane's copyable config and gate commands are now executed at release. The audit found silent false passes in every lane (AK5908, AK5917):
+  - ts: Biome `useLiteralKeys` fought `noPropertyAccessFromIndexSignature`; `baseUrl` broke TypeScript 7; `bun.toml` is ignored by Bun (now `bunfig.toml`); `[test] root` skipped `test/`; the Dockerfile copied `bun.lockb`, used `addgroup`, and bundled for the browser target (stubbing `node:fs`). Biome config migrated to 2.x.
+  - py: `[tool.uv.scripts]` isn't a uv feature and made uv drop all project `[tool.uv]` settings; new `config` gate fails on uv config warnings; the quarantine is project-declared.
+  - rust: gates without `--workspace` skipped workspace members; no toolchain pin; `cargo fmt` rewrote instead of failing.
+  - go: format and module gates never failed; `go run ./cmd/...` broke with more than one command.
+  - cpp: the reference Justfile's `$$` meant `check`/`ci` never passed; ctest passed with zero tests; stale compile databases hid new files from clang-tidy.
+  - elixir: `mix ci` aborted in the dev env; the Docker base tag didn't exist; the release ran with latin1 encoding.
+  - common-lisp: `asdf:test-system` exited 0 on failing tests; SBCL's deferred warnings slipped past the load gate.
+- uv.lock no longer depends on the machine that wrote it: engineering-core declares `exclude-newer = "7 days"` itself, and release verify proves the lock checks clean with and without a user uv config (AK5775).
+- G4-B verifier: revised lineage must name each decided cycle exactly once; failures from `governed_evolution.py` are structured (`invalid_cycle`, `suite_case_failed`) instead of tracebacks (AK5780, AK5781).
+- Skill projection prunes orphaned skill directories, and `--check` fails on them.
+
+### Added
+
+- `scripts/lane-conformance.py`: per-lane executable conformance (Quality gates, pinned config blocks, Tool install cache, must-fail probes, real Docker builds), run with `--all` by release verify; `.github/actions/lane-toolchains` installs the pinned base toolchains in CI.
+- Rationale and refutations: `docs/project/2026-09-23-lane-config-conformance-greats.md`.
+
 ## [0.10.0] - 2026-08-22
 
 ### Added
