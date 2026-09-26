@@ -364,16 +364,16 @@ class CliTests(unittest.TestCase):
         self.assertEqual(__version__, "0.11.0")
 
     def test_self_adoption_uses_current_portable_immutable_release(self) -> None:
-        commit = "9038d1ed3d443f44e18624d908d266e5e6dfd934"
+        commit = "18b87514553533a9902adce3d82ca5830aa48ca7"
         repository = "https://github.com/tryingET/core_engineering-core"
         source = f"git+{repository}.git@{commit}"
         policy = json.loads((REPO_ROOT / "policy" / "engineering-lane.json").read_text(encoding="utf-8"))["engineering_core"]
 
         self.assertEqual(policy["repository"], repository)
-        self.assertEqual(policy["ref"], "v0.10.0")
+        self.assertEqual(policy["ref"], "v0.11.0")
         self.assertEqual(
             policy["release_pin"],
-            {"kind": "git-commit", "ref": "v0.10.0", "resolved_commit": commit, "source": source},
+            {"kind": "git-commit", "ref": "v0.11.0", "resolved_commit": commit, "source": source},
         )
         for key in ("catalog_command", "list_disciplines_command", "list_templates_command", "command"):
             self.assertIn(source, policy[key])
