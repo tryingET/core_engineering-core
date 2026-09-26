@@ -7,15 +7,25 @@ type: "release-history"
 
 # Changelog
 
-## [Unreleased]
+## [0.12.0] - 2026-09-26
 
 ### Breaking
 
-- The 15 dotted profile aliases kept for 0.11.x (`ec-ts.justfile` and similar) are removed; use the hyphenated names (`ec-ts-justfile`). This makes the next release a breaking one (0.12.0, not 0.11.1) (AK6002).
+- The 15 dotted profile aliases kept for 0.11.x (`ec-ts.justfile` and similar) are removed; use the hyphenated names (`ec-ts-justfile`) (AK6002).
+
+### Added
+
+- `scan-adoption` flags a committed `uv.lock` that recorded a lock-affecting setting (`exclude-newer`, `exclude-newer-package`) that `pyproject.toml` doesn't declare: `uv_lock_records_undeclared_setting:<setting>`. Such a lock came from a user-level `uv.toml`, drifts on other machines, and fails `--locked` in clean environments. Only the lock header is read, so large locks don't exhaust the scan budget.
 
 ### Changed
 
-- `dependency-governance` discipline and the py/ts/pi-ts lanes: release-age quarantine exemptions for your own packages, keyed to verified ownership; renaming distributions that collide with someone else's registry name.
+- `dependency-governance` discipline and the py/ts/pi-ts lanes: release-age quarantine exemptions for your own packages, keyed to verified ownership (git and path pins are never quarantined; PyPI exemptions by exact, verified name; npm by owned scope; Bun by exact name only); rename distributions that collide with someone else's registry name.
+- CI pins the runner image to `ubuntu-24.04` (instead of `ubuntu-latest`, which moves to Ubuntu 26 on 2026-10-19) and moves actions to current Node 24 majors (checkout v7, setup-python v7, setup-go v7, cache v6).
+- Adoption templates and `docs/adoption.md` examples pin the v0.11.0 release.
+
+### Fixed
+
+- `docs/support-policy.md`, `docs/repository-automation.md` and the product posture still described the Python 3.10 floor after v0.11.0 raised it to 3.13.
 
 ## [0.11.0] - 2026-09-26
 

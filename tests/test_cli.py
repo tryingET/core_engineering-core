@@ -361,7 +361,7 @@ class CliTests(unittest.TestCase):
         self.assertFalse((REPO_ROOT / "src" / "tech_stack_core").exists())
 
     def test_version_matches_current_release(self) -> None:
-        self.assertEqual(__version__, "0.11.0")
+        self.assertEqual(__version__, "0.12.0")
 
     def test_self_adoption_uses_current_portable_immutable_release(self) -> None:
         commit = "18b87514553533a9902adce3d82ca5830aa48ca7"
