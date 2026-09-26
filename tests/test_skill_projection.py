@@ -109,8 +109,8 @@ class ProjectionTests(unittest.TestCase):
     def test_profile_interface_schema_and_members(self):
         document = self.profile_interface()
         self.assertEqual(document["schema"], bsp.PROFILE_SCHEMA)
-        for alias, target in document["deprecated_aliases"].items():
-            self.assertIn(target, document["profiles"], alias)
+        # The one-release dotted-profile aliases from 0.11.0 (AK5774) are gone (AK6002).
+        self.assertEqual(document["deprecated_aliases"], {})
         self.assertEqual(bsp.validate_profile_interface(document), [])
         profiles = document["profiles"]
         self.assertGreaterEqual(len(profiles), 20)

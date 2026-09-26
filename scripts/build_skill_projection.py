@@ -34,25 +34,7 @@ FLEET_ROOT_ENV = "ENGINEERING_CORE_FLEET_ROOT"
 
 # Renaming a published profile requires adding old-key -> new-key here for one
 # engineering-core release. Aliases must point directly to canonical profiles.
-DEPRECATED_ALIASES: dict[str, str] = {
-    # AK5774 (engineering-core 0.11.0): dotted lane-addendum profile names violate the
-    # Agent Skills name spec; the hyphenated names are canonical. Remove after 0.11.x.
-    "ec-common-lisp.justfile": "ec-common-lisp-justfile",
-    "ec-cpp.cuda": "ec-cpp-cuda",
-    "ec-cpp.justfile": "ec-cpp-justfile",
-    "ec-elixir.justfile": "ec-elixir-justfile",
-    "ec-go.justfile": "ec-go-justfile",
-    "ec-pi-ts.justfile": "ec-pi-ts-justfile",
-    "ec-pi-ts.ts-quality": "ec-pi-ts-ts-quality",
-    "ec-py.justfile": "ec-py-justfile",
-    "ec-rust.build-graph": "ec-rust-build-graph",
-    "ec-rust.justfile": "ec-rust-justfile",
-    "ec-ts.evidence-safety": "ec-ts-evidence-safety",
-    "ec-ts.frontend": "ec-ts-frontend",
-    "ec-ts.justfile": "ec-ts-justfile",
-    "ec-ts.ts-quality": "ec-ts-ts-quality",
-    "ec-ts.ultracite-pilot": "ec-ts-ultracite-pilot",
-}
+DEPRECATED_ALIASES: dict[str, str] = {}
 
 # Agent Skills name spec (Pi validateName): lowercase a-z, 0-9, single hyphens, <= 64.
 # Lane addenda are dotted (engineering-ts.justfile.md); names use hyphens instead.

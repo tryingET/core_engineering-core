@@ -1,21 +1,5 @@
 {
-  "deprecated_aliases": {
-    "ec-common-lisp.justfile": "ec-common-lisp-justfile",
-    "ec-cpp.cuda": "ec-cpp-cuda",
-    "ec-cpp.justfile": "ec-cpp-justfile",
-    "ec-elixir.justfile": "ec-elixir-justfile",
-    "ec-go.justfile": "ec-go-justfile",
-    "ec-pi-ts.justfile": "ec-pi-ts-justfile",
-    "ec-pi-ts.ts-quality": "ec-pi-ts-ts-quality",
-    "ec-py.justfile": "ec-py-justfile",
-    "ec-rust.build-graph": "ec-rust-build-graph",
-    "ec-rust.justfile": "ec-rust-justfile",
-    "ec-ts.evidence-safety": "ec-ts-evidence-safety",
-    "ec-ts.frontend": "ec-ts-frontend",
-    "ec-ts.justfile": "ec-ts-justfile",
-    "ec-ts.ts-quality": "ec-ts-ts-quality",
-    "ec-ts.ultracite-pilot": "ec-ts-ultracite-pilot"
-  },
+  "deprecated_aliases": {},
   "profiles": {
     "ec-common-lisp": [
       "ec-discipline-dependency-governance",

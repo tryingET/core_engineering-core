@@ -7,6 +7,16 @@ type: "release-history"
 
 # Changelog
 
+## [Unreleased]
+
+### Breaking
+
+- The 15 dotted profile aliases kept for 0.11.x (`ec-ts.justfile` and similar) are removed; use the hyphenated names (`ec-ts-justfile`). This makes the next release a breaking one (0.12.0, not 0.11.1) (AK6002).
+
+### Changed
+
+- `dependency-governance` discipline and the py/ts/pi-ts lanes: release-age quarantine exemptions for your own packages, keyed to verified ownership; renaming distributions that collide with someone else's registry name.
+
 ## [0.11.0] - 2026-09-26
 
 ### Breaking
