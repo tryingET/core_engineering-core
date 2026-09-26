@@ -27,7 +27,7 @@ A pull request is a structured review and CI surface, not a mandatory ceremony f
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `main`. Its aggregate `required` job succeeds only when all of these lanes succeed:
 
-- the Python 3.10–3.13 validation matrix on Ubuntu;
+- the Python 3.13 and 3.14 validation matrix on Ubuntu 24.04;
 - self-checks, release-lineage validation, and deterministic dogfood;
 - package build and installed-wheel smoke on Ubuntu;
 - current Arch Linux unit, self-check, build, and installed-wheel smoke.

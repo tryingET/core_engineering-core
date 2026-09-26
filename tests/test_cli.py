@@ -380,20 +380,20 @@ class CliTests(unittest.TestCase):
             self.assertNotIn("git+file", policy[key])
 
     def test_packaged_adoption_examples_keep_the_released_prior_pin(self) -> None:
-        commit = "d74cdcc27a0fe2839707502655c77365ade5cc3a"
+        commit = "18b87514553533a9902adce3d82ca5830aa48ca7"
         source = f"git+https://github.com/tryingET/core_engineering-core.git@{commit}"
         root_template = (REPO_ROOT / "templates" / "engineering.local.template.md").read_text(encoding="utf-8")
         package_template = (REPO_ROOT / "src" / "engineering_core" / "templates" / "engineering.local.template.md").read_text(encoding="utf-8")
         self.assertEqual(root_template, package_template)
         self.assertIn(source, root_template)
-        self.assertIn("v0.9.0", root_template)
+        self.assertIn("v0.11.0", root_template)
         self.assertIn("## Local self-development only", root_template)
         self.assertIn("workspace-local-unpinned", root_template)
         self.assertIn("uv tool -n run --from .", root_template)
 
         adoption = (REPO_ROOT / "docs" / "adoption.md").read_text(encoding="utf-8")
         self.assertIn(source, adoption)
-        self.assertIn("v0.9.0", adoption)
+        self.assertIn("v0.11.0", adoption)
         self.assertIn("For explicitly local self-development", adoption)
 
     def test_plan_rejects_symlink_and_oversized_evidence(self) -> None:

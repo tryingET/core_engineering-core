@@ -15,7 +15,7 @@ type: "reference"
 
 Linux is the supported operating-system family. The repository uses two required CI signals with different purposes:
 
-- **Ubuntu reference validation:** the full Python 3.10, 3.11, 3.12, and 3.13 matrix, deterministic release proof, and installed-wheel smoke run on GitHub-hosted Ubuntu. This is the release-reference environment.
+- **Ubuntu reference validation:** the Python 3.13 and 3.14 matrix, deterministic release proof (including executable lane conformance for every lane), and installed-wheel smoke run on GitHub-hosted Ubuntu 24.04. The runner image is pinned, not `ubuntu-latest`, because the C++ lane builds with the platform compiler under warnings-as-errors; moving to a newer Ubuntu is a deliberate, tested change. This is the release-reference environment.
 - **Arch Linux rolling smoke:** the current `archlinux:base-devel` image installs the distribution Python and runs the unit suite, self-check, build, and installed-wheel smoke. This matches the maintainer's local platform family and detects rolling-distribution or forward-Python compatibility drift.
 
 The Arch job proves compatibility only with the package snapshot and Python version present when that CI run executes. It is deliberately rolling rather than a historical Arch support matrix. The exact platform and Python versions are printed in the job log.
@@ -26,7 +26,7 @@ macOS and Windows are currently unvalidated, best-effort environments. The built
 
 ## Python support
 
-The declared package floor is Python 3.10. Ubuntu CI gives explicit compatibility evidence through Python 3.13. The rolling Arch smoke may exercise a newer distribution Python and provides an early compatibility signal, but a passing rolling smoke does not create a long-term support promise for that interpreter until it is added to the explicit Python matrix.
+The declared package floor is Python 3.13 (since v0.11.0; earlier releases supported 3.10). Ubuntu CI gives explicit compatibility evidence for Python 3.13 and 3.14. The rolling Arch smoke may exercise a newer distribution Python and provides an early compatibility signal, but a passing rolling smoke does not create a long-term support promise for that interpreter until it is added to the explicit Python matrix.
 
 ## Supported release line
 

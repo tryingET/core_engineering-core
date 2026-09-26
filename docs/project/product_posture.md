@@ -17,7 +17,7 @@ It records what is real now, what semver `v1.0` is intended to mean, the princip
 
 ## Posture in one sentence
 
-Engineering-core v0.10.0 already ships mechanisms across all four intended v1 pillars; v1.0 is earned when those mechanisms operate as one dependable, federated, evidence-calibrated, and review-governed product under representative AI Society owner-group proof.
+Engineering-core v0.11.0 already ships mechanisms across all four intended v1 pillars; v1.0 is earned when those mechanisms operate as one dependable, federated, evidence-calibrated, and review-governed product under representative AI Society owner-group proof.
 
 ## Semver commitment
 
@@ -38,15 +38,15 @@ The final v1.0 compatibility/rendering manifest is materialized only after bound
 
 No v2, v3, or v4 product contract is defined here. A future major version should require a genuine compatibility break or a materially different product constitution, not an arbitrary strategy horizon.
 
-## Current observed baseline: v0.10.0
+## Current observed baseline: v0.11.0
 
-Evidence anchors: [v0.10.0 release record](../releases/2026-08-22-v0.10.0-local-release.md), [support policy](../support-policy.md), [product overview](../../README.md), and [authority map](../authority-map.md).
+Evidence anchors: [v0.11.0 release record](../releases/2026-09-26-v0.11.0-local-release.md), [support policy](../support-policy.md), [product overview](../../README.md), and [authority map](../authority-map.md).
 
 ### Product and distribution
 
-- v0.10.0 is a published, pre-1.0 GitHub Release with wheel, source archive, and checksums.
+- v0.11.0 is a published, pre-1.0 GitHub Release with wheel, source archive, and checksums.
 - The product is a versioned CLI plus engineering content, distributed from source and GitHub Releases rather than a package registry or hosted service.
-- Linux is the supported operating-system family; Ubuntu Python 3.10–3.13 and rolling Arch are release-validation environments. macOS and Windows remain best effort.
+- Linux is the supported operating-system family; Ubuntu 24.04 with Python 3.13 and 3.14, and rolling Arch, are release-validation environments. macOS and Windows remain best effort.
 - Latest stable and current `main` are supported for fixes; older pre-1.0 releases are historical evidence and optional transition inputs, not compatibility promises for v1.
 
 ### Shipped product surfaces
@@ -57,6 +57,7 @@ Evidence anchors: [v0.10.0 release record](../releases/2026-08-22-v0.10.0-local-
 - Explicit-population capability observation without consumer command execution.
 - Provider-neutral advice validation, owner receipts and dispositions, work packets, and evidence reconciliation with explicit authority ceilings.
 - Reproducible release-lineage, self-check, package, and platform validation contracts.
+- Executable lane conformance: every lane's documented config blocks and Quality gates run with pinned tools against a fixture and must-fail probes at every release, so shipped lane guidance is proven to work, not only written down.
 
 ### Current authority posture
 
