@@ -159,6 +159,14 @@ class LaneConformanceReleaseWiringFeature(unittest.TestCase):
         # Then it runs the conformance harness for every registered lane
         self.assertIn('"scripts/lane-conformance.py", "--all"', text)
 
+    def test_scenario_release_verify_proves_the_lock_is_independent_of_user_config(self) -> None:
+        # uv.lock records the options it was generated under; a user-level uv.toml
+        # setting (like exclude-newer) makes a lock machine-dependent (AK #5775)
+        text = (REPO_ROOT / "scripts" / "release-local.py").read_text(encoding="utf-8")
+        self.assertIn("assert_lock_independent_of_user_config", text)
+        project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+        self.assertEqual(project["tool"]["uv"]["exclude-newer"], "7 days")
+
     def test_scenario_every_workflow_running_verify_installs_lane_toolchains(self) -> None:
         for workflow in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml")):
             text = workflow.read_text(encoding="utf-8")

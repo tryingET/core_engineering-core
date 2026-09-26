@@ -98,9 +98,28 @@ def assert_release_docs(version: str) -> None:
         raise SystemExit(f"CHANGELOG.md is missing section for {version}")
 
 
+def assert_lock_independent_of_user_config() -> None:
+    """uv.lock records the resolution options it was generated under, so a user-level
+    uv.toml setting (e.g. exclude-newer) makes a lock machine-dependent: it then drifts
+    locally or fails `--locked` in CI (AK #5775). Prove the committed lock checks clean both
+    under the ambient config and with no user config at all."""
+    import tempfile
+
+    ambient = run(["uv", "lock", "--check"], check=False)
+    with tempfile.TemporaryDirectory(prefix="engineering-core-no-user-config-") as empty:
+        isolated = run(["uv", "lock", "--check"], check=False, env={"XDG_CONFIG_HOME": empty})
+    for label, result in (("ambient uv config", ambient), ("no user uv config", isolated)):
+        if result.returncode != 0:
+            raise SystemExit(
+                f"uv.lock is out of date under {label}; declare lock-affecting uv settings in "
+                f"pyproject.toml [tool.uv], not only in a user uv.toml:\n{result.stdout}{result.stderr}"
+            )
+
+
 def verify(version: str) -> None:
     assert_semver(version)
     assert_versions_match(version)
+    assert_lock_independent_of_user_config()
     assert_release_docs(version)
     sys.path.insert(0, str(ROOT / "src"))
     from engineering_core.release_lineage import inspect_release_lineage
