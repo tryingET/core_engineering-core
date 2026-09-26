@@ -177,6 +177,15 @@ class LaneConformanceReleaseWiringFeature(unittest.TestCase):
                     self.assertIn(TOOLCHAIN_ACTION, job, f"{workflow.name} runs verify without lane toolchains")
                     self.assertLess(job.index(TOOLCHAIN_ACTION), job.index("release-local.py verify"))
 
+    def test_scenario_ci_runner_image_is_pinned(self) -> None:
+        # `ubuntu-latest` moves between Ubuntu releases on GitHub's schedule; the C++ lane
+        # builds with the platform compiler and -Werror, so the image is a lane input
+        for workflow in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml")):
+            text = workflow.read_text(encoding="utf-8")
+            self.assertNotIn("ubuntu-latest", text, workflow.name)
+            for runner in re.findall(r"runs-on: (\S+)", text):
+                self.assertRegex(runner, r"^ubuntu-\d{2}\.\d{2}$", workflow.name)
+
     def test_scenario_ci_toolchain_pins_equal_the_lane_docs(self) -> None:
         harness = load_harness()
         action = (REPO_ROOT / ".github" / "actions" / "lane-toolchains" / "action.yml").read_text(encoding="utf-8")
