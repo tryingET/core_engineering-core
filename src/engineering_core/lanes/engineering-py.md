@@ -90,6 +90,8 @@ addopts = ["--strict-markers", "--strict-config"]
 
 Rename the project. Every tool here must fail on config it doesn't understand, never warn and carry on: ruff exits 2 on unknown keys, `--strict-config` makes pytest fail on them, and `error-on-warning` makes ty fail on unknown rules. uv only warns about a `pyproject.toml` it can't parse (and then ignores all project `[tool.uv]` settings) and has no strict mode, so the `config` gate below fails on any warning from `uv lock --check`.
 
+To give your own PyPI packages a green light, exempt each one by exact name, only after checking on PyPI that you're its publisher (PyPI has no namespaces, so a matching local project name proves nothing): `exclude-newer-package = { your-package = false }` under the project's `[tool.uv]`. Don't put exemptions in a user-level `~/.config/uv/uv.toml`: uv records them in every lock written on that machine, and those locks then fail `--locked` anywhere without that file (verified). For a one-off install outside a project, pass `uvx --exclude-newer-package your-package=false …` instead. Git and path sources are never quarantined. See `disciplines/dependency-governance.md`.
+
 `exclude-newer = "7 days"` puts the package-age quarantine in the project, so it also applies in CI and on machines without a user-level `~/.config/uv/uv.toml`. The lock records the span (`exclude-newer-span = "P7D"`), not a date, so a committed lock doesn't go stale as days pass.
 
 **.python-version:**

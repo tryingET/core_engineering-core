@@ -143,6 +143,8 @@ Set both keys explicitly (they're plural). A misspelled key such as `line` is si
 
 Use this when you want Bun to avoid resolving npm packages published in the last 7 days. This affects new resolution, not already-pinned lockfile entries.
 
+To give packages you publish a green light, list them in the same table: `minimumReleaseAgeExcludes = ["@your-scope/your-package"]`. Bun 1.3 matches exact package names only; a scope pattern such as `@your-scope/*` is silently ignored. Exempt only packages under a scope registered to you (see `disciplines/dependency-governance.md`). A fresh third-party dependency of an exempted package still waits out the quarantine.
+
 **biome.json:**
 ```json
 {
@@ -274,15 +276,6 @@ This is the complete lifecycle, from project creation to daily work.
     `bun init` (creates package.json, tsconfig.json, and basic structure)
 *   **Install Dependencies:**
     *   Add service dependencies: `bun add hono zod drizzle-orm`
-    *   Add a development dependency: `bun add -d @types/bun vitest`
-    *   Remove a dependency: `bun remove package-name`
-*   **Install All Dependencies from Lockfile:**
-    `bun install --frozen-lockfile`
-*   **Update Dependencies:**
-    `bun update` (updates all to latest within semver range)
-*   **Run Scripts:** (Defined in package.json)
-    *   Start dev server: `bun run dev`
-    *   Run tests: `bun test`
-    *   Type chec
+    *   Ad
 
 [projected skill truncated; read the full doc in engineering-core]

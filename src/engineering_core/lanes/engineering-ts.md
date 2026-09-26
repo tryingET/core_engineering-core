@@ -138,6 +138,8 @@ Set both keys explicitly (they're plural). A misspelled key such as `line` is si
 
 Use this when you want Bun to avoid resolving npm packages published in the last 7 days. This affects new resolution, not already-pinned lockfile entries.
 
+To give packages you publish a green light, list them in the same table: `minimumReleaseAgeExcludes = ["@your-scope/your-package"]`. Bun 1.3 matches exact package names only; a scope pattern such as `@your-scope/*` is silently ignored. Exempt only packages under a scope registered to you (see `disciplines/dependency-governance.md`). A fresh third-party dependency of an exempted package still waits out the quarantine.
+
 **biome.json:**
 ```json
 {

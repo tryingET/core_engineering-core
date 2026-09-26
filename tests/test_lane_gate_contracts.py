@@ -332,5 +332,32 @@ class CommonLispLaneFeature(unittest.TestCase):
             self.assertIn('XDG_CACHE_HOME="$(mktemp -d)"', self.command(gate), gate)
 
 
+
+class QuarantineOwnershipFeature(unittest.TestCase):
+    """Feature: your own work gets a green light from release-age quarantines, strangers' code never does."""
+
+    def test_scenario_discipline_keys_exemptions_to_verified_ownership(self) -> None:
+        text = (HARNESS.ROOT / "src" / "engineering_core" / "disciplines" / "dependency-governance.md").read_text(encoding="utf-8")
+        section = text.split("## Release-age quarantine and your own packages", 1)
+        self.assertEqual(len(section), 2, "discipline needs the quarantine ownership section")
+        rule = section[1].split("\n## ", 1)[0]
+        # Given quarantines apply to registry uploads only
+        self.assertIn("git or path", rule)
+        # Then exemptions follow verified ownership, never a local project name
+        self.assertIn("verified", rule)
+        self.assertIn("never by a local project name", rule)
+        # And a collision with someone else's registry name is fixed by renaming the distribution
+        self.assertIn("rename the distribution", rule)
+
+    def test_scenario_lanes_show_the_verified_exemption_syntax(self) -> None:
+        self.assertIn("exclude-newer-package = { your-package = false }", lane_text("engineering-py.md"))
+        # user-level exemptions leak into every lock written on that machine
+        self.assertIn("Don't put exemptions in a user-level", lane_text("engineering-py.md"))
+        ts = lane_text("engineering-ts.md")
+        self.assertIn('minimumReleaseAgeExcludes = ["@your-scope/your-package"]', ts)
+        self.assertIn("exact package names", ts)
+        self.assertIn("min-release-age-exclude[]=@your-scope/*", lane_text("engineering-pi-ts.md"))
+
+
 if __name__ == "__main__":
     unittest.main()

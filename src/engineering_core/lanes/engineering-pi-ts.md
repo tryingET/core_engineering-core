@@ -22,6 +22,7 @@ not general web backends.
 ## Command baseline
 
 - Install deps: `npm install`
+- Release-age quarantine: `min-release-age=7` in `.npmrc`, with your own scope exempted by pattern, e.g. `min-release-age-exclude[]=@your-scope/*` (npm 12 honors scope patterns). Exempt only a scope registered to you; see `disciplines/dependency-governance.md`.
 - Validate structure/docs/policies: `npm run check`
 - Typecheck (when the repo carries a TypeScript compile contract): `tsc --noEmit` from an exactly pinned `typescript@7` (the native compiler)
 - Release preflight (full): `npm run release:check`
