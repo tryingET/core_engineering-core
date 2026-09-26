@@ -188,6 +188,62 @@ class G4BSyntheticTests(unittest.TestCase):
                 finally:
                     path.write_bytes(original)
 
+    def test_duplicate_lineage_entries_rejected_even_without_other_cycles(self):
+        # Given three copies of one valid lineage entry (AK5780: count + membership passed)
+        first = dict(self.record["revised_lineage"][0])
+        self.record["revised_lineage"] = [dict(first), dict(first), dict(first)]
+        # And the other two decided cycle files are gone
+        for item in self.fixture.lineage[1:]:
+            (self.root / item["path"]).unlink()
+        # Then validation requires exactly the decided set, each cycle once
+        self.assert_rejected("lineage_coverage")
+
+    def test_duplicate_lineage_entries_rejected(self):
+        self.record["revised_lineage"][2] = dict(self.record["revised_lineage"][0])
+        self.assert_rejected("lineage_coverage")
+
+    def test_cli_main_invalid_cycle_is_structured_failure(self):
+        # Given a cycle file that is valid JSON but not a valid cycle (AK5781)
+        (self.root / self.fixture.lineage[0]["path"]).write_text("{}", encoding="utf-8")
+        code, stdout, stderr = self.cli_main()
+        # Then main reports a structured G4B failure instead of a traceback
+        self.assertEqual(code, 2)
+        self.assertEqual(stdout, "")
+        failure = json.loads(stderr)
+        self.assertEqual(failure["code"], "invalid_cycle")
+        self.assertIn("missing_field", failure["detail"])
+
+    def test_cli_main_malformed_cycle_file_is_invalid_cycle_not_invalid_input(self):
+        (self.root / self.fixture.lineage[0]["path"]).write_text("not json", encoding="utf-8")
+        code, stdout, stderr = self.cli_main()
+        self.assertEqual(code, 2)
+        self.assertEqual(json.loads(stderr)["code"], "invalid_cycle")
+
+    def test_cli_main_suite_replay_error_is_structured_failure(self):
+        # Given the governed-evolution module raises its own error during suite replay
+        ge = gv.load_ge()
+
+        def broken_transition(_transition):
+            raise ge.ValidationError("schema_mismatch", "synthetic replay failure")
+
+        ge.validate_transition = broken_transition
+        original = gv.load_ge
+        gv.load_ge = lambda: ge
+        self.addCleanup(setattr, gv, "load_ge", original)
+        # Then both emit and validate report a structured G4B failure
+        for mode in ("emit", "validate"):
+            with self.subTest(mode=mode):
+                if mode == "emit":
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with redirect_stdout(stdout), redirect_stderr(stderr):
+                        code = gv.main(["emit", "--repo-root", str(self.root)])
+                    stdout, stderr = stdout.getvalue(), stderr.getvalue()
+                else:
+                    code, stdout, stderr = self.cli_main()
+                self.assertEqual(code, 2)
+                self.assertEqual(stdout, "")
+                self.assertEqual(json.loads(stderr)["code"], "suite_case_failed")
+
     def test_lineage_digest_drift_rejected(self):
         self.record["revised_lineage"][0]["cycle_digest"] = "f" * 64
         self.assert_rejected("digest_mismatch")

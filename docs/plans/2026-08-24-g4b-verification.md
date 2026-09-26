@@ -54,3 +54,17 @@ That command still requires the exact frozen branch and participant records and
 fails closed when they are absent. Do not skip its checks, invent matching refs,
 substitute synthetic results for historical evidence, or automatically fetch and
 publish cross-owner artifacts. AK5778 repairs test isolation only.
+
+## Validator hardening (AK5780, AK5781)
+
+- `revised_lineage` must name each decided cycle exactly once (`lineage_coverage`).
+  The earlier count-plus-membership check let three copies of one valid entry pass
+  even with the other two cycle files removed.
+- Failures raised by `governed_evolution.py` no longer escape `main()` as tracebacks.
+  A lineage cycle file that is malformed JSON or fails cycle validation reports
+  `invalid_cycle`, and a suite-replay failure reports `suite_case_failed`, both as
+  structured stderr with exit code 2, in `validate` and `emit` alike.
+
+Both changes only tighten fail-closed behavior. The checked-in historical record
+names each cycle once, so it emits and validates exactly as before; no evidence is
+rewritten.

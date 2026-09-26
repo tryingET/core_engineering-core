@@ -106,6 +106,19 @@ def load_ge():
     return mod
 
 
+def checked_cycle(ge, cycle_id: str, path: Path) -> dict:
+    """Validate a lineage cycle file, reporting every failure as a G4B ValidationError.
+
+    governed_evolution raises its own ValidationError class; letting it cross this
+    boundary made main() exit with a traceback instead of structured stderr (AK5781)."""
+    try:
+        return ge.validate_cycle(json.loads(path.read_text(encoding="utf-8")))
+    except json.JSONDecodeError as exc:
+        raise ValidationError("invalid_cycle", f"{cycle_id}: not JSON: {exc}") from exc
+    except ge.ValidationError as exc:
+        raise ValidationError("invalid_cycle", f"{cycle_id}: {exc.code}: {exc.detail}") from exc
+
+
 def git_read(repo: Path, *args) -> subprocess.CompletedProcess:
     return subprocess.run(["git", "-C", str(repo), *args],
                           capture_output=True, text=True)
@@ -152,7 +165,11 @@ def fixture_for(case: str, ge) -> dict:
 def replay_suite(ge) -> list:
     results = []
     for case in SUITE_CASES:
-        out = ge.validate_transition(fixture_for(case, ge))
+        try:
+            out = ge.validate_transition(fixture_for(case, ge))
+        except ge.ValidationError as exc:
+            raise ValidationError("suite_case_failed",
+                                  f"suite case {case}: {exc.code}: {exc.detail}") from exc
         _require(out["status"] == "pass", "suite_case_failed",
                  f"suite case {case} did not pass")
         expected = "rejected" if case in ILLEGAL_CASES else "accepted"
@@ -198,6 +215,12 @@ def validate_record(record: dict, repo_root: Path) -> dict:
     _require(isinstance(lineage, list) and len(lineage) == 3, "lineage_count",
              "expected exactly three revised lineages")
     expected = {item["cycle_id"]: item for item in LINEAGE}
+    # The invariant is set equality with the decided lineage, each cycle once: a count
+    # plus per-item membership lets three copies of one valid entry pass (AK5780).
+    claimed = [item.get("cycle_id") if isinstance(item, dict) else None for item in lineage]
+    _require(sorted(claimed, key=str) == sorted(expected),
+             "lineage_coverage",
+             f"revised lineage must name each decided cycle exactly once: {sorted(expected)}")
     for item in lineage:
         exp = expected.get(item.get("cycle_id"))
         _require(exp is not None, "unknown_cycle", f"unknown cycle {item.get('cycle_id')}")
@@ -213,7 +236,7 @@ def validate_record(record: dict, repo_root: Path) -> dict:
                  f"{item['cycle_id']} digest drifted")
         path = (repo_root / exp["path"]).resolve()
         _require(path.is_file(), "missing_file", f"cycle file missing: {path}")
-        live = ge.validate_cycle(json.loads(path.read_text(encoding="utf-8")))
+        live = checked_cycle(ge, item["cycle_id"], path)
         _require(live["cycle_digest"] == exp["cycle_digest"], "digest_mismatch",
                  f"live cycle digest drifted for {item['cycle_id']}")
 
