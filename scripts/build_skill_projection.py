@@ -21,6 +21,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import sys
 from pathlib import Path
 
@@ -33,7 +34,33 @@ FLEET_ROOT_ENV = "ENGINEERING_CORE_FLEET_ROOT"
 
 # Renaming a published profile requires adding old-key -> new-key here for one
 # engineering-core release. Aliases must point directly to canonical profiles.
-DEPRECATED_ALIASES: dict[str, str] = {}
+DEPRECATED_ALIASES: dict[str, str] = {
+    # AK5774 (engineering-core 0.11.0): dotted lane-addendum profile names violate the
+    # Agent Skills name spec; the hyphenated names are canonical. Remove after 0.11.x.
+    "ec-common-lisp.justfile": "ec-common-lisp-justfile",
+    "ec-cpp.cuda": "ec-cpp-cuda",
+    "ec-cpp.justfile": "ec-cpp-justfile",
+    "ec-elixir.justfile": "ec-elixir-justfile",
+    "ec-go.justfile": "ec-go-justfile",
+    "ec-pi-ts.justfile": "ec-pi-ts-justfile",
+    "ec-pi-ts.ts-quality": "ec-pi-ts-ts-quality",
+    "ec-py.justfile": "ec-py-justfile",
+    "ec-rust.build-graph": "ec-rust-build-graph",
+    "ec-rust.justfile": "ec-rust-justfile",
+    "ec-ts.evidence-safety": "ec-ts-evidence-safety",
+    "ec-ts.frontend": "ec-ts-frontend",
+    "ec-ts.justfile": "ec-ts-justfile",
+    "ec-ts.ts-quality": "ec-ts-ts-quality",
+    "ec-ts.ultracite-pilot": "ec-ts-ultracite-pilot",
+}
+
+# Agent Skills name spec (Pi validateName): lowercase a-z, 0-9, single hyphens, <= 64.
+# Lane addenda are dotted (engineering-ts.justfile.md); names use hyphens instead.
+PROJECTION_DIR_PREFIXES = ("ec-lane-", "ec-discipline-")
+
+
+def spec_name(ident: str) -> str:
+    return ident.replace(".", "-")
 
 # Budget discipline: the v3/v3b pilots showed small high-signal guidance wins
 # and dumps lose. Cap projected skill bodies hard.
@@ -101,7 +128,7 @@ def build_description(kind: str, ident: str, meta: dict) -> str:
 def project_doc(kind: str, ident: str, path: Path) -> tuple[str, str]:
     text = path.read_text(encoding="utf-8")
     meta, _body = parse_front_matter(text)
-    name = f"ec-{kind}-{ident}"
+    name = f"ec-{kind}-{spec_name(ident)}"
     description = build_description(kind, ident, meta)
     body = text
     if len(body.encode()) > MAX_BODY_BYTES:
@@ -133,7 +160,7 @@ def build_profiles(
         if base != lane and base in lane_skills:
             members.append(lane_skills[base])
         members.extend(base_defaults)
-        profiles[f"ec-{lane}"] = sorted(set(members))
+        profiles[f"ec-{spec_name(lane)}"] = sorted(set(members))
     profiles["ec-defaults"] = sorted(base_defaults)
     profiles["ec-full"] = sorted(set(lane_skills.values()) | set(discipline_skills.values()))
     return {
@@ -267,8 +294,20 @@ def render_projection() -> tuple[dict[Path, bytes], dict[str, int]]:
     }
 
 
+def orphaned_projection_dirs(rendered: dict[Path, bytes], out_dir: Path = OUT_DIR) -> list[Path]:
+    """Projection-owned skill dirs the current render no longer produces (e.g. after a rename).
+    Left behind, harnesses would keep loading the stale skills alongside the new ones."""
+    wanted = {path.parent.name for path in rendered if path.name == "SKILL.md"}
+    return sorted(
+        path for path in out_dir.iterdir()
+        if path.is_dir() and path.name.startswith(PROJECTION_DIR_PREFIXES) and path.name not in wanted
+    )
+
+
 def generate() -> dict[str, object]:
     rendered, summary = render_projection()
+    for orphan in orphaned_projection_dirs(rendered):
+        shutil.rmtree(orphan)
     for path, payload in rendered.items():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(payload)
@@ -282,6 +321,9 @@ def check(fleet_root: Path | None = None) -> int:
         for path, expected in rendered.items()
         if not path.is_file() or path.read_bytes() != expected
     ]
+    problems.extend(
+        f"orphaned projection: {path.relative_to(ROOT)}" for path in orphaned_projection_dirs(rendered)
+    )
     second_render, _ = render_projection()
     if rendered != second_render:
         problems.append("nondeterministic projection output")

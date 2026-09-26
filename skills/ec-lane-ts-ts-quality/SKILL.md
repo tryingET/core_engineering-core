@@ -1,5 +1,5 @@
 ---
-name: ec-lane-ts.ts-quality
+name: ec-lane-ts-ts-quality
 description: "[ec-lane] TypeScript lane ts-quality adoption addendum. Load when: A TypeScript repo is adopting deterministic screening with ts-quality.; Reconciling TypeScript quality gates with lane guidance and validation expectations."
 ---
 

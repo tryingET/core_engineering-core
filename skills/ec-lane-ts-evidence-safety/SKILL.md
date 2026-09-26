@@ -1,5 +1,5 @@
 ---
-name: ec-lane-ts.evidence-safety
+name: ec-lane-ts-evidence-safety
 description: "[ec-lane] Opt-in TypeScript evidence-safety contract and staged anti-slop-inspired rule pilot. Load when: A high-assurance TypeScript repo is reducing unsafe evidence loss or assertion laundering.; A repo is piloting selected anti-slop-inspired Oxlint rules with measured diagnostics."
 ---
 

@@ -5,7 +5,9 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import re
 import subprocess
+import tempfile
 import sys
 import unittest
 from pathlib import Path
@@ -13,6 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "scripts" / "build_skill_projection.py"
 SKILLS_DIR = ROOT / "skills"
+# Agent Skills spec (enforced by Pi's validateName): lowercase a-z, 0-9, single hyphens.
+SPEC_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 spec = importlib.util.spec_from_file_location("build_skill_projection", SCRIPT)
 bsp = importlib.util.module_from_spec(spec)
@@ -105,7 +109,8 @@ class ProjectionTests(unittest.TestCase):
     def test_profile_interface_schema_and_members(self):
         document = self.profile_interface()
         self.assertEqual(document["schema"], bsp.PROFILE_SCHEMA)
-        self.assertEqual(document["deprecated_aliases"], {})
+        for alias, target in document["deprecated_aliases"].items():
+            self.assertIn(target, document["profiles"], alias)
         self.assertEqual(bsp.validate_profile_interface(document), [])
         profiles = document["profiles"]
         self.assertGreaterEqual(len(profiles), 20)
@@ -118,12 +123,43 @@ class ProjectionTests(unittest.TestCase):
                     f"profile {profile} references missing skill {member}",
                 )
 
+    def test_projected_skill_names_follow_the_agent_skills_spec(self):
+        # Pi warns on (and stricter harnesses may skip) names with dots (AK5774)
+        for skill in sorted(SKILLS_DIR.glob("*/SKILL.md")):
+            name = skill.parent.name
+            with self.subTest(skill=name):
+                self.assertRegex(name, SPEC_NAME)
+                self.assertLessEqual(len(name), 64)
+                front = skill.read_text(encoding="utf-8").split("---")[1]
+                self.assertIn(f"\nname: {name}\n", front)
+
+    def test_canonical_profile_names_follow_the_agent_skills_spec(self):
+        document = self.profile_interface()
+        for profile in document["profiles"]:
+            self.assertRegex(profile, SPEC_NAME)
+        for alias in document["deprecated_aliases"]:
+            self.assertNotRegex(alias, SPEC_NAME, f"{alias} is spec-valid; no alias needed")
+
+    def test_generator_prunes_and_check_reports_orphaned_projections(self):
+        rendered, _ = bsp.render_projection()
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)
+            (out / "ec-lane-ts.justfile").mkdir()
+            (out / "ec-lane-ts.justfile" / "SKILL.md").write_text("stale", encoding="utf-8")
+            (out / "unrelated").mkdir()
+            orphans = bsp.orphaned_projection_dirs(rendered, out)
+            self.assertEqual([p.name for p in orphans], ["ec-lane-ts.justfile"])
+
     def test_published_v1_profile_keys_are_preserved(self):
         baseline = set(json.loads(
             (ROOT / "tests" / "fixtures" / "skill-profile-v1-keys.json").read_text()
         ))
-        current = set(self.profile_interface()["profiles"])
-        self.assertLessEqual(baseline, current)
+        document = self.profile_interface()
+        current = set(document["profiles"])
+        # A published key keeps resolving: canonical, or a deprecated alias of one (AK5774)
+        for key in baseline:
+            resolved = key if key in current else document["deprecated_aliases"].get(key)
+            self.assertIn(resolved, current, f"published profile {key!r} no longer resolves")
         self.assertIn("ec-defaults", current)
         self.assertIn("ec-full", current)
 

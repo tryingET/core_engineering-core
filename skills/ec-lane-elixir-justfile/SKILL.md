@@ -1,5 +1,5 @@
 ---
-name: ec-lane-elixir.justfile
+name: ec-lane-elixir-justfile
 description: "[ec-lane] Elixir lane standardized Justfile addendum. Load when: A repo using the Elixir lane is missing, establishing, or reconciling the standardized Justfile surface.; Standard targets are absent, drifting, or need lane-specific command mapping."
 ---
 
