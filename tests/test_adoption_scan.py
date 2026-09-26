@@ -75,6 +75,12 @@ def complete_loop_validation(**overrides: str) -> dict[str, object]:
     }
 
 
+LOCK_WITH_SPAN = (
+    'version = 1\nrevision = 3\nrequires-python = ">=3.13"\n\n[options]\n'
+    'exclude-newer = "0001-01-01T00:00:00Z"\nexclude-newer-span = "P7D"\n'
+)
+
+
 class AdoptionScanTests(unittest.TestCase):
     def test_scan_missing_repo(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -98,6 +104,53 @@ class AdoptionScanTests(unittest.TestCase):
         self.assertEqual(scan["summary"]["semantic_status_counts"], {"ok": 1})
         self.assertEqual(scan["summary"]["loop_validation_status_counts"], {"absent": 1})
         self.assertEqual(scan["records"][0]["loop_validation_status"], "absent")
+
+    def scan_python_repo(self, *, lock_head: str, uv_table: str = "", lock_padding: int = 0, **scan_options) -> dict:
+        with tempfile.TemporaryDirectory() as tmp:
+            scope = Path(tmp)
+            repo = scope / "service"
+            repo.mkdir()
+            mark_git(repo)
+            write_adoption(repo)
+            (repo / "pyproject.toml").write_text(
+                '[project]\nname = "service"\nversion = "0.1.0"\n' + uv_table, encoding="utf-8"
+            )
+            body = '\n[[package]]\nname = "service"\nversion = "0.1.0"\n' + ("#" * lock_padding)
+            (repo / "uv.lock").write_text(lock_head + body, encoding="utf-8")
+            return build_scan([scope], catalog=load_catalog(REPO_ROOT, prefer_repo=True), **scan_options)
+
+    def test_lock_recording_an_undeclared_quarantine_is_flagged(self) -> None:
+        # Given a uv.lock that recorded a user-level quarantine the project doesn't declare (AK5998)
+        scan = self.scan_python_repo(lock_head=LOCK_WITH_SPAN)
+        record = scan["records"][0]
+        # Then the scan flags the machine-dependent lock for review
+        self.assertIn("uv_lock_records_undeclared_setting:exclude-newer", record["semantic_flags"])
+        self.assertEqual(record["semantic_status"], "needs-review")
+
+    def test_lock_recording_an_undeclared_package_exemption_is_flagged(self) -> None:
+        scan = self.scan_python_repo(
+            lock_head=LOCK_WITH_SPAN + '\n[options.exclude-newer-package]\nmine = false\n',
+            uv_table='\n[tool.uv]\nexclude-newer = "7 days"\n',
+        )
+        self.assertEqual(
+            scan["records"][0]["semantic_flags"],
+            ["uv_lock_records_undeclared_setting:exclude-newer-package"],
+        )
+
+    def test_lock_with_declared_quarantine_is_ok(self) -> None:
+        scan = self.scan_python_repo(lock_head=LOCK_WITH_SPAN, uv_table='\n[tool.uv]\nexclude-newer = "7 days"\n')
+        self.assertEqual(scan["records"][0]["semantic_status"], "ok")
+
+    def test_lock_without_recorded_options_is_ok(self) -> None:
+        scan = self.scan_python_repo(lock_head='version = 1\nrevision = 3\nrequires-python = ">=3.13"\n')
+        self.assertEqual(scan["records"][0]["semantic_status"], "ok")
+
+    def test_large_lock_reads_only_its_header(self) -> None:
+        # Given a 5 MB lock and a 500 KB read budget: reading the whole lock would exceed it
+        scan = self.scan_python_repo(lock_head=LOCK_WITH_SPAN, lock_padding=5_000_000, max_read_bytes=500_000)
+        # Then the check still runs, because only the header that holds the options is read
+        self.assertEqual(scan["omissions"], [])
+        self.assertIn("uv_lock_records_undeclared_setting:exclude-newer", scan["records"][0]["semantic_flags"])
 
     def test_loop_validation_complete_contract_is_detected(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

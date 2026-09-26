@@ -37,6 +37,16 @@ class BudgetedReader:
         self.used += len(data)
         return data.decode("utf-8", errors="replace")
 
+    def read_head(self, path: Path, max_bytes: int) -> str:
+        """Read at most max_bytes from the start of path, charging only what is read."""
+        size = min(path.stat().st_size, max_bytes)
+        if size > self.limit - self.used:
+            raise ReadBudgetExceeded(f"read-byte budget reached before reading {path}")
+        with path.open("rb") as handle:
+            data = handle.read(size)
+        self.used += len(data)
+        return data.decode("utf-8", errors="replace")
+
 
 def rel_to(path: Path, scope: Path) -> str:
     try:

@@ -111,7 +111,7 @@ The rename to `engineering-core` is intentionally breaking. Do not recreate old 
 
 ## Adoption scanning
 
-Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, heuristic semantic discipline flags, and optional `repo-loop-validation-v1` coverage when declared in `policy/engineering-lane.json`.
+Use `engineering-core scan-adoption` for reusable adoption mechanics across repo, lane, company, or workspace scopes, including `~/ai-society/core` itself. The scanner reports structural adoption, legacy surfaces, invalid policy JSON, catalog/list command presence, selected lanes/disciplines, heuristic semantic discipline flags, and optional `repo-loop-validation-v1` coverage when declared in `policy/engineering-lane.json`. It also flags a committed `uv.lock` that recorded a lock-affecting setting (`exclude-newer`, `exclude-newer-package`) that `pyproject.toml` doesn't declare (`uv_lock_records_undeclared_setting:<setting>`): such a lock came from a user-level `uv.toml`, drifts on other machines, and fails `--locked` in clean environments. Fix it by declaring the setting under the project's `[tool.uv]` and relocking. Only the lock's header is read, so large locks don't exhaust the scan budget.
 
 Examples:
 

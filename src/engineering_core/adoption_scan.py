@@ -3,6 +3,7 @@
 #   - "Changing adoption status taxonomy, scan budgets, discovery behavior, or policy-derived review criteria."
 from __future__ import annotations
 
+import tomllib
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -216,6 +217,56 @@ def classify(
     return "partial", notes
 
 
+# uv writes its resolution [options] at the top of uv.lock, before any [[package]].
+UV_LOCK_HEAD_BYTES = 16384
+# uv's backwards-compatibility value when only a relative span is in effect.
+UV_EXCLUDE_NEWER_PLACEHOLDER = "0001-01-01T00:00:00Z"
+
+
+def recorded_uv_lock_settings(head: str) -> set[str]:
+    """Lock-affecting settings a uv.lock recorded in its [options] header."""
+    recorded: set[str] = set()
+    section = None
+    for raw in head.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if line.startswith("[["):
+            break
+        if line.startswith("["):
+            section = line
+            continue
+        if "=" not in line:
+            continue
+        key, value = (part.strip() for part in line.split("=", 1))
+        if section == "[options]":
+            if key == "exclude-newer-span" or (key == "exclude-newer" and value.strip('"') != UV_EXCLUDE_NEWER_PLACEHOLDER):
+                recorded.add("exclude-newer")
+            elif key == "exclude-newer-package":
+                recorded.add("exclude-newer-package")
+        elif section == "[options.exclude-newer-package]":
+            recorded.add("exclude-newer-package")
+    return recorded
+
+
+def uv_lock_flags(path: Path, reader: BudgetedReader) -> list[str]:
+    """Flag settings a committed uv.lock recorded but pyproject.toml doesn't declare.
+
+    uv.lock records the resolution options it was generated under, so a setting that
+    lives only in a user-level uv.toml makes the lock machine-dependent: it drifts on
+    other workstations and fails `--locked` in clean environments such as CI."""
+    lock_path, project_path = path / "uv.lock", path / "pyproject.toml"
+    if not lock_path.is_file() or not project_path.is_file():
+        return []
+    recorded = recorded_uv_lock_settings(reader.read_head(lock_path, UV_LOCK_HEAD_BYTES))
+    if not recorded:
+        return []
+    try:
+        project = tomllib.loads(reader.read_text(project_path))
+    except tomllib.TOMLDecodeError:
+        return ["uv_pyproject_unparseable"]
+    declared = set(project.get("tool", {}).get("uv", {}))
+    return [f"uv_lock_records_undeclared_setting:{setting}" for setting in sorted(recorded - declared)]
+
+
 def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disciplines: list[str], has_doc: bool, reader: BudgetedReader) -> tuple[str, list[str]]:
     flags: list[str] = []
     rel_path = rel_to(path, scope).lower()
@@ -267,6 +318,8 @@ def semantic_audit(path: Path, *, scope: Path, kind: str, lanes: list[str], disc
 
     if kind == "package" and not discipline_set:
         flags.append("package_policy_has_no_selected_disciplines")
+
+    flags.extend(uv_lock_flags(path, reader))
 
     if not flags:
         return "ok", []
