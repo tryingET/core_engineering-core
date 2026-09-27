@@ -79,8 +79,8 @@ engineering-core migrate --repo . --remove-legacy --apply
 `init` and `migrate` keep an existing release pin unless `--ref` is given. To move a pin, pass the release tag and the commit it names; `ref`, `release_pin`, `repository` and every pinned command then move to the portable GitHub source together:
 
 ```bash
-git ls-remote https://github.com/tryingET/core_engineering-core.git 'refs/tags/v0.12.0^{}'
-engineering-core migrate --repo . --ref v0.12.0 --ref-commit <sha from the line above>
+git ls-remote https://github.com/tryingET/core_engineering-core.git 'refs/tags/v0.12.1^{}'
+engineering-core migrate --repo . --ref v0.12.1 --ref-commit <sha from the line above>
 ```
 
 `--ref` without `--ref-commit` on a pinned repo is a conflict, not a silent no-op: the commit a tag names can't be derived offline. (Up to v0.12.0, `--ref` was ignored whenever a pin existed.)
@@ -175,19 +175,19 @@ These commands use only explicit owner inputs. They do not discover AK tasks, in
 
 For skill-method adoption, also see the distinct source and recipient revision requirements below; a method pin is not an engineering-core release pin.
 
-For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.12.0 release resolves to `3fc8387274dddccbae3d7fab80954ad483c9b681`:
+For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.12.1 release resolves to `5be0f0a294014f2f7aee1ca5adcb6f3c76553e11`:
 
 ```json
 {
   "engineering_core": {
     "repository": "https://github.com/tryingET/core_engineering-core.git",
-    "ref": "v0.12.0",
-    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core show <lane>",
+    "ref": "v0.12.1",
+    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11' engineering-core show <lane>",
     "release_pin": {
       "kind": "git-commit",
-      "ref": "v0.12.0",
-      "resolved_commit": "3fc8387274dddccbae3d7fab80954ad483c9b681",
-      "source": "git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681"
+      "ref": "v0.12.1",
+      "resolved_commit": "5be0f0a294014f2f7aee1ca5adcb6f3c76553e11",
+      "source": "git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11"
     }
   }
 }

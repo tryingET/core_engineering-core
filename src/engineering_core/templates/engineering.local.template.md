@@ -13,16 +13,16 @@ This file records repo-local overrides and integration choices on top of enginee
 
 ## Released upstream retrieval
 
-Read upstream guidance only when the relevant surface is in scope. For v0.12.0 adoption, use its immutable remote commit:
+Read upstream guidance only when the relevant surface is in scope. For v0.12.1 adoption, use its immutable remote commit:
 
 ```bash
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core list
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core list-disciplines
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core show <lane> --prefer-repo
-uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core show-discipline <discipline> --prefer-repo
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11' engineering-core list
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11' engineering-core list-disciplines
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11' engineering-core show <lane> --prefer-repo
+uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11' engineering-core show-discipline <discipline> --prefer-repo
 ```
 
-Record the matching remote repository, `v0.12.0` ref, resolved commit, and `git+https` source in `policy/engineering-lane.json` as an explicit `release_pin`.
+Record the matching remote repository, `v0.12.1` ref, resolved commit, and `git+https` source in `policy/engineering-lane.json` as an explicit `release_pin`.
 
 ## Local self-development only
 
