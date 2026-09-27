@@ -7,6 +7,12 @@ type: "release-history"
 
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `init`/`migrate --ref` silently kept an existing pin: `_policy_document` preferred the old `ref`, and `release_pin` and pinned commands were never updated (`migrate --ref v0.12.0` on a v0.7.0 repo changed nothing but key order). An explicit `--ref` now moves `ref`, `release_pin`, `repository` and every pinned command to the portable GitHub source when given the new `--ref-commit <sha>`, and refuses with a conflict (naming the `git ls-remote` command that yields the commit) when the commit is missing. Without `--ref`, the existing pin is kept as before (AK6055).
+
 ## [0.12.0] - 2026-09-26
 
 ### Breaking

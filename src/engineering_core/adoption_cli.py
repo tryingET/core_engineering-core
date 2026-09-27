@@ -26,7 +26,8 @@ def build_parser() -> argparse.ArgumentParser:
     init_cmd.add_argument("--profile")
     init_cmd.add_argument("--lane", action="append", default=[])
     init_cmd.add_argument("--discipline", action="append", default=[])
-    init_cmd.add_argument("--ref", default="workspace-local-unpinned")
+    init_cmd.add_argument("--ref", help="Release ref to pin (default: keep the existing pin, else workspace-local-unpinned)")
+    init_cmd.add_argument("--ref-commit", help="Full commit SHA the --ref tag names; required to change an existing release pin")
     init_cmd.add_argument("--force", action="store_true")
     init_cmd.add_argument("--apply", action="store_true", help="Write changes; default is dry-run")
     init_cmd.add_argument("--format", choices=("human", "json"), default="human")
@@ -35,7 +36,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     migrate = sub.add_parser("migrate", help="Plan or apply migration from legacy tech-stack surfaces")
     migrate.add_argument("--repo", default=".")
-    migrate.add_argument("--ref", default="workspace-local-unpinned")
+    migrate.add_argument("--ref", help="Release ref to pin (default: keep the existing pin, else workspace-local-unpinned)")
+    migrate.add_argument("--ref-commit", help="Full commit SHA the --ref tag names; required to change an existing release pin")
     migrate.add_argument("--force", action="store_true")
     migrate.add_argument("--remove-legacy", action="store_true")
     migrate.add_argument("--apply", action="store_true", help="Write changes; default is dry-run")
@@ -108,6 +110,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                 lanes=args.lane,
                 disciplines=args.discipline,
                 ref=args.ref,
+                ref_commit=args.ref_commit,
                 force=args.force,
             )
         else:
@@ -115,6 +118,7 @@ def main(argv: Sequence[str] | None = None) -> None:
                 Path(args.repo),
                 catalog,
                 ref=args.ref,
+                ref_commit=args.ref_commit,
                 force=args.force,
                 remove_legacy=args.remove_legacy,
             )

@@ -76,6 +76,15 @@ engineering-core migrate --repo .
 engineering-core migrate --repo . --remove-legacy --apply
 ```
 
+`init` and `migrate` keep an existing release pin unless `--ref` is given. To move a pin, pass the release tag and the commit it names; `ref`, `release_pin`, `repository` and every pinned command then move to the portable GitHub source together:
+
+```bash
+git ls-remote https://github.com/tryingET/core_engineering-core.git 'refs/tags/v0.12.0^{}'
+engineering-core migrate --repo . --ref v0.12.0 --ref-commit <sha from the line above>
+```
+
+`--ref` without `--ref-commit` on a pinned repo is a conflict, not a silent no-op: the commit a tag names can't be derived offline. (Up to v0.12.0, `--ref` was ignored whenever a pin existed.)
+
 ## Rollback and removal
 
 Every successful `init`/`migrate --apply` writes an adoption journal at

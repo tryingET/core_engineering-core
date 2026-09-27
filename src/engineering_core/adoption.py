@@ -5,6 +5,7 @@ import difflib
 import hashlib
 import json
 import os
+import re
 import tempfile
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -200,13 +201,65 @@ def select_guidance(
     return close_requirements(selected_lanes, selected_disciplines, catalog)
 
 
+CANONICAL_REPOSITORY = "https://github.com/tryingET/core_engineering-core"
+UNPINNED_REF = "workspace-local-unpinned"
+_COMMIT = re.compile(r"^[0-9a-f]{40}$")
+_FROM_SOURCE = re.compile(r"--from (?:'[^']*'|\S+)")
+_PINNED_COMMANDS = {
+    "catalog_command": "catalog --pretty",
+    "list_disciplines_command": "list-disciplines",
+    "list_templates_command": "list-templates",
+}
+
+
+def _apply_ref(engineering_core: dict[str, Any], ref: str | None, ref_commit: str | None) -> list[str]:
+    """Move the release pin to an explicitly requested ref, or keep the existing one.
+
+    An explicit --ref must move ref, release_pin, repository and every pinned command
+    together; keeping the old ref while reporting success hid stale pins (AK6055). The
+    commit a tag names isn't derivable offline, so a pin change needs --ref-commit."""
+    if ref_commit is not None and ref is None:
+        raise ValueError("--ref-commit requires --ref")
+    if ref_commit is not None and not _COMMIT.fullmatch(ref_commit):
+        raise ValueError("--ref-commit must be a full 40-character lowercase commit SHA")
+    current = engineering_core.get("ref")
+    if ref is None:
+        engineering_core["ref"] = current or UNPINNED_REF
+        return []
+    pinned = isinstance(engineering_core.get("release_pin"), dict)
+    if ref_commit is None:
+        if pinned and ref != current:
+            return [
+                f"--ref {ref} would change the pinned release ({current}); pass --ref-commit <sha>, "
+                f"the commit the tag names: git ls-remote {CANONICAL_REPOSITORY}.git 'refs/tags/{ref}^{{}}'"
+            ]
+        engineering_core["ref"] = ref
+        return []
+    source = f"git+{CANONICAL_REPOSITORY}.git@{ref_commit}"
+    engineering_core["ref"] = ref
+    engineering_core["repository"] = CANONICAL_REPOSITORY
+    engineering_core["release_pin"] = {
+        "kind": "git-commit",
+        "ref": ref,
+        "resolved_commit": ref_commit,
+        "source": source,
+    }
+    for key, subcommand in _PINNED_COMMANDS.items():
+        engineering_core[key] = f"uv tool -n run --from '{source}' engineering-core {subcommand}"
+    command = engineering_core.get("command")
+    if isinstance(command, str) and _FROM_SOURCE.search(command):
+        engineering_core["command"] = _FROM_SOURCE.sub(lambda _m: f"--from '{source}'", command)
+    return []
+
+
 def _policy_document(
     lanes: list[str],
     disciplines: list[str],
     *,
-    ref: str,
+    ref: str | None,
+    ref_commit: str | None = None,
     existing: dict[str, Any] | None = None,
-) -> dict[str, Any]:
+) -> tuple[dict[str, Any], list[str]]:
     policy = dict(existing or {})
     engineering_core = dict(policy.get("engineering_core", {})) if isinstance(policy.get("engineering_core"), dict) else {}
     _ec, old_lanes, _lane_status, _stack, old_disciplines, _old_ref, _commands = extract_policy(policy)
@@ -218,19 +271,19 @@ def _policy_document(
             "tool": "engineering-core",
             "lanes": merged_lanes,
             "disciplines": merged_disciplines,
-            "ref": engineering_core.get("ref") or ref,
             "catalog_command": engineering_core.get("catalog_command") or "engineering-core catalog --pretty",
             "list_disciplines_command": engineering_core.get("list_disciplines_command") or "engineering-core list-disciplines",
             "list_templates_command": engineering_core.get("list_templates_command") or "engineering-core list-templates",
             "deviations": engineering_core.get("deviations") if isinstance(engineering_core.get("deviations"), list) else [],
         }
     )
+    conflicts = _apply_ref(engineering_core, ref, ref_commit)
     policy["engineering_core"] = engineering_core
     if len(merged_lanes) == 1:
         policy["lane"] = merged_lanes[0]
     elif "lane" in policy and policy["lane"] not in merged_lanes:
         policy.pop("lane", None)
-    return policy
+    return policy, conflicts
 
 
 def _render_doc(lanes: list[str], disciplines: list[str], deviations: list[Any]) -> str:
@@ -302,7 +355,8 @@ def plan_init(
     profile: str | None = None,
     lanes: list[str] | None = None,
     disciplines: list[str] | None = None,
-    ref: str = "workspace-local-unpinned",
+    ref: str | None = None,
+    ref_commit: str | None = None,
     force: bool = False,
 ) -> AdoptionPlan:
     repo_root = validate_repository_argument(repo_root)
@@ -321,7 +375,10 @@ def plan_init(
         conflicts.append(f"invalid existing policy: {policy_error}")
         existing_policy = None
 
-    policy = _policy_document(selected_lanes, selected_disciplines, ref=ref, existing=existing_policy)
+    policy, ref_conflicts = _policy_document(
+        selected_lanes, selected_disciplines, ref=ref, ref_commit=ref_commit, existing=existing_policy
+    )
+    conflicts.extend(ref_conflicts)
     engineering_core = policy["engineering_core"]
     final_lanes = list(engineering_core["lanes"])
     final_disciplines = list(engineering_core["disciplines"])
@@ -357,7 +414,8 @@ def plan_migration(
     repo_root: Path,
     catalog: dict[str, Any],
     *,
-    ref: str = "workspace-local-unpinned",
+    ref: str | None = None,
+    ref_commit: str | None = None,
     force: bool = False,
     remove_legacy: bool = False,
 ) -> AdoptionPlan:
@@ -377,6 +435,7 @@ def plan_migration(
         lanes=lanes,
         disciplines=disciplines,
         ref=ref,
+        ref_commit=ref_commit,
         force=force,
     )
     conflicts.extend(base_plan.conflicts)
