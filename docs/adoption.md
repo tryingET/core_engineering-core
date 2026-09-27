@@ -76,14 +76,19 @@ engineering-core migrate --repo .
 engineering-core migrate --repo . --remove-legacy --apply
 ```
 
-`init` and `migrate` keep an existing release pin unless `--ref` is given. To move a pin, pass the release tag and the commit it names; `ref`, `release_pin`, `repository` and every pinned command then move to the portable GitHub source together:
+## Moving the release pin
+
+`engineering-core pin` moves an adopted repository to another release and changes nothing else: `ref`, `release_pin`, `repository`, the `--from` source of every engineering-core command in the policy, and, in `docs/engineering.local.md`, those sources plus the old commit and the old tag on the release-pin line. Key order, formatting, other keys and hand-written text stay as they were. It is a dry run until `--apply`, and it writes no adoption journal (the change is a plain diff to commit). Pass the release tag and the commit it names; the commit can't be derived offline:
 
 ```bash
 git ls-remote https://github.com/tryingET/core_engineering-core.git 'refs/tags/v0.12.1^{}'
-engineering-core migrate --repo . --ref v0.12.1 --ref-commit <sha from the line above>
+engineering-core pin --repo . --ref v0.12.1 --ref-commit <sha from the line above>
+engineering-core pin --repo . --ref v0.12.1 --ref-commit <sha> --apply
 ```
 
-`--ref` without `--ref-commit` on a pinned repo is a conflict, not a silent no-op: the commit a tag names can't be derived offline. (Up to v0.12.0, `--ref` was ignored whenever a pin existed.)
+A `ref` that is a raw 40-character commit stays one (some repos' validators require that shape), and a workspace-local source (`git+file`, a checkout path) becomes the portable GitHub source. If an old pin value is also used by an unrelated key, the plan refuses with a conflict instead of guessing.
+
+`init` and `migrate` regenerate the whole adoption, so don't use them to move a pin: they rewrite the policy with sorted keys and refuse, or with `--force` replace, a hand-written `docs/engineering.local.md`. They keep an existing pin unless `--ref` is given, and `--ref` on a pinned repo needs `--ref-commit`. (Up to v0.12.0, `--ref` was ignored whenever a pin existed.)
 
 ## Rollback and removal
 

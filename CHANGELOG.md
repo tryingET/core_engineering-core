@@ -7,6 +7,12 @@ type: "release-history"
 
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `engineering-core pin --ref <tag> --ref-commit <sha>` moves a repository's release pin and nothing else: `ref`, `release_pin`, `repository`, every engineering-core `--from` source in the policy and local doc, and the release-pin line. Key order, formatting and hand-written text are kept, a raw-SHA `ref` keeps its shape, workspace-local sources become the portable GitHub source, and no adoption journal is written. `migrate --ref` couldn't do this on any fleet repo: it refused the hand-written `docs/engineering.local.md`, and with `--force` replaced it with the managed template (AK6101).
+
 ## [0.12.1] - 2026-09-27
 
 ### Fixed

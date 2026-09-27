@@ -14,6 +14,7 @@ from engineering_core.adoption import (
     render_plan,
     rollback_adoption,
 )
+from engineering_core.adoption_pin import plan_pin
 from engineering_core.catalog_model import load_catalog
 
 
@@ -44,6 +45,16 @@ def build_parser() -> argparse.ArgumentParser:
     migrate.add_argument("--format", choices=("human", "json"), default="human")
     migrate.add_argument("--repo-root", default=".")
     migrate.add_argument("--prefer-repo", action="store_true")
+
+    pin_cmd = sub.add_parser(
+        "pin",
+        help="Move the engineering-core release pin only (ref, release_pin, repository, --from sources, pin lines)",
+    )
+    pin_cmd.add_argument("--repo", default=".")
+    pin_cmd.add_argument("--ref", required=True, help="Release tag to pin, for example v0.12.1")
+    pin_cmd.add_argument("--ref-commit", required=True, help="Full commit SHA the tag names (git ls-remote ... 'refs/tags/<tag>^{}')")
+    pin_cmd.add_argument("--apply", action="store_true", help="Write changes; default is dry-run")
+    pin_cmd.add_argument("--format", choices=("human", "json"), default="human")
 
     rollback_cmd = sub.add_parser("rollback", help="Restore the exact pre-adoption bytes recorded in the apply journal")
     rollback_cmd.add_argument("--repo", default=".")
@@ -113,6 +124,8 @@ def main(argv: Sequence[str] | None = None) -> None:
                 ref_commit=args.ref_commit,
                 force=args.force,
             )
+        elif args.command == "pin":
+            plan = plan_pin(Path(args.repo), ref=args.ref, ref_commit=args.ref_commit)
         else:
             plan = plan_migration(
                 Path(args.repo),
@@ -130,7 +143,7 @@ def main(argv: Sequence[str] | None = None) -> None:
         if plan.conflicts:
             _print(plan, args.format, applied=False)
             raise SystemExit(2)
-        apply_plan(plan)
+        apply_plan(plan, journal=args.command != "pin")
         applied = True
 
     _print(plan, args.format, applied=applied)

@@ -457,7 +457,8 @@ def plan_migration(
     )
 
 
-def apply_plan(plan: AdoptionPlan) -> None:
+def apply_plan(plan: AdoptionPlan, *, journal: bool = True) -> None:
+    """Write the plan atomically; `pin` passes journal=False (a pin move is not an adoption)."""
     if plan.conflicts:
         raise ValueError("cannot apply adoption plan with conflicts")
     repo_root = validate_repository_argument(plan.repo)
@@ -490,7 +491,8 @@ def apply_plan(plan: AdoptionPlan) -> None:
         for change, dest in staged:
             if change.after is None:
                 dest.unlink(missing_ok=True)
-        _write_journal(repo_root, plan)
+        if journal:
+            _write_journal(repo_root, plan)
     except Exception:
         for temporary in temps:
             temporary.unlink(missing_ok=True)

@@ -146,7 +146,7 @@ class EntryRoutingTests(unittest.TestCase):
         # commands to the adoption CLI (the freeze defect this test pins).
         source = (Path(__file__).resolve().parents[1]
                   / "src/engineering_core/cli.py").read_text(encoding="utf-8")
-        self.assertIn('("init", "migrate", "rollback", "remove")', source)
+        self.assertIn('("init", "migrate", "pin", "rollback", "remove")', source)
 
 def true_sentinel() -> bool:
     return True

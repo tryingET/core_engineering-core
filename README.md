@@ -61,6 +61,7 @@ Slash commands were removed because they duplicated the skill/CLI, increased cog
 - `catalog.json` — stable machine-readable lane/addendum/discipline/template/profile catalog with ids, kind/category, file names, descriptions, and load/use hints
 - `catalog.pilots.json` — explicitly opt-in experimental catalog overlay; pilot entries are never silently promoted to stable defaults
 - `engineering-core init|migrate` — dry-run-first, idempotent adoption and legacy-migration planners
+- `engineering-core pin` — dry-run-first release-pin move that edits only the pin and keeps hand-written policy and docs
 - `engineering-core scan-adoption` — generic consumer adoption scanner with versioned diagnostics, baselines, and warning-first ratchets; scope owners keep generated rollout dashboards and JSON snapshots
 - `engineering-core sync|check-self` — catalog projection and checkout consistency checks used by CI
 - `engineering-core plan --repo …` — deterministic advisory `engineering-plan-v1` compiler over declarative repository facts and catalog dependencies
@@ -252,6 +253,7 @@ engineering-core scan-adoption \
 - Validate this checkout: `uv tool run --from . engineering-core check-self --repo-root .`
 - Plan safe adoption: `uv tool run --from . engineering-core init --repo /path/to/repo --profile service-api --format json --prefer-repo`
 - Plan legacy migration: `uv tool run --from . engineering-core migrate --repo /path/to/repo --remove-legacy --format json --prefer-repo`
+- Plan a release-pin move: `uv tool run --from . engineering-core pin --repo /path/to/repo --ref v0.12.1 --ref-commit <sha>`
 - Print catalog JSON: `uv tool run --from . engineering-core catalog --pretty --prefer-repo`
 - Print discipline overview: `uv tool run --from . engineering-core overview --prefer-repo` or `uv tool run --from . engineering-core show-discipline README --prefer-repo`
 - Print a template: `uv tool run --from . engineering-core show-template validation-tier-map --prefer-repo`
