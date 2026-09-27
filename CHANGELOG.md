@@ -7,7 +7,7 @@ type: "release-history"
 
 # Changelog
 
-## [Unreleased]
+## [0.12.2] - 2026-09-27
 
 ### Added
 
