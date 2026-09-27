@@ -186,6 +186,19 @@ class LaneConformanceReleaseWiringFeature(unittest.TestCase):
             for runner in re.findall(r"runs-on: (\S+)", text):
                 self.assertRegex(runner, r"^ubuntu-\d{2}\.\d{2}$", workflow.name)
 
+    def test_scenario_releases_are_created_with_their_files_in_one_step(self) -> None:
+        # The repository has GitHub immutable releases enabled: once published, a release
+        # rejects new files (HTTP 422) and its tag can't move, so a release must be created
+        # together with every file, and a bad release is superseded, never re-cut.
+        for workflow in sorted((REPO_ROOT / ".github" / "workflows").glob("*.yml")):
+            text = workflow.read_text(encoding="utf-8")
+            self.assertNotIn("gh release upload", text, workflow.name)
+            self.assertNotIn("--draft", text, workflow.name)
+            for create in re.findall(r"gh release create(?:[^\n]*\\\n)*[^\n]*", text):
+                self.assertIn("SHA256SUMS", create, workflow.name)
+                self.assertIn(".whl", create, workflow.name)
+                self.assertIn(".tar.gz", create, workflow.name)
+
     def test_scenario_ci_toolchain_pins_equal_the_lane_docs(self) -> None:
         harness = load_harness()
         action = (REPO_ROOT / ".github" / "actions" / "lane-toolchains" / "action.yml").read_text(encoding="utf-8")

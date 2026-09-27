@@ -166,19 +166,19 @@ These commands use only explicit owner inputs. They do not discover AK tasks, in
 
 For skill-method adoption, also see the distinct source and recipient revision requirements below; a method pin is not an engineering-core release pin.
 
-For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.11.0 release resolves to `18b87514553533a9902adce3d82ca5830aa48ca7`:
+For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.12.0 release resolves to `3fc8387274dddccbae3d7fab80954ad483c9b681`:
 
 ```json
 {
   "engineering_core": {
     "repository": "https://github.com/tryingET/core_engineering-core.git",
-    "ref": "v0.11.0",
-    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@18b87514553533a9902adce3d82ca5830aa48ca7' engineering-core show <lane>",
+    "ref": "v0.12.0",
+    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681' engineering-core show <lane>",
     "release_pin": {
       "kind": "git-commit",
-      "ref": "v0.11.0",
-      "resolved_commit": "18b87514553533a9902adce3d82ca5830aa48ca7",
-      "source": "git+https://github.com/tryingET/core_engineering-core.git@18b87514553533a9902adce3d82ca5830aa48ca7"
+      "ref": "v0.12.0",
+      "resolved_commit": "3fc8387274dddccbae3d7fab80954ad483c9b681",
+      "source": "git+https://github.com/tryingET/core_engineering-core.git@3fc8387274dddccbae3d7fab80954ad483c9b681"
     }
   }
 }
