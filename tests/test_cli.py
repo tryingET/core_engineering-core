@@ -364,36 +364,36 @@ class CliTests(unittest.TestCase):
         self.assertEqual(__version__, "0.12.2")
 
     def test_self_adoption_uses_current_portable_immutable_release(self) -> None:
-        commit = "5be0f0a294014f2f7aee1ca5adcb6f3c76553e11"
+        commit = "27ff32a529b6da6b27051e97fdb1d95a0a9be4ae"
         repository = "https://github.com/tryingET/core_engineering-core"
         source = f"git+{repository}.git@{commit}"
         policy = json.loads((REPO_ROOT / "policy" / "engineering-lane.json").read_text(encoding="utf-8"))["engineering_core"]
 
         self.assertEqual(policy["repository"], repository)
-        self.assertEqual(policy["ref"], "v0.12.1")
+        self.assertEqual(policy["ref"], "v0.12.2")
         self.assertEqual(
             policy["release_pin"],
-            {"kind": "git-commit", "ref": "v0.12.1", "resolved_commit": commit, "source": source},
+            {"kind": "git-commit", "ref": "v0.12.2", "resolved_commit": commit, "source": source},
         )
         for key in ("catalog_command", "list_disciplines_command", "list_templates_command", "command"):
             self.assertIn(source, policy[key])
             self.assertNotIn("git+file", policy[key])
 
     def test_packaged_adoption_examples_keep_the_released_prior_pin(self) -> None:
-        commit = "5be0f0a294014f2f7aee1ca5adcb6f3c76553e11"
+        commit = "27ff32a529b6da6b27051e97fdb1d95a0a9be4ae"
         source = f"git+https://github.com/tryingET/core_engineering-core.git@{commit}"
         root_template = (REPO_ROOT / "templates" / "engineering.local.template.md").read_text(encoding="utf-8")
         package_template = (REPO_ROOT / "src" / "engineering_core" / "templates" / "engineering.local.template.md").read_text(encoding="utf-8")
         self.assertEqual(root_template, package_template)
         self.assertIn(source, root_template)
-        self.assertIn("v0.12.1", root_template)
+        self.assertIn("v0.12.2", root_template)
         self.assertIn("## Local self-development only", root_template)
         self.assertIn("workspace-local-unpinned", root_template)
         self.assertIn("uv tool -n run --from .", root_template)
 
         adoption = (REPO_ROOT / "docs" / "adoption.md").read_text(encoding="utf-8")
         self.assertIn(source, adoption)
-        self.assertIn("v0.12.1", adoption)
+        self.assertIn("v0.12.2", adoption)
         self.assertIn("For explicitly local self-development", adoption)
 
     def test_plan_rejects_symlink_and_oversized_evidence(self) -> None:

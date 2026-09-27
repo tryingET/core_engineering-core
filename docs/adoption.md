@@ -81,9 +81,9 @@ engineering-core migrate --repo . --remove-legacy --apply
 `engineering-core pin` moves an adopted repository to another release and changes nothing else: `ref`, `release_pin`, `repository`, the `--from` source of every engineering-core command in the policy, and, in `docs/engineering.local.md`, those sources plus the old commit and the old tag on the release-pin line. Key order, formatting, other keys and hand-written text stay as they were. It is a dry run until `--apply`, and it writes no adoption journal (the change is a plain diff to commit). Pass the release tag and the commit it names; the commit can't be derived offline:
 
 ```bash
-git ls-remote https://github.com/tryingET/core_engineering-core.git 'refs/tags/v0.12.1^{}'
-engineering-core pin --repo . --ref v0.12.1 --ref-commit <sha from the line above>
-engineering-core pin --repo . --ref v0.12.1 --ref-commit <sha> --apply
+git ls-remote https://github.com/tryingET/core_engineering-core.git 'refs/tags/v0.12.2^{}'
+engineering-core pin --repo . --ref v0.12.2 --ref-commit <sha from the line above>
+engineering-core pin --repo . --ref v0.12.2 --ref-commit <sha> --apply
 ```
 
 A `ref` that is a raw 40-character commit stays one (some repos' validators require that shape), and a workspace-local source (`git+file`, a checkout path) becomes the portable GitHub source. If an old pin value is also used by an unrelated key, the plan refuses with a conflict instead of guessing.
@@ -180,19 +180,19 @@ These commands use only explicit owner inputs. They do not discover AK tasks, in
 
 For skill-method adoption, also see the distinct source and recipient revision requirements below; a method pin is not an engineering-core release pin.
 
-For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.12.1 release resolves to `5be0f0a294014f2f7aee1ca5adcb6f3c76553e11`:
+For released adoption, prefer an immutable remote commit coordinate over a workspace path or `git+file` URL. The v0.12.2 release resolves to `27ff32a529b6da6b27051e97fdb1d95a0a9be4ae`:
 
 ```json
 {
   "engineering_core": {
     "repository": "https://github.com/tryingET/core_engineering-core.git",
-    "ref": "v0.12.1",
-    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11' engineering-core show <lane>",
+    "ref": "v0.12.2",
+    "command": "uv tool -n run --from 'git+https://github.com/tryingET/core_engineering-core.git@27ff32a529b6da6b27051e97fdb1d95a0a9be4ae' engineering-core show <lane>",
     "release_pin": {
       "kind": "git-commit",
-      "ref": "v0.12.1",
-      "resolved_commit": "5be0f0a294014f2f7aee1ca5adcb6f3c76553e11",
-      "source": "git+https://github.com/tryingET/core_engineering-core.git@5be0f0a294014f2f7aee1ca5adcb6f3c76553e11"
+      "ref": "v0.12.2",
+      "resolved_commit": "27ff32a529b6da6b27051e97fdb1d95a0a9be4ae",
+      "source": "git+https://github.com/tryingET/core_engineering-core.git@27ff32a529b6da6b27051e97fdb1d95a0a9be4ae"
     }
   }
 }
